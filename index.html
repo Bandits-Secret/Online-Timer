@@ -93,6 +93,15 @@ html, body {
 .top-btns { position: absolute; top: 48px; right: 20px; display: flex; gap: 8px; }
 .btn-icon-top { width: 36px; height: 36px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border-md); display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; }
 
+.install-banner { background: var(--indigo); color: white; padding: 12px 16px; display: none; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600; }
+.install-banner.visible { display: flex; }
+.install-btn { background: white; color: var(--indigo); border: none; padding: 6px 12px; border-radius: 999px; font-size: 11px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
+
+/* Insight Banner (Phase 9) */
+.insight-banner { background: var(--yellow-light); border: 1.5px solid rgba(180, 83, 9, 0.2); margin: 12px 16px 0; border-radius: var(--radius-md); padding: 12px 14px; display: none; align-items: center; gap: 10px; box-shadow: var(--shadow-sm); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+.insight-btn { background: var(--yellow); color: white; border: none; padding: 8px 12px; border-radius: 999px; font-size: 10px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
+.insight-btn-dim { background: transparent; color: var(--text-muted); border: 1.5px solid var(--border-md); padding: 8px 12px; border-radius: 999px; font-size: 10px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
+
 .home-stats { display: flex; background: var(--surface); padding: 12px 20px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
 .stat-pill { flex: 1; text-align: center; padding: 0 8px; border-right: 1px solid var(--border); }
 .stat-pill:last-child { border-right: none; }
@@ -122,9 +131,8 @@ html, body {
 .btn-secondary:active { transform: scale(0.97); }
 
 /* ════════════════════════════════════
-   SCREEN 2-6 (Timer, Trans, EOD, Editor, Dash)
+   SCREEN 2-7 (Timer, Trans, EOD, Editor, Dash, Rot)
 ════════════════════════════════════ */
-/* Reusing the CSS from the previous phases to save space, it is exactly the same as Phase 7 for these parts */
 #screen-timer { background: var(--bg); overflow: hidden; display: flex; flex-direction: column; }
 .timer-topbar { display: flex; align-items: center; gap: 12px; padding: 48px 16px 12px; background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0; }
 .timer-home-btn, .timer-skip-btn { width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid var(--border-md); background: var(--surface2); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--text-dim); }
@@ -271,6 +279,13 @@ html, body {
 .lt-stat { flex: 1; }
 .lt-val { font-size: 28px; font-weight: 900; color: var(--orange); line-height: 1; margin-bottom: 4px; }
 .lt-label { font-size: 12px; font-weight: 600; color: var(--text-dim); }
+
+/* Streak Tracker (Phase 9) */
+.streak-dots-wrap { display: flex; gap: 8px; justify-content: center; margin-top: 12px; }
+.streak-dot { width: 22px; height: 22px; border-radius: 6px; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: rgba(0,0,0,0.2); }
+.streak-dot.active { background: var(--orange); color: white; box-shadow: 0 2px 6px rgba(232,93,4,0.3); }
+.streak-label { text-align: center; font-size: 10px; color: var(--text-muted); margin-top: 8px; text-transform: uppercase; letter-spacing: 0.1em; }
+
 .chart-wrap { display: flex; align-items: flex-end; justify-content: space-between; height: 180px; margin-top: 24px; padding-bottom: 20px; border-bottom: 1.5px solid var(--border-md); position: relative; }
 .chart-bar-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; flex: 1; gap: 8px; position: relative; }
 .chart-bar { width: 28px; background: var(--orange-light); border-radius: 4px 4px 0 0; position: relative; display: flex; align-items: flex-end; justify-content: center; }
@@ -280,9 +295,6 @@ html, body {
 .chart-bar-col:hover .chart-val { opacity: 1; }
 .chart-empty-state { text-align: center; padding: 40px 0; font-size: 13px; color: var(--text-muted); font-style: italic; }
 
-/* ════════════════════════════════════
-   SCREEN 7 — ROTATION MODE (NEW)
-════════════════════════════════════ */
 #screen-rotation { background: var(--bg); }
 .rot-hero { background: var(--surface); padding: 20px; border-bottom: 1px solid var(--border); margin-bottom: 16px; box-shadow: var(--shadow-sm); }
 .rot-hero-title { font-size: 16px; font-weight: 900; color: var(--text); margin-bottom: 6px; }
@@ -295,7 +307,6 @@ html, body {
 .rot-input { width: 100%; padding: 10px; border: 1.5px solid var(--border-md); border-radius: var(--radius-sm); font-size: 13px; font-weight: 700; background: var(--surface2); outline: none; }
 .rot-input:focus { border-color: var(--blue); background: var(--surface); }
 
-/* Modal / Toast */
 #toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--text); color: white; padding: 10px 18px; border-radius: var(--radius-xl); font-size: 13px; font-weight: 600; opacity: 0; pointer-events: none; transition: all 0.3s ease; z-index: 9999; }
 #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 500; display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity var(--transition); }
@@ -333,6 +344,9 @@ html, body {
         <button class="btn-icon-top" id="btn-open-dashboard">📊</button>
       </div>
     </div>
+
+    <!-- NEW: Adaptive Insights Banner -->
+    <div class="insight-banner" id="insight-banner"></div>
 
     <div class="home-stats">
       <div class="stat-pill"><div class="stat-pill-val orange" id="stat-deep">—</div><div class="stat-pill-label">Deep Work</div></div>
@@ -431,7 +445,6 @@ html, body {
         <div class="trans-done-name" id="trans-done-name">Deep Work Block 1</div>
         <div class="trans-done-stat" id="trans-done-stat">You focused for 3 hours</div>
       </div>
-      
       <div class="trans-divider"></div>
       <div class="trans-note-wrap"><textarea id="trans-note-input" class="trans-note-input" rows="2" placeholder="Session Note / What did you cover? (Optional)"></textarea></div>
 
@@ -500,6 +513,14 @@ html, body {
       <div class="editor-header-text"><div class="editor-title">Analytics</div><div class="editor-subtitle">Your lifetime performance</div></div>
     </div>
     <div class="dash-content">
+      
+      <!-- NEW: Visual Consistency Tracker (Phase 9) -->
+      <div class="dash-card">
+        <div class="dash-card-title">7-Day Consistency</div>
+        <div class="streak-dots-wrap" id="dash-streak-dots"></div>
+        <div class="streak-label">Past Week</div>
+      </div>
+
       <div class="dash-card">
         <div class="dash-card-title">All-Time Stats</div>
         <div class="lifetime-stats">
@@ -514,13 +535,12 @@ html, body {
     </div>
   </div>
 
-  <!-- ══ SCREEN 7: ROTATION (NEW) ══ -->
+  <!-- ══ SCREEN 7: ROTATION ══ -->
   <div id="screen-rotation" class="screen">
     <div class="dash-header" style="border:none">
       <button class="editor-back" id="rot-back">←</button>
       <div class="editor-header-text"><div class="editor-title">Subject Rotation</div><div class="editor-subtitle">For CA Final & multi-subject days</div></div>
     </div>
-    
     <div class="rot-hero">
       <div class="toggle-row" style="margin-bottom:8px">
         <span class="rot-hero-title">Enable Smart Rotation</span>
@@ -528,10 +548,7 @@ html, body {
       </div>
       <div class="rot-hero-sub">Automatically replaces generic "Deep Work Blocks" with the subjects assigned to today.</div>
     </div>
-
-    <div class="dash-content" id="rot-days-list" style="padding-top:0">
-      <!-- Generated by JS -->
-    </div>
+    <div class="dash-content" id="rot-days-list" style="padding-top:0"></div>
     <div class="editor-save-bar"><button class="btn-primary" id="btn-save-rotation">💾 Save Rotation</button></div>
   </div>
 
@@ -579,19 +596,7 @@ const TYPE_CONFIG = {
   sleep: { label: 'Wind Down', color: '#3730a3', bg: '#eef0fd' }
 };
 
-// Phase 8: Default Subject Rotation for CA Final
-const DEFAULT_ROTATION = {
-  enabled: false,
-  mapping: {
-    1: ['FR', 'AFM'],    // Monday
-    2: ['Audit', 'DT'],  // Tuesday
-    3: ['IDT', 'FR'],    // Wednesday
-    4: ['AFM', 'Audit'], // Thursday
-    5: ['DT', 'IDT'],    // Friday
-    6: ['FR', 'DT'],     // Saturday
-    0: ['Mock', 'Review']// Sunday
-  }
-};
+const DEFAULT_ROTATION = { enabled: false, mapping: { 1: ['FR', 'AFM'], 2: ['Audit', 'DT'], 3: ['IDT', 'FR'], 4: ['AFM', 'Audit'], 5: ['DT', 'IDT'], 6: ['FR', 'DT'], 0: ['Mock', 'Review'] } };
 
 const State = {
   schedule: [], activeSchedule: [], rotation: deepClone(DEFAULT_ROTATION), 
@@ -599,29 +604,65 @@ const State = {
   timer: { running: false, paused: false, currentIndex: 0, sessionStartTs: 0, pausedElapsedMs: 0, totalDayMins: 0, dayElapsedMins: 0, hrvFired: false, hrvAcknowledgedCount: 0, transitionExtras: 0, rafId: null, heartbeatId: null }
 };
 
-const STORAGE_KEYS = { SCHEDULE: 'mastery_schedule', VOLUME: 'mastery_volume', VIBRATION: 'mastery_vibration', STATE: 'mastery_session_state', LAST_DATE: 'mastery_last_date', STREAK: 'mastery_streak', USER_NAME: 'mastery_user_name', HISTORY: 'mastery_history', ROTATION: 'mastery_rotation' };
+const STORAGE_KEYS = { SCHEDULE: 'mastery_schedule', VOLUME: 'mastery_volume', VIBRATION: 'mastery_vibration', STATE: 'mastery_session_state', LAST_DATE: 'mastery_last_date', STREAK: 'mastery_streak', USER_NAME: 'mastery_user_name', HISTORY: 'mastery_history', ROTATION: 'mastery_rotation', STATS: 'mastery_session_stats' };
 function deepClone(obj) { return JSON.parse(JSON.stringify(obj)); }
 function saveSchedule(schedule) { try { localStorage.setItem(STORAGE_KEYS.SCHEDULE, JSON.stringify(schedule)); } catch(e) {} }
 function loadSchedule() { try { const raw = localStorage.getItem(STORAGE_KEYS.SCHEDULE); if (!raw) return null; const p = JSON.parse(raw); if (!Array.isArray(p) || p.length === 0 || !p[0].id) return null; return p; } catch(e) { return null; } }
 function clearSavedSchedule() { localStorage.removeItem(STORAGE_KEYS.SCHEDULE); }
 function loadRotation() { try { const raw = localStorage.getItem(STORAGE_KEYS.ROTATION); return raw ? JSON.parse(raw) : deepClone(DEFAULT_ROTATION); } catch(e) { return deepClone(DEFAULT_ROTATION); } }
 
-// The Magic: Applies rotation mapping dynamically for today's view
 function buildActiveSchedule() {
-  State.activeSchedule = deepClone(State.schedule);
-  if (!State.rotation.enabled) return;
-  const today = new Date().getDay();
-  const todaySubjects = State.rotation.mapping[today] || ['Subject 1', 'Subject 2'];
-  let deepCount = 0;
+  State.activeSchedule = deepClone(State.schedule); if (!State.rotation.enabled) return;
+  const today = new Date().getDay(); const todaySubjects = State.rotation.mapping[today] || ['Subject 1', 'Subject 2']; let deepCount = 0;
   State.activeSchedule.forEach(session => {
-    if (session.type === 'deep' || session.type === 'recall' || session.type === 'review') {
-      // First 2 deep sessions get Subject 1. Remaining get Subject 2.
-      const subj = deepCount < 2 ? todaySubjects[0] : todaySubjects[1];
-      session.name = `${subj} — ${session.name}`;
-      deepCount++;
-    }
+    if (session.type === 'deep' || session.type === 'recall' || session.type === 'review') { const subj = deepCount < 2 ? todaySubjects[0] : todaySubjects[1]; session.name = `${subj} — ${session.name}`; deepCount++; }
   });
 }
+
+// Phase 9: AI Adaptive Insights Tracker
+function recordSessionStat(id, status) {
+  let stats = JSON.parse(localStorage.getItem(STORAGE_KEYS.STATS) || '{}');
+  if(!stats[id]) stats[id] = { skips: 0, comps: 0 };
+  if(status === 'skipped') stats[id].skips++; else { stats[id].comps++; stats[id].skips = 0; } // reset skip count if completed
+  localStorage.setItem(STORAGE_KEYS.STATS, JSON.stringify(stats));
+}
+
+function renderInsights() {
+  let stats = JSON.parse(localStorage.getItem(STORAGE_KEYS.STATS) || '{}');
+  const banner = document.getElementById('insight-banner');
+  banner.innerHTML = ''; banner.style.display = 'none';
+  for(let id in stats) {
+    if(stats[id].skips >= 3) {
+      const session = State.schedule.find(s => s.id === id);
+      if(session) {
+        banner.innerHTML = `
+          <div style="flex:1">
+            <div style="font-weight:800;font-size:12px;color:var(--yellow)">💡 Smart Suggestion</div>
+            <div style="font-size:11px;color:var(--text-dim);margin-top:2px;line-height:1.4">You often skip "${session.name}". Shorten it?</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <button class="insight-btn" onclick="applyInsight('${id}', 'shorten')">Shorten 50%</button>
+            <button class="insight-btn-dim" onclick="applyInsight('${id}', 'dismiss')">Dismiss</button>
+          </div>
+        `;
+        banner.style.display = 'flex'; break; 
+      }
+    }
+  }
+}
+
+window.applyInsight = function(id, action) {
+  let stats = JSON.parse(localStorage.getItem(STORAGE_KEYS.STATS) || '{}');
+  if(action === 'shorten') {
+    const idx = State.schedule.findIndex(s => s.id === id);
+    if(idx > -1) {
+      State.schedule[idx].durationMins = Math.max(5, Math.floor(State.schedule[idx].durationMins * 0.5));
+      State.isCustom = true; saveSchedule(State.schedule); showToast('✓ Session shortened permanently');
+    }
+  }
+  stats[id].skips = 0; localStorage.setItem(STORAGE_KEYS.STATS, JSON.stringify(stats)); renderHome();
+}
+
 
 // ════════════════════════════════════════════════════════════
 //  SECTION G — UI UTILITIES & HOME
@@ -646,7 +687,7 @@ function renderHomeHeader() {
 }
 
 function renderHomeStats() {
-  const s = State.activeSchedule; // Stats based on active
+  const s = State.activeSchedule;
   document.getElementById('stat-deep').textContent = fmtDur(s.filter(x => ['deep','recall'].includes(x.type)).reduce((a,b) => a + b.durationMins, 0));
   document.getElementById('stat-nsdr').textContent = `${s.filter(x => x.type === 'nsdr').length}×`;
   document.getElementById('stat-sessions').textContent = s.length;
@@ -662,7 +703,7 @@ function renderSessionList() {
     item.addEventListener('click', () => openQuickModal(i)); container.appendChild(item);
   });
 }
-function renderHome() { buildActiveSchedule(); renderHomeHeader(); renderHomeStats(); renderSessionList(); }
+function renderHome() { buildActiveSchedule(); renderHomeHeader(); renderInsights(); renderHomeStats(); renderSessionList(); }
 
 function openQuickModal(index) {
   State.modalSessionIndex = index; State.modalTempDur = State.activeSchedule[index].durationMins;
@@ -766,6 +807,7 @@ function resumeTimer() { if (!State.timer.paused) return; State.timer.paused = f
 function advanceToNextSession() {
   cancelAnimationFrame(State.timer.rafId); clearTimeout(State.timer.heartbeatId); vibrate(VIBRATION_PATTERNS.skip);
   const s = State.activeSchedule[State.timer.currentIndex]; State.dailyLog.push({ ...s, status: 'skipped' }); State.timer.dayElapsedMins += s.durationMins;
+  recordSessionStat(s.id, 'skipped'); // Phase 9 Tracker
   if (State.timer.currentIndex + 1 >= State.activeSchedule.length) return endDay();
   beginSession(State.timer.currentIndex + 1);
 }
@@ -773,6 +815,7 @@ function advanceToNextSession() {
 function onSessionComplete() {
   cancelAnimationFrame(State.timer.rafId); clearTimeout(State.timer.heartbeatId);
   const s = State.activeSchedule[State.timer.currentIndex]; State.dailyLog.push({ ...s, status: 'completed' }); State.timer.dayElapsedMins += s.durationMins;
+  recordSessionStat(s.id, 'completed'); // Phase 9 Tracker
   const nextSession = State.activeSchedule[State.timer.currentIndex + 1];
   showTransitionCard(s, nextSession);
 }
@@ -916,6 +959,18 @@ function renderDashboard() {
   const history = JSON.parse(localStorage.getItem(STORAGE_KEYS.HISTORY) || '[]');
   let totalMins = 0; history.forEach(day => totalMins += (day.focusMins || 0));
   document.getElementById('dash-lt-hours').textContent = Math.floor(totalMins / 60); document.getElementById('dash-lt-days').textContent = history.length;
+  
+  // Phase 9: Visual Consistency Tracker (Dots)
+  const dotsContainer = document.getElementById('dash-streak-dots');
+  let dotsHTML = '';
+  for (let i = 6; i >= 0; i--) {
+    let d = new Date(); d.setDate(d.getDate() - i); const dateStr = d.toISOString().split('T')[0];
+    const dayData = history.find(h => h.date === dateStr); const isActive = dayData && dayData.focusMins > 0;
+    dotsHTML += `<div class="streak-dot ${isActive ? 'active' : ''}">${d.toLocaleDateString('en-US', {weekday:'short'}).charAt(0)}</div>`;
+  }
+  dotsContainer.innerHTML = dotsHTML;
+
+  // Chart
   const chartContainer = document.getElementById('dash-chart-container');
   if (history.length === 0) { chartContainer.innerHTML = '<div class="chart-empty-state">Complete your first day to see the chart!</div>'; return; }
   const last7Days = [];
@@ -934,28 +989,12 @@ function renderDashboard() {
 }
 
 function openRotationManager() {
-  const tgl = document.getElementById('rot-toggle-main');
-  tgl.classList.toggle('on', State.rotation.enabled);
+  const tgl = document.getElementById('rot-toggle-main'); tgl.classList.toggle('on', State.rotation.enabled);
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const list = document.getElementById('rot-days-list'); list.innerHTML = '';
-  
   days.forEach((dayName, idx) => {
     const s = State.rotation.mapping[idx];
-    list.innerHTML += `
-      <div class="rot-day-row">
-        <div class="rot-day-name">${dayName}</div>
-        <div class="rot-inputs">
-          <div class="rot-input-group">
-            <span class="rot-input-label">Subject 1 (Blocks 1 & 2)</span>
-            <input type="text" class="rot-input rot-inp-1" data-day="${idx}" value="${s[0]}">
-          </div>
-          <div class="rot-input-group">
-            <span class="rot-input-label">Subject 2 (Blocks 3+)</span>
-            <input type="text" class="rot-input rot-inp-2" data-day="${idx}" value="${s[1]}">
-          </div>
-        </div>
-      </div>
-    `;
+    list.innerHTML += `<div class="rot-day-row"><div class="rot-day-name">${dayName}</div><div class="rot-inputs"><div class="rot-input-group"><span class="rot-input-label">Subject 1 (Blocks 1 & 2)</span><input type="text" class="rot-input rot-inp-1" data-day="${idx}" value="${s[0]}"></div><div class="rot-input-group"><span class="rot-input-label">Subject 2 (Blocks 3+)</span><input type="text" class="rot-input rot-inp-2" data-day="${idx}" value="${s[1]}"></div></div></div>`;
   });
   showScreen('screen-rotation');
 }
