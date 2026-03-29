@@ -8,7 +8,6 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Mastery Timer">
-<!-- Points to your new static manifest file for GitHub Pages -->
 <link rel="manifest" href="manifest.json">
 <title>Mastery Timer</title>
 
@@ -53,7 +52,6 @@
 
   --font-display: 'Helvetica Neue', Arial, sans-serif;
   --font-mono:    'Courier New', monospace;
-
   --transition: 0.22s cubic-bezier(0.4,0,0.2,1);
 }
 
@@ -79,7 +77,7 @@ html, body {
    SCREEN 1 — HOME
 ════════════════════════════════════ */
 #screen-home { background: var(--bg); }
-.home-header { background: var(--surface); padding: 52px 20px 20px; border-bottom: 1px solid var(--border); box-shadow: var(--shadow-sm); flex-shrink: 0; }
+.home-header { background: var(--surface); padding: 52px 20px 20px; border-bottom: 1px solid var(--border); box-shadow: var(--shadow-sm); flex-shrink: 0; position: relative; }
 .home-greeting { font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; border-radius: 4px; padding: 2px 6px; margin-left: -6px; transition: background 0.2s; }
 .home-greeting:active { background: var(--border); }
 .home-title { font-size: 28px; font-weight: 900; letter-spacing: -0.02em; color: var(--text); line-height: 1; margin-bottom: 4px; }
@@ -91,6 +89,8 @@ html, body {
 .schedule-badge, .streak-badge { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; }
 .schedule-badge { background: var(--orange-light); color: var(--orange); border: 1px solid rgba(232,93,4,0.2); }
 .streak-badge { background: var(--red-light); color: var(--red); border: 1px solid rgba(193,18,31,0.2); display: none; }
+
+.btn-stats-top { position: absolute; top: 48px; right: 20px; width: 36px; height: 36px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border-md); display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; }
 
 .install-banner { background: var(--indigo); color: white; padding: 12px 16px; display: none; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600; }
 .install-banner.visible { display: flex; }
@@ -192,7 +192,7 @@ html, body {
 .skip-btn-confirm { background: var(--red); color: white; box-shadow: 0 3px 12px rgba(193,18,31,0.3); }
 
 /* ════════════════════════════════════
-   SCREEN 3 — TRANSITION CARD (Journal Added)
+   SCREEN 3 — TRANSITION CARD
 ════════════════════════════════════ */
 #screen-transition { background: var(--surface); justify-content: center; }
 .transition-wrap { display: flex; flex-direction: column; align-items: center; padding: 48px 28px 36px; height: 100%; justify-content: center; }
@@ -281,6 +281,29 @@ html, body {
 .btn-add-session { width: 100%; padding: 14px; border-radius: var(--radius-md); background: var(--surface); color: var(--text-dim); border: 2px dashed var(--border-md); font-size: 14px; font-weight: 700; margin-top: 4px; }
 .editor-save-bar { position: fixed; bottom: 0; left: 0; right: 0; padding: 12px 16px 28px; background: linear-gradient(to top, var(--bg) 70%, transparent); z-index: 100; }
 
+/* ════════════════════════════════════
+   SCREEN 6 — ANALYTICS DASHBOARD
+════════════════════════════════════ */
+#screen-dashboard { background: var(--bg); }
+.dash-header { background: var(--surface); padding: 52px 20px 20px; border-bottom: 1px solid var(--border); box-shadow: var(--shadow-sm); flex-shrink: 0; display: flex; align-items: center; gap: 12px; }
+.dash-content { padding: 20px; overflow-y: auto; flex: 1; }
+.dash-card { background: var(--surface); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+.dash-card-title { font-size: 11px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 16px; }
+.lifetime-stats { display: flex; gap: 12px; }
+.lt-stat { flex: 1; }
+.lt-val { font-size: 28px; font-weight: 900; color: var(--orange); line-height: 1; margin-bottom: 4px; }
+.lt-label { font-size: 12px; font-weight: 600; color: var(--text-dim); }
+
+/* Custom CSS Bar Chart */
+.chart-wrap { display: flex; align-items: flex-end; justify-content: space-between; height: 180px; margin-top: 24px; padding-bottom: 20px; border-bottom: 1.5px solid var(--border-md); position: relative; }
+.chart-bar-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; flex: 1; gap: 8px; position: relative; }
+.chart-bar { width: 28px; background: var(--orange-light); border-radius: 4px 4px 0 0; position: relative; display: flex; align-items: flex-end; justify-content: center; }
+.chart-bar-fill { width: 100%; background: var(--orange); border-radius: 4px 4px 0 0; transition: height 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); height: 0%; }
+.chart-label { font-size: 10px; font-weight: 700; color: var(--text-muted); position: absolute; bottom: -24px; text-transform: uppercase; }
+.chart-val { font-size: 10px; font-weight: 800; color: var(--text); position: absolute; top: -18px; opacity: 0; transition: opacity 0.3s; }
+.chart-bar-col:hover .chart-val { opacity: 1; }
+.chart-empty-state { text-align: center; padding: 40px 0; font-size: 13px; color: var(--text-muted); font-style: italic; }
+
 /* Modal / Toast */
 #toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--text); color: white; padding: 10px 18px; border-radius: var(--radius-xl); font-size: 13px; font-weight: 600; opacity: 0; pointer-events: none; transition: all 0.3s ease; z-index: 9999; }
 #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -291,7 +314,6 @@ html, body {
 .modal-handle { width: 40px; height: 4px; border-radius: 2px; background: var(--border-md); margin: 0 auto 16px; }
 .modal-title { font-size: 18px; font-weight: 900; color: var(--text); margin-bottom: 4px; }
 .modal-subtitle { font-size: 12px; color: var(--text-muted); margin-bottom: 20px; }
-.hidden { display: none !important; }
 </style>
 </head>
 
@@ -315,6 +337,8 @@ html, body {
           <div class="schedule-badge" id="schedule-badge">Default</div>
         </div>
       </div>
+      <!-- NEW: Stats Button -->
+      <button class="btn-stats-top" id="btn-open-dashboard">📊</button>
     </div>
 
     <div class="home-stats">
@@ -413,10 +437,7 @@ html, body {
       </div>
       
       <div class="trans-divider"></div>
-      
-      <div class="trans-note-wrap">
-        <textarea id="trans-note-input" class="trans-note-input" rows="2" placeholder="Session Note / What did you cover? (Optional)"></textarea>
-      </div>
+      <div class="trans-note-wrap"><textarea id="trans-note-input" class="trans-note-input" rows="2" placeholder="Session Note / What did you cover? (Optional)"></textarea></div>
 
       <div class="trans-next-block" id="trans-next-block">
         <div class="trans-next-label">UP NEXT</div>
@@ -476,6 +497,30 @@ html, body {
     <div class="editor-save-bar"><button class="btn-primary" id="btn-save-schedule">💾 Save Schedule</button></div>
   </div>
 
+  <!-- ══ SCREEN 6: DASHBOARD (NEW in Phase 7) ══ -->
+  <div id="screen-dashboard" class="screen">
+    <div class="dash-header">
+      <button class="editor-back" id="dash-back">←</button>
+      <div class="editor-header-text"><div class="editor-title">Analytics</div><div class="editor-subtitle">Your lifetime performance</div></div>
+    </div>
+    <div class="dash-content">
+      
+      <div class="dash-card">
+        <div class="dash-card-title">All-Time Stats</div>
+        <div class="lifetime-stats">
+          <div class="lt-stat"><div class="lt-val" id="dash-lt-hours">0</div><div class="lt-label">Focus Hours</div></div>
+          <div class="lt-stat"><div class="lt-val" id="dash-lt-days" style="color:var(--blue)">0</div><div class="lt-label">Days Logged</div></div>
+        </div>
+      </div>
+
+      <div class="dash-card">
+        <div class="dash-card-title">Last 7 Days (Focus Hours)</div>
+        <div id="dash-chart-container" class="chart-empty-state">Complete a day to see your chart!</div>
+      </div>
+
+    </div>
+  </div>
+
 </div>
 
 <!-- TOAST & MODAL -->
@@ -526,7 +571,7 @@ const State = {
   timer: { running: false, paused: false, currentIndex: 0, sessionStartTs: 0, pausedElapsedMs: 0, totalDayMins: 0, dayElapsedMins: 0, hrvFired: false, hrvAcknowledgedCount: 0, transitionExtras: 0, rafId: null, heartbeatId: null }
 };
 
-const STORAGE_KEYS = { SCHEDULE: 'mastery_schedule', VOLUME: 'mastery_volume', VIBRATION: 'mastery_vibration', STATE: 'mastery_session_state', LAST_DATE: 'mastery_last_date', STREAK: 'mastery_streak', USER_NAME: 'mastery_user_name' };
+const STORAGE_KEYS = { SCHEDULE: 'mastery_schedule', VOLUME: 'mastery_volume', VIBRATION: 'mastery_vibration', STATE: 'mastery_session_state', LAST_DATE: 'mastery_last_date', STREAK: 'mastery_streak', USER_NAME: 'mastery_user_name', HISTORY: 'mastery_history' };
 function deepClone(obj) { return JSON.parse(JSON.stringify(obj)); }
 function saveSchedule(schedule) { try { localStorage.setItem(STORAGE_KEYS.SCHEDULE, JSON.stringify(schedule)); } catch(e) {} }
 function loadSchedule() { try { const raw = localStorage.getItem(STORAGE_KEYS.SCHEDULE); if (!raw) return null; const p = JSON.parse(raw); if (!Array.isArray(p) || p.length === 0 || !p[0].id) return null; return p; } catch(e) { return null; } }
@@ -544,15 +589,12 @@ function showToast(msg, duration = 2200) { const el = document.getElementById('t
 function showScreen(screenId) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active', 'exit-left')); const target = document.getElementById(screenId); if (target) { target.classList.add('active'); target.scrollTop = 0; } }
 
 function renderHomeHeader() {
-  const h = new Date().getHours();
-  const timeStr = h >= 17 ? 'Good evening' : h >= 12 ? 'Good afternoon' : 'Good morning';
+  const h = new Date().getHours(); const timeStr = h >= 17 ? 'Good evening' : h >= 12 ? 'Good afternoon' : 'Good morning';
   const name = localStorage.getItem(STORAGE_KEYS.USER_NAME) || 'Master';
   document.getElementById('home-greeting').innerHTML = `${timeStr}, ${name} <span style="opacity:0.6;font-size:10px">✎</span>`;
   document.getElementById('home-date').textContent = new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   document.getElementById('schedule-badge').textContent = State.isCustom ? 'Custom Schedule' : 'Default Schedule';
-  
-  const streak = parseInt(localStorage.getItem(STORAGE_KEYS.STREAK) || '0');
-  const badge = document.getElementById('streak-badge');
+  const streak = parseInt(localStorage.getItem(STORAGE_KEYS.STREAK) || '0'); const badge = document.getElementById('streak-badge');
   if (streak > 0) { badge.textContent = `🔥 ${streak} Day Streak`; badge.style.display = 'inline-block'; } else badge.style.display = 'none';
 }
 
@@ -664,9 +706,7 @@ async function startDay() {
 }
 
 function beginSession(i) {
-  // Capture Note from transition screen if applicable
   if (State.dailyLog.length > 0) { const noteEl = document.getElementById('trans-note-input'); if (noteEl && noteEl.value.trim() && State.dailyLog[State.dailyLog.length - 1].status === 'completed') State.dailyLog[State.dailyLog.length - 1].note = noteEl.value.trim(); }
-  
   State.timer.currentIndex = i; State.timer.running = true; State.timer.paused = false; State.timer.hrvFired = false; State.timer.transitionExtras = 0; State.timer.sessionStartTs = Date.now(); State.timer.pausedElapsedMs = 0;
   updateTimerUI(i); showScreen('screen-timer');
   const btn = document.getElementById('btn-pause-resume'); btn.textContent = '⏸'; btn.classList.remove('paused');
@@ -691,7 +731,7 @@ function onSessionComplete() {
 }
 
 // ════════════════════════════════════════════════════════════
-//  STREAK & EXPORT
+//  STREAK, HISTORY & EXPORT (NEW Phase 7 DB)
 // ════════════════════════════════════════════════════════════
 function updateStreak(skippedCount) {
   if (skippedCount > 1) return; 
@@ -700,6 +740,15 @@ function updateStreak(skippedCount) {
   if (lastDateStr === today) return;
   if (lastDateStr) { const diffDays = (new Date() - new Date(lastDateStr)) / 86400000; if (diffDays <= 2) streak++; else streak = 1; } else streak = 1;
   localStorage.setItem(STORAGE_KEYS.LAST_DATE, today); localStorage.setItem(STORAGE_KEYS.STREAK, streak);
+}
+
+function saveToHistory(focusMins) {
+  const todayDate = new Date().toISOString().split('T')[0];
+  let history = JSON.parse(localStorage.getItem(STORAGE_KEYS.HISTORY) || '[]');
+  const existingIdx = history.findIndex(h => h.date === todayDate);
+  const data = { date: todayDate, focusMins: focusMins, totalSessions: State.schedule.length };
+  if (existingIdx >= 0) history[existingIdx] = data; else history.push(data);
+  localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(history));
 }
 
 function exportDailyLog() {
@@ -728,7 +777,9 @@ function renderEOD() {
   const t = document.querySelector('.eod-title'), s = document.querySelector('.eod-subtitle');
   if (skip === 0) { t.textContent = 'Perfect Day 🏆'; s.innerHTML = 'Every session completed.<br>Incredible discipline.'; document.getElementById('eod-skip-count').classList.add('blue'); } else { t.textContent = 'Day Complete 🎯'; s.innerHTML = 'You made it through the schedule.<br>Sleep now — your brain consolidates tonight.'; document.getElementById('eod-skip-count').classList.add('red'); }
   const hrvEl = document.getElementById('eod-hrv-stat'); if (State.timer.hrvAcknowledgedCount > 0) { document.getElementById('eod-hrv-count').textContent = State.timer.hrvAcknowledgedCount; hrvEl.style.display = 'inline-flex'; } else hrvEl.style.display = 'none';
+  
   updateStreak(skip);
+  saveToHistory(focus); // Phase 7: Save to historical memory
 }
 
 let transCountdownId = null;
@@ -817,6 +868,64 @@ function checkCrashRecovery() {
 }
 
 // ════════════════════════════════════════════════════════════
+//  SECTION K — DASHBOARD (Phase 7 Engine)
+// ════════════════════════════════════════════════════════════
+function renderDashboard() {
+  const history = JSON.parse(localStorage.getItem(STORAGE_KEYS.HISTORY) || '[]');
+  
+  // Calculate Lifetime Stats
+  let totalMins = 0;
+  history.forEach(day => totalMins += (day.focusMins || 0));
+  document.getElementById('dash-lt-hours').textContent = Math.floor(totalMins / 60);
+  document.getElementById('dash-lt-days').textContent = history.length;
+
+  // Build 7-Day Chart
+  const chartContainer = document.getElementById('dash-chart-container');
+  if (history.length === 0) {
+    chartContainer.innerHTML = '<div class="chart-empty-state">Complete your first day to see the chart!</div>';
+    return;
+  }
+
+  // Get last 7 days from today
+  const last7Days = [];
+  for (let i = 6; i >= 0; i--) {
+    let d = new Date(); d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().split('T')[0];
+    const dayData = history.find(h => h.date === dateStr);
+    last7Days.push({ 
+      label: d.toLocaleDateString('en-US', {weekday:'short'}).charAt(0), 
+      mins: dayData ? dayData.focusMins : 0 
+    });
+  }
+
+  const maxMins = Math.max(...last7Days.map(d => d.mins), 60); // Minimum scale is 1 hour
+  
+  let chartHTML = `<div class="chart-wrap">`;
+  last7Days.forEach((day, index) => {
+    const heightPct = Math.min(100, Math.max(0, (day.mins / maxMins) * 100));
+    chartHTML += `
+      <div class="chart-bar-col">
+        <div class="chart-val">${Math.floor(day.mins / 60)}h</div>
+        <div class="chart-bar" style="height: 100%">
+          <div class="chart-bar-fill" style="height: 0%" data-target-height="${heightPct}%"></div>
+        </div>
+        <div class="chart-label">${day.label}</div>
+      </div>
+    `;
+  });
+  chartHTML += `</div>`;
+  
+  chartContainer.innerHTML = chartHTML;
+
+  // Animate bars gracefully
+  setTimeout(() => {
+    chartContainer.querySelectorAll('.chart-bar-fill').forEach(bar => {
+      bar.style.height = bar.getAttribute('data-target-height');
+    });
+  }, 50);
+}
+
+// ════════════════════════════════════════════════════════════
 //  SECTION I & J — PWA & INIT
 // ════════════════════════════════════════════════════════════
 function initPWA() {
@@ -824,9 +933,7 @@ function initPWA() {
   window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; banner.classList.add('visible'); });
   installBtn.addEventListener('click', async () => { banner.classList.remove('visible'); if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') showToast('✓ App installed successfully'); deferredPrompt = null; } });
   if (window.matchMedia('(display-mode: standalone)').matches) banner.classList.remove('visible');
-  
-  // Register proper Service Worker for GitHub Pages offline support
-  if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(() => console.log('SW setup skipped (expected if not on HTTPs)')); }); }
+  if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(() => console.log('SW setup skipped')); }); }
 }
 
 function initApp() {
@@ -843,17 +950,15 @@ function initApp() {
   document.getElementById('btn-pause-resume').addEventListener('click', () => { if (State.timer.paused) resumeTimer(); else pauseTimer(); });
   document.getElementById('hrv-alert-dismiss').addEventListener('click', () => { document.getElementById('hrv-alert').classList.remove('visible'); State.timer.hrvAcknowledgedCount++; });
   
-  document.getElementById('trans-btn-start').addEventListener('click', () => {
-    clearTransitionCountdown();
-    const isLast = (State.timer.currentIndex + 1 >= State.schedule.length);
-    if (isLast) finishDayFromTransition(); else beginSession(State.timer.currentIndex + 1);
-  });
-  
+  document.getElementById('trans-btn-start').addEventListener('click', () => { clearTransitionCountdown(); const isLast = (State.timer.currentIndex + 1 >= State.schedule.length); if (isLast) finishDayFromTransition(); else beginSession(State.timer.currentIndex + 1); });
   document.getElementById('trans-btn-add').addEventListener('click', () => { State.timer.transitionExtras += 5; document.getElementById('trans-btn-add').textContent = `+ 5 min (${State.timer.transitionExtras}m added)`; showToast('+5 min added'); });
   document.getElementById('btn-edit').addEventListener('click', openEditor);
   document.getElementById('editor-back').addEventListener('click', () => { showScreen('screen-home'); renderHome(); });
   document.getElementById('btn-save-schedule').addEventListener('click', saveScheduleFromEditor);
   
+  document.getElementById('btn-open-dashboard').addEventListener('click', () => { renderDashboard(); showScreen('screen-dashboard'); });
+  document.getElementById('dash-back').addEventListener('click', () => { showScreen('screen-home'); renderHome(); });
+
   document.getElementById('btn-reset-schedule').addEventListener('click', () => {
     let sheet = document.getElementById('reset-sheet');
     if (!sheet) {
