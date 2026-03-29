@@ -1,0 +1,15 @@
+{
+  "name": "Mastery Timer",
+  "short_name": "Mastery",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f7f5f0",
+  "theme_color": "#f7f5f0",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Ccircle cx='256' cy='256' r='256' fill='%23e85d04'/%3E%3Ctext x='256' y='340' font-size='240' font-family='sans-serif' text-anchor='middle' fill='%23ffffff'%3E⏱%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
