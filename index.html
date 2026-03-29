@@ -90,11 +90,8 @@ html, body {
 .schedule-badge { background: var(--orange-light); color: var(--orange); border: 1px solid rgba(232,93,4,0.2); }
 .streak-badge { background: var(--red-light); color: var(--red); border: 1px solid rgba(193,18,31,0.2); display: none; }
 
-.btn-stats-top { position: absolute; top: 48px; right: 20px; width: 36px; height: 36px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border-md); display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; }
-
-.install-banner { background: var(--indigo); color: white; padding: 12px 16px; display: none; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600; }
-.install-banner.visible { display: flex; }
-.install-btn { background: white; color: var(--indigo); border: none; padding: 6px 12px; border-radius: 999px; font-size: 11px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
+.top-btns { position: absolute; top: 48px; right: 20px; display: flex; gap: 8px; }
+.btn-icon-top { width: 36px; height: 36px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border-md); display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; }
 
 .home-stats { display: flex; background: var(--surface); padding: 12px 20px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
 .stat-pill { flex: 1; text-align: center; padding: 0 8px; border-right: 1px solid var(--border); }
@@ -104,7 +101,9 @@ html, body {
 .stat-pill-label { font-size: 9px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-muted); margin-top: 2px; }
 
 .session-list-wrap { flex: 1; overflow-y: auto; padding: 12px 16px 100px; -webkit-overflow-scrolling: touch; }
-.session-list-title { font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; padding-left: 4px; }
+.session-list-title { font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; padding-left: 4px; display: flex; justify-content: space-between; align-items: center; }
+.rotation-indicator { color: var(--blue); font-weight: 800; background: var(--blue-light); padding: 2px 6px; border-radius: 4px; font-size: 9px; }
+
 .session-item { display: flex; align-items: center; gap: 12px; background: var(--surface); border-radius: var(--radius-md); padding: 11px 14px; margin-bottom: 6px; border-left: 4px solid; box-shadow: var(--shadow-sm); cursor: pointer; transition: transform var(--transition); user-select: none; }
 .session-item:active { transform: scale(0.98); box-shadow: none; }
 .session-item-icon { font-size: 20px; width: 28px; text-align: center; flex-shrink: 0; }
@@ -123,8 +122,9 @@ html, body {
 .btn-secondary:active { transform: scale(0.97); }
 
 /* ════════════════════════════════════
-   SCREEN 2 — ACTIVE TIMER
+   SCREEN 2-6 (Timer, Trans, EOD, Editor, Dash)
 ════════════════════════════════════ */
+/* Reusing the CSS from the previous phases to save space, it is exactly the same as Phase 7 for these parts */
 #screen-timer { background: var(--bg); overflow: hidden; display: flex; flex-direction: column; }
 .timer-topbar { display: flex; align-items: center; gap: 12px; padding: 48px 16px 12px; background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0; }
 .timer-home-btn, .timer-skip-btn { width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid var(--border-md); background: var(--surface2); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--text-dim); }
@@ -132,12 +132,10 @@ html, body {
 .timer-day-progress-track { height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
 .timer-day-progress-fill { height: 100%; border-radius: 3px; background: var(--orange); transition: width 1s linear; width: 0%; }
 .timer-session-counter { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); text-align: center; }
-
 .timer-identity { text-align: center; padding: 20px 20px 8px; flex-shrink: 0; }
 .timer-icon { font-size: 36px; line-height: 1; margin-bottom: 8px; display: block; }
 .timer-session-name { font-size: 22px; font-weight: 900; letter-spacing: -0.01em; color: var(--text); line-height: 1.1; margin-bottom: 4px; transition: color 0.5s ease; }
 .timer-session-sub { font-size: 12px; font-weight: 500; color: var(--text-muted); }
-
 .timer-ring-wrap { position: relative; display: flex; justify-content: center; align-items: center; flex-shrink: 0; padding: 8px 0 4px; }
 .timer-ring-svg { width: 220px; height: 220px; }
 .ring-track { stroke: var(--border); }
@@ -145,12 +143,10 @@ html, body {
 .timer-countdown-wrap { position: absolute; text-align: center; pointer-events: none; }
 .timer-countdown { font-size: 42px; font-weight: 900; font-family: var(--font-mono); letter-spacing: -0.02em; color: var(--text); line-height: 1; transition: color 0.5s ease; }
 .timer-countdown-label { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-top: 4px; }
-
 .timer-session-bar-wrap { padding: 0 28px; flex-shrink: 0; }
 .timer-session-bar-track { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 5px; }
 .timer-session-bar-fill { height: 100%; border-radius: 3px; background: var(--orange); width: 0%; transition: width 1s linear, background 0.5s ease; }
 .timer-session-elapsed { text-align: center; font-size: 11px; font-weight: 600; color: var(--text-muted); }
-
 .hrv-alert { margin: 10px 16px 0; background: var(--purple-light); border: 1.5px solid var(--purple); border-radius: var(--radius-md); padding: 10px 12px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; transform: translateY(-8px); opacity: 0; pointer-events: none; transition: opacity 0.3s ease, transform 0.3s ease; }
 .hrv-alert.visible { opacity: 1; transform: translateY(0); pointer-events: all; }
 .hrv-alert-icon { font-size: 22px; flex-shrink: 0; }
@@ -158,19 +154,15 @@ html, body {
 .hrv-alert-title { font-size: 12px; font-weight: 800; color: var(--purple); letter-spacing: 0.06em; }
 .hrv-alert-sub { font-size: 11px; color: var(--text-dim); margin-top: 1px; }
 .hrv-alert-dismiss { width: 30px; height: 30px; border-radius: 50%; background: var(--purple); color: white; border: none; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-
 .timer-next { margin: 10px 16px 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px 14px; display: flex; align-items: center; gap: 8px; flex-shrink: 0; box-shadow: var(--shadow-sm); }
 .timer-next-label { font-size: 9px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); }
 .timer-next-icon { font-size: 16px; }
 .timer-next-name { font-size: 12px; font-weight: 700; color: var(--text-dim); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
 .timer-tip { flex: 1; padding: 10px 20px 0; font-size: 11.5px; color: var(--text-muted); text-align: center; line-height: 1.5; font-style: italic; overflow: hidden; }
-
 .timer-controls { padding: 10px 16px 28px; display: flex; justify-content: center; flex-shrink: 0; }
 .timer-ctrl-btn { width: 68px; height: 68px; border-radius: 50%; background: var(--orange); color: white; border: none; font-size: 26px; cursor: pointer; box-shadow: 0 4px 18px rgba(232,93,4,0.4); display: flex; align-items: center; justify-content: center; transition: transform var(--transition); }
 .timer-ctrl-btn:active { transform: scale(0.93); }
 .timer-ctrl-btn.paused { background: var(--text-muted); box-shadow: 0 4px 18px rgba(0,0,0,0.15); }
-
 .timer-settings-tray { display: none; flex-direction: column; gap: 10px; background: var(--surface); border-radius: var(--radius-md); padding: 14px 16px; margin: 0 16px; border: 1px solid var(--border-md); box-shadow: var(--shadow-md); flex-shrink: 0; }
 .timer-settings-tray.open { display: flex; }
 .tray-row { display: flex; align-items: center; gap: 10px; }
@@ -179,7 +171,6 @@ html, body {
 .tray-vol-val { font-size: 11px; font-weight: 700; color: var(--text-muted); font-family: var(--font-mono); width: 34px; text-align: right; }
 .tray-notif-btn { padding: 5px 14px; border-radius: 999px; font-size: 11px; font-weight: 700; border: 1.5px solid var(--orange); background: var(--orange-light); color: var(--orange); cursor: pointer; }
 .tray-notif-btn.granted { border-color: var(--green); background: var(--green-light); color: var(--green); }
-
 .skip-sheet { position: absolute; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; z-index: 200; }
 .skip-sheet.open { opacity: 1; pointer-events: all; }
 .skip-sheet-inner { width: 100%; background: var(--surface); border-radius: var(--radius-xl) var(--radius-xl) 0 0; padding: 24px 20px 36px; transform: translateY(100%); transition: transform 0.25s cubic-bezier(0.4,0,0.2,1); }
@@ -191,9 +182,6 @@ html, body {
 .skip-btn-cancel { background: var(--surface2); color: var(--text-dim); border: 1.5px solid var(--border-md); }
 .skip-btn-confirm { background: var(--red); color: white; box-shadow: 0 3px 12px rgba(193,18,31,0.3); }
 
-/* ════════════════════════════════════
-   SCREEN 3 — TRANSITION CARD
-════════════════════════════════════ */
 #screen-transition { background: var(--surface); justify-content: center; }
 .transition-wrap { display: flex; flex-direction: column; align-items: center; padding: 48px 28px 36px; height: 100%; justify-content: center; }
 .trans-done-block, .trans-next-block { text-align: center; margin-bottom: 24px; }
@@ -205,7 +193,6 @@ html, body {
 .trans-note-wrap { width: 100%; max-width: 320px; margin-bottom: 24px; }
 .trans-note-input { width: 100%; background: var(--surface2); border: 1.5px solid var(--border-md); border-radius: var(--radius-md); padding: 12px; font-size: 13px; color: var(--text); resize: none; outline: none; font-family: inherit; font-weight: 500; transition: border-color var(--transition); box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }
 .trans-note-input:focus { border-color: var(--orange); background: var(--surface); }
-
 .trans-next-icon { font-size: 48px; display: block; margin-bottom: 10px; }
 .trans-next-dur { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
 .trans-next-tip { font-size: 12px; color: var(--text-muted); font-style: italic; line-height: 1.5; max-width: 260px; margin: 0 auto; }
@@ -219,9 +206,6 @@ html, body {
 .trans-btn-add { flex: 1; padding: 14px; border-radius: var(--radius-lg); background: var(--surface2); border: 1.5px solid var(--border-md); font-size: 14px; font-weight: 700; }
 .trans-btn-start { flex: 2; padding: 14px; border-radius: var(--radius-lg); background: var(--orange); color: white; border: none; font-size: 14px; font-weight: 800; }
 
-/* ════════════════════════════════════
-   SCREEN 4 — END OF DAY
-════════════════════════════════════ */
 #screen-eod { background: var(--surface); overflow-y: auto; }
 .eod-wrap { padding: 60px 20px 40px; display: flex; flex-direction: column; align-items: center; min-height: 100%; }
 .eod-icon-wrap { font-size: 64px; margin-bottom: 16px; animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; transform: scale(0); }
@@ -236,9 +220,6 @@ html, body {
 .eod-stat-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
 .eod-actions { width: 100%; display: flex; flex-direction: column; gap: 8px; margin-top: auto; }
 
-/* ════════════════════════════════════
-   SCREEN 5 — SCHEDULE EDITOR
-════════════════════════════════════ */
 #screen-editor { background: var(--bg); }
 .editor-header { background: var(--surface); padding: 52px 20px 16px; border-bottom: 1px solid var(--border); box-shadow: var(--shadow-sm); flex-shrink: 0; display: flex; align-items: center; gap: 12px; }
 .editor-back { width: 38px; height: 38px; border-radius: 50%; background: var(--surface2); border: none; cursor: pointer; font-size: 18px; }
@@ -281,9 +262,6 @@ html, body {
 .btn-add-session { width: 100%; padding: 14px; border-radius: var(--radius-md); background: var(--surface); color: var(--text-dim); border: 2px dashed var(--border-md); font-size: 14px; font-weight: 700; margin-top: 4px; }
 .editor-save-bar { position: fixed; bottom: 0; left: 0; right: 0; padding: 12px 16px 28px; background: linear-gradient(to top, var(--bg) 70%, transparent); z-index: 100; }
 
-/* ════════════════════════════════════
-   SCREEN 6 — ANALYTICS DASHBOARD
-════════════════════════════════════ */
 #screen-dashboard { background: var(--bg); }
 .dash-header { background: var(--surface); padding: 52px 20px 20px; border-bottom: 1px solid var(--border); box-shadow: var(--shadow-sm); flex-shrink: 0; display: flex; align-items: center; gap: 12px; }
 .dash-content { padding: 20px; overflow-y: auto; flex: 1; }
@@ -293,8 +271,6 @@ html, body {
 .lt-stat { flex: 1; }
 .lt-val { font-size: 28px; font-weight: 900; color: var(--orange); line-height: 1; margin-bottom: 4px; }
 .lt-label { font-size: 12px; font-weight: 600; color: var(--text-dim); }
-
-/* Custom CSS Bar Chart */
 .chart-wrap { display: flex; align-items: flex-end; justify-content: space-between; height: 180px; margin-top: 24px; padding-bottom: 20px; border-bottom: 1.5px solid var(--border-md); position: relative; }
 .chart-bar-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; flex: 1; gap: 8px; position: relative; }
 .chart-bar { width: 28px; background: var(--orange-light); border-radius: 4px 4px 0 0; position: relative; display: flex; align-items: flex-end; justify-content: center; }
@@ -303,6 +279,21 @@ html, body {
 .chart-val { font-size: 10px; font-weight: 800; color: var(--text); position: absolute; top: -18px; opacity: 0; transition: opacity 0.3s; }
 .chart-bar-col:hover .chart-val { opacity: 1; }
 .chart-empty-state { text-align: center; padding: 40px 0; font-size: 13px; color: var(--text-muted); font-style: italic; }
+
+/* ════════════════════════════════════
+   SCREEN 7 — ROTATION MODE (NEW)
+════════════════════════════════════ */
+#screen-rotation { background: var(--bg); }
+.rot-hero { background: var(--surface); padding: 20px; border-bottom: 1px solid var(--border); margin-bottom: 16px; box-shadow: var(--shadow-sm); }
+.rot-hero-title { font-size: 16px; font-weight: 900; color: var(--text); margin-bottom: 6px; }
+.rot-hero-sub { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+.rot-day-row { background: var(--surface); border-radius: var(--radius-md); padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+.rot-day-name { font-size: 14px; font-weight: 800; color: var(--text); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1.5px dashed var(--border-md); padding-bottom: 8px; }
+.rot-inputs { display: flex; gap: 12px; }
+.rot-input-group { flex: 1; }
+.rot-input-label { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; display: block; }
+.rot-input { width: 100%; padding: 10px; border: 1.5px solid var(--border-md); border-radius: var(--radius-sm); font-size: 13px; font-weight: 700; background: var(--surface2); outline: none; }
+.rot-input:focus { border-color: var(--blue); background: var(--surface); }
 
 /* Modal / Toast */
 #toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--text); color: white; padding: 10px 18px; border-radius: var(--radius-xl); font-size: 13px; font-weight: 600; opacity: 0; pointer-events: none; transition: all 0.3s ease; z-index: 9999; }
@@ -337,8 +328,10 @@ html, body {
           <div class="schedule-badge" id="schedule-badge">Default</div>
         </div>
       </div>
-      <!-- NEW: Stats Button -->
-      <button class="btn-stats-top" id="btn-open-dashboard">📊</button>
+      <div class="top-btns">
+        <button class="btn-icon-top" id="btn-open-rotation">📚</button>
+        <button class="btn-icon-top" id="btn-open-dashboard">📊</button>
+      </div>
     </div>
 
     <div class="home-stats">
@@ -349,7 +342,10 @@ html, body {
     </div>
 
     <div class="session-list-wrap">
-      <div class="session-list-title">Today's Schedule</div>
+      <div class="session-list-title">
+        <span>Today's Schedule</span>
+        <span class="rotation-indicator" id="rotation-indicator" style="display:none">↻ Subject Rotation ON</span>
+      </div>
       <div id="session-list"></div>
     </div>
 
@@ -497,14 +493,13 @@ html, body {
     <div class="editor-save-bar"><button class="btn-primary" id="btn-save-schedule">💾 Save Schedule</button></div>
   </div>
 
-  <!-- ══ SCREEN 6: DASHBOARD (NEW in Phase 7) ══ -->
+  <!-- ══ SCREEN 6: DASHBOARD ══ -->
   <div id="screen-dashboard" class="screen">
     <div class="dash-header">
       <button class="editor-back" id="dash-back">←</button>
       <div class="editor-header-text"><div class="editor-title">Analytics</div><div class="editor-subtitle">Your lifetime performance</div></div>
     </div>
     <div class="dash-content">
-      
       <div class="dash-card">
         <div class="dash-card-title">All-Time Stats</div>
         <div class="lifetime-stats">
@@ -512,13 +507,32 @@ html, body {
           <div class="lt-stat"><div class="lt-val" id="dash-lt-days" style="color:var(--blue)">0</div><div class="lt-label">Days Logged</div></div>
         </div>
       </div>
-
       <div class="dash-card">
         <div class="dash-card-title">Last 7 Days (Focus Hours)</div>
         <div id="dash-chart-container" class="chart-empty-state">Complete a day to see your chart!</div>
       </div>
-
     </div>
+  </div>
+
+  <!-- ══ SCREEN 7: ROTATION (NEW) ══ -->
+  <div id="screen-rotation" class="screen">
+    <div class="dash-header" style="border:none">
+      <button class="editor-back" id="rot-back">←</button>
+      <div class="editor-header-text"><div class="editor-title">Subject Rotation</div><div class="editor-subtitle">For CA Final & multi-subject days</div></div>
+    </div>
+    
+    <div class="rot-hero">
+      <div class="toggle-row" style="margin-bottom:8px">
+        <span class="rot-hero-title">Enable Smart Rotation</span>
+        <button class="toggle" id="rot-toggle-main"></button>
+      </div>
+      <div class="rot-hero-sub">Automatically replaces generic "Deep Work Blocks" with the subjects assigned to today.</div>
+    </div>
+
+    <div class="dash-content" id="rot-days-list" style="padding-top:0">
+      <!-- Generated by JS -->
+    </div>
+    <div class="editor-save-bar"><button class="btn-primary" id="btn-save-rotation">💾 Save Rotation</button></div>
   </div>
 
 </div>
@@ -565,17 +579,49 @@ const TYPE_CONFIG = {
   sleep: { label: 'Wind Down', color: '#3730a3', bg: '#eef0fd' }
 };
 
+// Phase 8: Default Subject Rotation for CA Final
+const DEFAULT_ROTATION = {
+  enabled: false,
+  mapping: {
+    1: ['FR', 'AFM'],    // Monday
+    2: ['Audit', 'DT'],  // Tuesday
+    3: ['IDT', 'FR'],    // Wednesday
+    4: ['AFM', 'Audit'], // Thursday
+    5: ['DT', 'IDT'],    // Friday
+    6: ['FR', 'DT'],     // Saturday
+    0: ['Mock', 'Review']// Sunday
+  }
+};
+
 const State = {
-  schedule: [], isCustom: false, editorSchedule: [], expandedEditorId: null,
-  modalSessionIndex: -1, modalTempDur: 0, dailyLog: [],
+  schedule: [], activeSchedule: [], rotation: deepClone(DEFAULT_ROTATION), 
+  isCustom: false, editorSchedule: [], expandedEditorId: null, modalSessionIndex: -1, modalTempDur: 0, dailyLog: [],
   timer: { running: false, paused: false, currentIndex: 0, sessionStartTs: 0, pausedElapsedMs: 0, totalDayMins: 0, dayElapsedMins: 0, hrvFired: false, hrvAcknowledgedCount: 0, transitionExtras: 0, rafId: null, heartbeatId: null }
 };
 
-const STORAGE_KEYS = { SCHEDULE: 'mastery_schedule', VOLUME: 'mastery_volume', VIBRATION: 'mastery_vibration', STATE: 'mastery_session_state', LAST_DATE: 'mastery_last_date', STREAK: 'mastery_streak', USER_NAME: 'mastery_user_name', HISTORY: 'mastery_history' };
+const STORAGE_KEYS = { SCHEDULE: 'mastery_schedule', VOLUME: 'mastery_volume', VIBRATION: 'mastery_vibration', STATE: 'mastery_session_state', LAST_DATE: 'mastery_last_date', STREAK: 'mastery_streak', USER_NAME: 'mastery_user_name', HISTORY: 'mastery_history', ROTATION: 'mastery_rotation' };
 function deepClone(obj) { return JSON.parse(JSON.stringify(obj)); }
 function saveSchedule(schedule) { try { localStorage.setItem(STORAGE_KEYS.SCHEDULE, JSON.stringify(schedule)); } catch(e) {} }
 function loadSchedule() { try { const raw = localStorage.getItem(STORAGE_KEYS.SCHEDULE); if (!raw) return null; const p = JSON.parse(raw); if (!Array.isArray(p) || p.length === 0 || !p[0].id) return null; return p; } catch(e) { return null; } }
 function clearSavedSchedule() { localStorage.removeItem(STORAGE_KEYS.SCHEDULE); }
+function loadRotation() { try { const raw = localStorage.getItem(STORAGE_KEYS.ROTATION); return raw ? JSON.parse(raw) : deepClone(DEFAULT_ROTATION); } catch(e) { return deepClone(DEFAULT_ROTATION); } }
+
+// The Magic: Applies rotation mapping dynamically for today's view
+function buildActiveSchedule() {
+  State.activeSchedule = deepClone(State.schedule);
+  if (!State.rotation.enabled) return;
+  const today = new Date().getDay();
+  const todaySubjects = State.rotation.mapping[today] || ['Subject 1', 'Subject 2'];
+  let deepCount = 0;
+  State.activeSchedule.forEach(session => {
+    if (session.type === 'deep' || session.type === 'recall' || session.type === 'review') {
+      // First 2 deep sessions get Subject 1. Remaining get Subject 2.
+      const subj = deepCount < 2 ? todaySubjects[0] : todaySubjects[1];
+      session.name = `${subj} — ${session.name}`;
+      deepCount++;
+    }
+  });
+}
 
 // ════════════════════════════════════════════════════════════
 //  SECTION G — UI UTILITIES & HOME
@@ -596,10 +642,11 @@ function renderHomeHeader() {
   document.getElementById('schedule-badge').textContent = State.isCustom ? 'Custom Schedule' : 'Default Schedule';
   const streak = parseInt(localStorage.getItem(STORAGE_KEYS.STREAK) || '0'); const badge = document.getElementById('streak-badge');
   if (streak > 0) { badge.textContent = `🔥 ${streak} Day Streak`; badge.style.display = 'inline-block'; } else badge.style.display = 'none';
+  document.getElementById('rotation-indicator').style.display = State.rotation.enabled ? 'block' : 'none';
 }
 
 function renderHomeStats() {
-  const s = State.schedule;
+  const s = State.activeSchedule; // Stats based on active
   document.getElementById('stat-deep').textContent = fmtDur(s.filter(x => ['deep','recall'].includes(x.type)).reduce((a,b) => a + b.durationMins, 0));
   document.getElementById('stat-nsdr').textContent = `${s.filter(x => x.type === 'nsdr').length}×`;
   document.getElementById('stat-sessions').textContent = s.length;
@@ -607,20 +654,20 @@ function renderHomeStats() {
 }
 
 function renderSessionList() {
-  const container = document.getElementById('session-list'); container.innerHTML = ''; const offsets = calcStartTimes(State.schedule);
-  State.schedule.forEach((session, i) => {
+  const container = document.getElementById('session-list'); container.innerHTML = ''; const offsets = calcStartTimes(State.activeSchedule);
+  State.activeSchedule.forEach((session, i) => {
     const tc = TYPE_CONFIG[session.type] || TYPE_CONFIG.deep; const item = document.createElement('div');
     item.className = 'session-item'; item.style.borderColor = tc.color; item.style.background = tc.bg;
     item.innerHTML = `<div class="session-item-icon">${session.icon}</div><div class="session-item-body"><div class="session-item-name">${session.name}</div><div class="session-item-sub">${session.subtitle}</div>${session.hrvReset ? `<div class="hrv-badge">🫁 HRV Reset</div>` : ''}</div><div class="session-item-right"><div class="session-item-dur">${fmtDur(session.durationMins)}</div><div class="session-item-time">${fmtStartTime(offsets[i])}</div></div>`;
     item.addEventListener('click', () => openQuickModal(i)); container.appendChild(item);
   });
 }
-function renderHome() { renderHomeHeader(); renderHomeStats(); renderSessionList(); }
+function renderHome() { buildActiveSchedule(); renderHomeHeader(); renderHomeStats(); renderSessionList(); }
 
 function openQuickModal(index) {
-  State.modalSessionIndex = index; State.modalTempDur = State.schedule[index].durationMins;
-  document.getElementById('modal-session-name').textContent = `${State.schedule[index].icon} ${State.schedule[index].name}`;
-  document.getElementById('modal-session-sub').textContent = State.schedule[index].subtitle; document.getElementById('modal-dur-val').textContent = `${State.modalTempDur} min`;
+  State.modalSessionIndex = index; State.modalTempDur = State.activeSchedule[index].durationMins;
+  document.getElementById('modal-session-name').textContent = `${State.activeSchedule[index].icon} ${State.activeSchedule[index].name}`;
+  document.getElementById('modal-session-sub').textContent = State.activeSchedule[index].subtitle; document.getElementById('modal-dur-val').textContent = `${State.modalTempDur} min`;
   document.getElementById('quick-modal').classList.add('open');
 }
 function closeQuickModal() { document.getElementById('quick-modal').classList.remove('open'); State.modalSessionIndex = -1; }
@@ -673,9 +720,9 @@ function applyTimerTheme(session) {
 }
 
 function updateTimerUI(index) {
-  const session = State.schedule[index], nextSession = State.schedule[index + 1];
+  const session = State.activeSchedule[index], nextSession = State.activeSchedule[index + 1];
   document.getElementById('timer-icon').textContent = session.icon; document.getElementById('timer-session-name').textContent = session.name; document.getElementById('timer-session-sub').textContent = session.subtitle;
-  document.getElementById('timer-session-counter').textContent = `${index + 1} of ${State.schedule.length}`; document.getElementById('timer-tip').textContent = session.tips || '';
+  document.getElementById('timer-session-counter').textContent = `${index + 1} of ${State.activeSchedule.length}`; document.getElementById('timer-tip').textContent = session.tips || '';
   if (nextSession) { document.getElementById('timer-next').style.display = 'flex'; document.getElementById('timer-next-icon').textContent = nextSession.icon; document.getElementById('timer-next-name').textContent = `${nextSession.name} · ${fmtDur(nextSession.durationMins)}`; } else document.getElementById('timer-next').style.display = 'none';
   document.getElementById('hrv-alert').classList.remove('visible'); applyTimerTheme(session);
   document.getElementById('timer-day-fill').style.width = State.timer.totalDayMins > 0 ? Math.min(100, (State.timer.dayElapsedMins / State.timer.totalDayMins) * 100) + '%' : '0%';
@@ -685,23 +732,23 @@ function fmtCountdown(s) { return `${s/3600>=1 ? String(Math.floor(s/3600)).padS
 
 function timerTick() {
   if (!State.timer.running || State.timer.paused) return;
-  const t = State.timer, sMs = State.schedule[t.currentIndex].durationMins * 60000, elMs = Date.now() - t.sessionStartTs, rMs = Math.max(0, sMs - elMs), rSec = Math.ceil(rMs / 1000);
+  const t = State.timer, sMs = State.activeSchedule[t.currentIndex].durationMins * 60000, elMs = Date.now() - t.sessionStartTs, rMs = Math.max(0, sMs - elMs), rSec = Math.ceil(rMs / 1000);
   document.getElementById('timer-countdown').textContent = fmtCountdown(rSec); document.getElementById('timer-countdown-label').textContent = rSec > 0 ? 'remaining' : 'finishing up...';
   document.getElementById('ring-fill').style.strokeDashoffset = Math.max(0, Math.min(RING_CIRCUMFERENCE, RING_CIRCUMFERENCE * (1 - elMs / sMs)));
   document.getElementById('timer-session-fill').style.width = Math.min(100, (elMs / sMs) * 100) + '%';
   document.getElementById('timer-session-elapsed').textContent = elMs/60000 < 1 ? 'just started' : `${Math.floor(elMs/60000)}m elapsed`;
-  if (State.schedule[t.currentIndex].hrvReset && !t.hrvFired && Math.floor(elMs/60000) >= (State.schedule[t.currentIndex].durationMins >= 120 ? 60 : 90)) { t.hrvFired = true; document.getElementById('hrv-alert').classList.add('visible'); }
+  if (State.activeSchedule[t.currentIndex].hrvReset && !t.hrvFired && Math.floor(elMs/60000) >= (State.activeSchedule[t.currentIndex].durationMins >= 120 ? 60 : 90)) { t.hrvFired = true; document.getElementById('hrv-alert').classList.add('visible'); }
   if (rMs <= 0) return onSessionComplete();
   if (rSec % 30 === 0) saveTimerState();
   t.rafId = requestAnimationFrame(timerTick);
 }
 
-function startHeartbeat() { clearTimeout(State.timer.heartbeatId); State.timer.heartbeatId = setTimeout(() => { if (State.timer.running && !State.timer.paused && Date.now() - State.timer.sessionStartTs >= State.schedule[State.timer.currentIndex].durationMins * 60000) onSessionComplete(); else startHeartbeat(); }, 60000); }
+function startHeartbeat() { clearTimeout(State.timer.heartbeatId); State.timer.heartbeatId = setTimeout(() => { if (State.timer.running && !State.timer.paused && Date.now() - State.timer.sessionStartTs >= State.activeSchedule[State.timer.currentIndex].durationMins * 60000) onSessionComplete(); else startHeartbeat(); }, 60000); }
 function startTimerLoop() { cancelAnimationFrame(State.timer.rafId); State.timer.rafId = requestAnimationFrame(timerTick); startHeartbeat(); }
 
 async function startDay() {
   await requestNotifPermission(); State.dailyLog = [];
-  State.timer = { ...State.timer, currentIndex: 0, running: true, paused: false, dayElapsedMins: 0, totalDayMins: State.schedule.reduce((a,b)=>a+b.durationMins,0), hrvFired: false, hrvAcknowledgedCount: 0, transitionExtras: 0 };
+  State.timer = { ...State.timer, currentIndex: 0, running: true, paused: false, dayElapsedMins: 0, totalDayMins: State.activeSchedule.reduce((a,b)=>a+b.durationMins,0), hrvFired: false, hrvAcknowledgedCount: 0, transitionExtras: 0 };
   await requestWakeLock(); beginSession(0);
 }
 
@@ -710,7 +757,7 @@ function beginSession(i) {
   State.timer.currentIndex = i; State.timer.running = true; State.timer.paused = false; State.timer.hrvFired = false; State.timer.transitionExtras = 0; State.timer.sessionStartTs = Date.now(); State.timer.pausedElapsedMs = 0;
   updateTimerUI(i); showScreen('screen-timer');
   const btn = document.getElementById('btn-pause-resume'); btn.textContent = '⏸'; btn.classList.remove('paused');
-  startTimerLoop(); saveTimerState(); setTimeout(() => alertSessionStart(State.schedule[i]), 120);
+  startTimerLoop(); saveTimerState(); setTimeout(() => alertSessionStart(State.activeSchedule[i]), 120);
 }
 
 function pauseTimer() { if (!State.timer.running || State.timer.paused) return; State.timer.paused = true; State.timer.pausedElapsedMs = Date.now() - State.timer.sessionStartTs; cancelAnimationFrame(State.timer.rafId); clearTimeout(State.timer.heartbeatId); releaseWakeLock(); document.getElementById('btn-pause-resume').textContent = '▶'; document.getElementById('btn-pause-resume').classList.add('paused'); document.getElementById('timer-countdown-label').textContent = 'paused'; saveTimerState(); }
@@ -718,20 +765,20 @@ function resumeTimer() { if (!State.timer.paused) return; State.timer.paused = f
 
 function advanceToNextSession() {
   cancelAnimationFrame(State.timer.rafId); clearTimeout(State.timer.heartbeatId); vibrate(VIBRATION_PATTERNS.skip);
-  const s = State.schedule[State.timer.currentIndex]; State.dailyLog.push({ ...s, status: 'skipped' }); State.timer.dayElapsedMins += s.durationMins;
-  if (State.timer.currentIndex + 1 >= State.schedule.length) return endDay();
+  const s = State.activeSchedule[State.timer.currentIndex]; State.dailyLog.push({ ...s, status: 'skipped' }); State.timer.dayElapsedMins += s.durationMins;
+  if (State.timer.currentIndex + 1 >= State.activeSchedule.length) return endDay();
   beginSession(State.timer.currentIndex + 1);
 }
 
 function onSessionComplete() {
   cancelAnimationFrame(State.timer.rafId); clearTimeout(State.timer.heartbeatId);
-  const s = State.schedule[State.timer.currentIndex]; State.dailyLog.push({ ...s, status: 'completed' }); State.timer.dayElapsedMins += s.durationMins;
-  const nextSession = State.schedule[State.timer.currentIndex + 1];
+  const s = State.activeSchedule[State.timer.currentIndex]; State.dailyLog.push({ ...s, status: 'completed' }); State.timer.dayElapsedMins += s.durationMins;
+  const nextSession = State.activeSchedule[State.timer.currentIndex + 1];
   showTransitionCard(s, nextSession);
 }
 
 // ════════════════════════════════════════════════════════════
-//  STREAK, HISTORY & EXPORT (NEW Phase 7 DB)
+//  STREAK, HISTORY & EXPORT 
 // ════════════════════════════════════════════════════════════
 function updateStreak(skippedCount) {
   if (skippedCount > 1) return; 
@@ -743,10 +790,9 @@ function updateStreak(skippedCount) {
 }
 
 function saveToHistory(focusMins) {
-  const todayDate = new Date().toISOString().split('T')[0];
-  let history = JSON.parse(localStorage.getItem(STORAGE_KEYS.HISTORY) || '[]');
+  const todayDate = new Date().toISOString().split('T')[0]; let history = JSON.parse(localStorage.getItem(STORAGE_KEYS.HISTORY) || '[]');
   const existingIdx = history.findIndex(h => h.date === todayDate);
-  const data = { date: todayDate, focusMins: focusMins, totalSessions: State.schedule.length };
+  const data = { date: todayDate, focusMins: focusMins, totalSessions: State.activeSchedule.length };
   if (existingIdx >= 0) history[existingIdx] = data; else history.push(data);
   localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(history));
 }
@@ -760,7 +806,7 @@ function exportDailyLog() {
     if (log.note) text += `Notes: ${log.note}\n`;
     text += `\n`;
   });
-  text += `------------------------------------------\nTotal Completed: ${compCount} / ${State.schedule.length}\n`;
+  text += `------------------------------------------\nTotal Completed: ${compCount} / ${State.activeSchedule.length}\n`;
   const blob = new Blob([text], {type: 'text/plain'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `Mastery_Log_${new Date().toISOString().split('T')[0]}.txt`; a.click(); showToast('✓ Log exported');
 }
 
@@ -773,13 +819,12 @@ function renderEOD() {
   let focus = 0, nsdr = 0, comp = 0, skip = 0;
   State.dailyLog.forEach(l => { if (l.status === 'completed') { comp++; if (l.type === 'deep' || l.type === 'recall') focus += l.durationMins; if (l.type === 'nsdr') nsdr++; } else skip++; });
   document.getElementById('eod-focus-time').textContent = fmtDur(focus); document.getElementById('eod-nsdr-count').textContent = nsdr;
-  document.getElementById('eod-completed-count').textContent = `${comp} / ${State.schedule.length}`; document.getElementById('eod-skip-count').textContent = skip;
+  document.getElementById('eod-completed-count').textContent = `${comp} / ${State.activeSchedule.length}`; document.getElementById('eod-skip-count').textContent = skip;
   const t = document.querySelector('.eod-title'), s = document.querySelector('.eod-subtitle');
   if (skip === 0) { t.textContent = 'Perfect Day 🏆'; s.innerHTML = 'Every session completed.<br>Incredible discipline.'; document.getElementById('eod-skip-count').classList.add('blue'); } else { t.textContent = 'Day Complete 🎯'; s.innerHTML = 'You made it through the schedule.<br>Sleep now — your brain consolidates tonight.'; document.getElementById('eod-skip-count').classList.add('red'); }
   const hrvEl = document.getElementById('eod-hrv-stat'); if (State.timer.hrvAcknowledgedCount > 0) { document.getElementById('eod-hrv-count').textContent = State.timer.hrvAcknowledgedCount; hrvEl.style.display = 'inline-flex'; } else hrvEl.style.display = 'none';
   
-  updateStreak(skip);
-  saveToHistory(focus); // Phase 7: Save to historical memory
+  updateStreak(skip); saveToHistory(focus);
 }
 
 let transCountdownId = null;
@@ -816,9 +861,7 @@ function finishDayFromTransition() { if (State.dailyLog.length > 0) { const note
 let audioCtx = null;
 function getAudioCtx() { if (!audioCtx || audioCtx.state === 'closed') audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); return audioCtx; }
 function getVolume() { return parseInt(localStorage.getItem(STORAGE_KEYS.VOLUME) || '70') / 100; }
-function playTone({ freq = 440, type = 'sine', duration = 0.6, gain = 0.5, fadeIn = 0.01, fadeOut = 0.15, startOffset = 0 }) {
-  try { const ctx = getAudioCtx(), vol = getVolume(); if (vol === 0) return; const osc = ctx.createOscillator(), g = ctx.createGain(); osc.type = type; osc.frequency.setValueAtTime(freq, ctx.currentTime); g.gain.setValueAtTime(0, ctx.currentTime + startOffset); g.gain.linearRampToValueAtTime(gain * vol, ctx.currentTime + startOffset + fadeIn); g.gain.setValueAtTime(gain * vol, ctx.currentTime + startOffset + duration - fadeOut); g.gain.linearRampToValueAtTime(0, ctx.currentTime + startOffset + duration); osc.connect(g); g.connect(ctx.destination); osc.start(ctx.currentTime + startOffset); osc.stop(ctx.currentTime + startOffset + duration); } catch(e) {}
-}
+function playTone({ freq = 440, type = 'sine', duration = 0.6, gain = 0.5, fadeIn = 0.01, fadeOut = 0.15, startOffset = 0 }) { try { const ctx = getAudioCtx(), vol = getVolume(); if (vol === 0) return; const osc = ctx.createOscillator(), g = ctx.createGain(); osc.type = type; osc.frequency.setValueAtTime(freq, ctx.currentTime); g.gain.setValueAtTime(0, ctx.currentTime + startOffset); g.gain.linearRampToValueAtTime(gain * vol, ctx.currentTime + startOffset + fadeIn); g.gain.setValueAtTime(gain * vol, ctx.currentTime + startOffset + duration - fadeOut); g.gain.linearRampToValueAtTime(0, ctx.currentTime + startOffset + duration); osc.connect(g); g.connect(ctx.destination); osc.start(ctx.currentTime + startOffset); osc.stop(ctx.currentTime + startOffset + duration); } catch(e) {} }
 
 const sounds = {
   deep: () => { playTone({freq:220,duration:0.5,gain:0.45,fadeOut:0.2}); playTone({freq:277,duration:0.5,gain:0.45,fadeOut:0.2,startOffset:0.55}); },
@@ -840,7 +883,6 @@ function vibrateForType(type) { vibrate(VIBRATION_PATTERNS[type] || VIBRATION_PA
 
 let notifPermission = 'default';
 const PWA_ICON_DATA = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Ccircle cx='256' cy='256' r='256' fill='%23e85d04'/%3E%3Ctext x='256' y='340' font-size='240' font-family='sans-serif' text-anchor='middle' fill='%23ffffff'%3E⏱%3C/text%3E%3C/svg%3E";
-
 async function requestNotifPermission() { if (!('Notification' in window)) return 'denied'; if (Notification.permission === 'granted') { notifPermission = 'granted'; return 'granted'; } notifPermission = await Notification.requestPermission(); updateNotifBtn(); return notifPermission; }
 function updateNotifBtn() { const btn = document.getElementById('tray-notif-btn'); if (!btn) return; if (Notification.permission === 'granted') { btn.textContent = '✓ Enabled'; btn.classList.add('granted'); } else if (Notification.permission === 'denied') { btn.textContent = 'Blocked'; btn.classList.remove('granted'); btn.style.opacity = '0.5'; } else { btn.textContent = 'Enable'; btn.classList.remove('granted'); } }
 function sendNotification(t, b, tag='mastery-timer') { if (Notification.permission === 'granted' && document.visibilityState !== 'visible') try { new Notification(t, {body:b, tag, icon: PWA_ICON_DATA, requireInteraction: false}); } catch(e) {} }
@@ -862,67 +904,68 @@ function initSettingsTray() {
 (function patchHRVAlert() { const el = document.getElementById('hrv-alert'); if (!el) return; new MutationObserver(m => { m.forEach(x => { if (x.type==='attributes' && x.attributeName==='class' && el.classList.contains('visible')) alertHRV(); }); }).observe(el, {attributes:true}); })();
 
 function checkCrashRecovery() {
-  try { const raw = localStorage.getItem(STORAGE_KEYS.STATE); if (!raw) return false; const snap = JSON.parse(raw); if (Date.now() - snap.savedAt > 2 * 60 * 60 * 1000 || snap.currentIndex >= State.schedule.length) { clearTimerState(); return false; } const session = State.schedule[snap.currentIndex]; const remainingMins = Math.ceil((session.durationMins * 60000 - (snap.paused ? snap.pausedElapsedMs : (Date.now() - snap.sessionStartTs))) / 60000); if (remainingMins <= 0) { clearTimerState(); return false; }
-    if (confirm(`Resume "${session.name}"?\n${remainingMins} min remaining.`)) { State.timer = { ...State.timer, currentIndex: snap.currentIndex, dayElapsedMins: snap.dayElapsedMins, paused: snap.paused, pausedElapsedMs: snap.pausedElapsedMs, totalDayMins: State.schedule.reduce((a,b)=>a+b.durationMins,0), sessionStartTs: snap.paused ? snap.sessionStartTs : (Date.now() - (Date.now() - snap.sessionStartTs)), running: true, hrvFired: false }; updateTimerUI(snap.currentIndex); showScreen('screen-timer'); if (!snap.paused) startTimerLoop(); else { document.getElementById('btn-pause-resume').textContent = '▶'; document.getElementById('btn-pause-resume').classList.add('paused'); document.getElementById('timer-countdown-label').textContent = 'paused'; } return true; } clearTimerState(); return false;
+  try { const raw = localStorage.getItem(STORAGE_KEYS.STATE); if (!raw) return false; const snap = JSON.parse(raw); if (Date.now() - snap.savedAt > 2 * 60 * 60 * 1000 || snap.currentIndex >= State.activeSchedule.length) { clearTimerState(); return false; } const session = State.activeSchedule[snap.currentIndex]; const remainingMins = Math.ceil((session.durationMins * 60000 - (snap.paused ? snap.pausedElapsedMs : (Date.now() - snap.sessionStartTs))) / 60000); if (remainingMins <= 0) { clearTimerState(); return false; }
+    if (confirm(`Resume "${session.name}"?\n${remainingMins} min remaining.`)) { State.timer = { ...State.timer, currentIndex: snap.currentIndex, dayElapsedMins: snap.dayElapsedMins, paused: snap.paused, pausedElapsedMs: snap.pausedElapsedMs, totalDayMins: State.activeSchedule.reduce((a,b)=>a+b.durationMins,0), sessionStartTs: snap.paused ? snap.sessionStartTs : (Date.now() - (Date.now() - snap.sessionStartTs)), running: true, hrvFired: false }; updateTimerUI(snap.currentIndex); showScreen('screen-timer'); if (!snap.paused) startTimerLoop(); else { document.getElementById('btn-pause-resume').textContent = '▶'; document.getElementById('btn-pause-resume').classList.add('paused'); document.getElementById('timer-countdown-label').textContent = 'paused'; } return true; } clearTimerState(); return false;
   } catch(e) { clearTimerState(); return false; }
 }
 
 // ════════════════════════════════════════════════════════════
-//  SECTION K — DASHBOARD (Phase 7 Engine)
+//  SECTION K — DASHBOARD & ROTATION MANAGER
 // ════════════════════════════════════════════════════════════
 function renderDashboard() {
   const history = JSON.parse(localStorage.getItem(STORAGE_KEYS.HISTORY) || '[]');
-  
-  // Calculate Lifetime Stats
-  let totalMins = 0;
-  history.forEach(day => totalMins += (day.focusMins || 0));
-  document.getElementById('dash-lt-hours').textContent = Math.floor(totalMins / 60);
-  document.getElementById('dash-lt-days').textContent = history.length;
-
-  // Build 7-Day Chart
+  let totalMins = 0; history.forEach(day => totalMins += (day.focusMins || 0));
+  document.getElementById('dash-lt-hours').textContent = Math.floor(totalMins / 60); document.getElementById('dash-lt-days').textContent = history.length;
   const chartContainer = document.getElementById('dash-chart-container');
-  if (history.length === 0) {
-    chartContainer.innerHTML = '<div class="chart-empty-state">Complete your first day to see the chart!</div>';
-    return;
-  }
-
-  // Get last 7 days from today
+  if (history.length === 0) { chartContainer.innerHTML = '<div class="chart-empty-state">Complete your first day to see the chart!</div>'; return; }
   const last7Days = [];
   for (let i = 6; i >= 0; i--) {
-    let d = new Date(); d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().split('T')[0];
-    const dayData = history.find(h => h.date === dateStr);
-    last7Days.push({ 
-      label: d.toLocaleDateString('en-US', {weekday:'short'}).charAt(0), 
-      mins: dayData ? dayData.focusMins : 0 
-    });
+    let d = new Date(); d.setDate(d.getDate() - i); const dateStr = d.toISOString().split('T')[0]; const dayData = history.find(h => h.date === dateStr);
+    last7Days.push({ label: d.toLocaleDateString('en-US', {weekday:'short'}).charAt(0), mins: dayData ? dayData.focusMins : 0 });
   }
-
-  const maxMins = Math.max(...last7Days.map(d => d.mins), 60); // Minimum scale is 1 hour
-  
+  const maxMins = Math.max(...last7Days.map(d => d.mins), 60);
   let chartHTML = `<div class="chart-wrap">`;
-  last7Days.forEach((day, index) => {
+  last7Days.forEach(day => {
     const heightPct = Math.min(100, Math.max(0, (day.mins / maxMins) * 100));
-    chartHTML += `
-      <div class="chart-bar-col">
-        <div class="chart-val">${Math.floor(day.mins / 60)}h</div>
-        <div class="chart-bar" style="height: 100%">
-          <div class="chart-bar-fill" style="height: 0%" data-target-height="${heightPct}%"></div>
+    chartHTML += `<div class="chart-bar-col"><div class="chart-val">${Math.floor(day.mins / 60)}h</div><div class="chart-bar" style="height: 100%"><div class="chart-bar-fill" style="height: 0%" data-target-height="${heightPct}%"></div></div><div class="chart-label">${day.label}</div></div>`;
+  });
+  chartHTML += `</div>`; chartContainer.innerHTML = chartHTML;
+  setTimeout(() => { chartContainer.querySelectorAll('.chart-bar-fill').forEach(bar => { bar.style.height = bar.getAttribute('data-target-height'); }); }, 50);
+}
+
+function openRotationManager() {
+  const tgl = document.getElementById('rot-toggle-main');
+  tgl.classList.toggle('on', State.rotation.enabled);
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const list = document.getElementById('rot-days-list'); list.innerHTML = '';
+  
+  days.forEach((dayName, idx) => {
+    const s = State.rotation.mapping[idx];
+    list.innerHTML += `
+      <div class="rot-day-row">
+        <div class="rot-day-name">${dayName}</div>
+        <div class="rot-inputs">
+          <div class="rot-input-group">
+            <span class="rot-input-label">Subject 1 (Blocks 1 & 2)</span>
+            <input type="text" class="rot-input rot-inp-1" data-day="${idx}" value="${s[0]}">
+          </div>
+          <div class="rot-input-group">
+            <span class="rot-input-label">Subject 2 (Blocks 3+)</span>
+            <input type="text" class="rot-input rot-inp-2" data-day="${idx}" value="${s[1]}">
+          </div>
         </div>
-        <div class="chart-label">${day.label}</div>
       </div>
     `;
   });
-  chartHTML += `</div>`;
-  
-  chartContainer.innerHTML = chartHTML;
+  showScreen('screen-rotation');
+}
 
-  // Animate bars gracefully
-  setTimeout(() => {
-    chartContainer.querySelectorAll('.chart-bar-fill').forEach(bar => {
-      bar.style.height = bar.getAttribute('data-target-height');
-    });
-  }, 50);
+function saveRotation() {
+  State.rotation.enabled = document.getElementById('rot-toggle-main').classList.contains('on');
+  document.querySelectorAll('.rot-inp-1').forEach(inp => { const d = inp.getAttribute('data-day'); State.rotation.mapping[d][0] = inp.value; });
+  document.querySelectorAll('.rot-inp-2').forEach(inp => { const d = inp.getAttribute('data-day'); State.rotation.mapping[d][1] = inp.value; });
+  localStorage.setItem(STORAGE_KEYS.ROTATION, JSON.stringify(State.rotation));
+  showToast('✓ Rotation Saved'); renderHome(); showScreen('screen-home');
 }
 
 // ════════════════════════════════════════════════════════════
@@ -937,6 +980,7 @@ function initPWA() {
 }
 
 function initApp() {
+  State.rotation = loadRotation();
   const saved = loadSchedule(); if (saved) { State.schedule = saved; State.isCustom = true; } else { State.schedule = deepClone(DEFAULT_SCHEDULE); State.isCustom = false; }
   renderHome(); initSettingsTray(); initPWA();
   if (!checkCrashRecovery()) showScreen('screen-home');
@@ -944,13 +988,13 @@ function initApp() {
   document.getElementById('home-greeting').addEventListener('click', () => { const name = prompt('Enter your name:', localStorage.getItem(STORAGE_KEYS.USER_NAME) || 'Master'); if (name && name.trim()) { localStorage.setItem(STORAGE_KEYS.USER_NAME, name.trim()); renderHomeHeader(); } });
   document.getElementById('btn-start').addEventListener('click', startDay);
   document.getElementById('timer-home-btn').addEventListener('click', () => { pauseTimer(); showScreen('screen-home'); renderHome(); });
-  document.getElementById('timer-skip-btn').addEventListener('click', () => { document.getElementById('skip-sheet-sub').textContent = `"${State.schedule[State.timer.currentIndex].name}" will be marked as skipped.`; document.getElementById('skip-sheet').classList.add('open'); });
+  document.getElementById('timer-skip-btn').addEventListener('click', () => { document.getElementById('skip-sheet-sub').textContent = `"${State.activeSchedule[State.timer.currentIndex].name}" will be marked as skipped.`; document.getElementById('skip-sheet').classList.add('open'); });
   document.getElementById('skip-btn-cancel').addEventListener('click', () => document.getElementById('skip-sheet').classList.remove('open'));
   document.getElementById('skip-btn-confirm').addEventListener('click', () => { document.getElementById('skip-sheet').classList.remove('open'); advanceToNextSession(); });
   document.getElementById('btn-pause-resume').addEventListener('click', () => { if (State.timer.paused) resumeTimer(); else pauseTimer(); });
   document.getElementById('hrv-alert-dismiss').addEventListener('click', () => { document.getElementById('hrv-alert').classList.remove('visible'); State.timer.hrvAcknowledgedCount++; });
   
-  document.getElementById('trans-btn-start').addEventListener('click', () => { clearTransitionCountdown(); const isLast = (State.timer.currentIndex + 1 >= State.schedule.length); if (isLast) finishDayFromTransition(); else beginSession(State.timer.currentIndex + 1); });
+  document.getElementById('trans-btn-start').addEventListener('click', () => { clearTransitionCountdown(); const isLast = (State.timer.currentIndex + 1 >= State.activeSchedule.length); if (isLast) finishDayFromTransition(); else beginSession(State.timer.currentIndex + 1); });
   document.getElementById('trans-btn-add').addEventListener('click', () => { State.timer.transitionExtras += 5; document.getElementById('trans-btn-add').textContent = `+ 5 min (${State.timer.transitionExtras}m added)`; showToast('+5 min added'); });
   document.getElementById('btn-edit').addEventListener('click', openEditor);
   document.getElementById('editor-back').addEventListener('click', () => { showScreen('screen-home'); renderHome(); });
@@ -958,6 +1002,11 @@ function initApp() {
   
   document.getElementById('btn-open-dashboard').addEventListener('click', () => { renderDashboard(); showScreen('screen-dashboard'); });
   document.getElementById('dash-back').addEventListener('click', () => { showScreen('screen-home'); renderHome(); });
+
+  document.getElementById('btn-open-rotation').addEventListener('click', openRotationManager);
+  document.getElementById('rot-back').addEventListener('click', () => { showScreen('screen-home'); renderHome(); });
+  document.getElementById('rot-toggle-main').addEventListener('click', (e) => e.target.classList.toggle('on'));
+  document.getElementById('btn-save-rotation').addEventListener('click', saveRotation);
 
   document.getElementById('btn-reset-schedule').addEventListener('click', () => {
     let sheet = document.getElementById('reset-sheet');
@@ -977,7 +1026,7 @@ function initApp() {
   ['modal-dur-minus', 'modal-dur-plus'].forEach(id => { document.getElementById(id).addEventListener('touchstart', () => { const dir = id.includes('minus')?-1:1; mTimer = setTimeout(() => { State.modalTempDur = Math.max(5, State.modalTempDur + dir*15); document.getElementById('modal-dur-val').textContent=`${State.modalTempDur} min`; showToast(`${dir>0?'+':''}${dir*15} min`); }, 600); }); document.getElementById(id).addEventListener('touchend', () => clearTimeout(mTimer)); });
   document.getElementById('modal-cancel').addEventListener('click', closeQuickModal);
   document.getElementById('quick-modal').addEventListener('click', e => { if(e.target === document.getElementById('quick-modal')) closeQuickModal(); });
-  document.getElementById('modal-save').addEventListener('click', () => { if(State.modalSessionIndex>=0) { State.schedule[State.modalSessionIndex].durationMins = State.modalTempDur; State.isCustom = true; saveSchedule(State.schedule); renderHome(); closeQuickModal(); showToast('✓ Duration updated'); } });
+  document.getElementById('modal-save').addEventListener('click', () => { if(State.modalSessionIndex>=0) { State.activeSchedule[State.modalSessionIndex].durationMins = State.modalTempDur; State.schedule[State.modalSessionIndex].durationMins = State.modalTempDur; State.isCustom = true; saveSchedule(State.schedule); renderHome(); closeQuickModal(); showToast('✓ Duration updated'); } });
 
   document.getElementById('btn-eod-home').addEventListener('click', () => { showScreen('screen-home'); renderHome(); });
   document.getElementById('btn-eod-save-template').addEventListener('click', () => { State.isCustom = true; saveSchedule(State.schedule); showToast('✓ Saved today\'s schedule as template'); });
