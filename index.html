@@ -8,13 +8,13 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Mastery Timer">
-<!-- Dynamic PWA Manifest Link -->
-<link rel="manifest" id="manifest-link" href="">
+<!-- Points to your new static manifest file for GitHub Pages -->
+<link rel="manifest" href="manifest.json">
 <title>Mastery Timer</title>
 
 <style>
 /* ════════════════════════════════════
-   CSS — DESIGN TOKENS
+   CSS — DESIGN TOKENS & RESET
 ════════════════════════════════════ */
 :root {
   --bg:           #f7f5f0;
@@ -57,24 +57,13 @@
   --transition: 0.22s cubic-bezier(0.4,0,0.2,1);
 }
 
-/* ════════════════════════════════════
-   RESET & BASE
-════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
 html, body {
-  height: 100%;
-  overflow: hidden;
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-display);
-  font-size: 16px;
-  -webkit-font-smoothing: antialiased;
+  height: 100%; overflow: hidden; background: var(--bg); color: var(--text);
+  font-family: var(--font-display); font-size: 16px; -webkit-font-smoothing: antialiased;
 }
 
-/* ════════════════════════════════════
-   APP SHELL — SCREEN SYSTEM
-════════════════════════════════════ */
 #app { width: 100%; height: 100%; position: relative; overflow: hidden; }
 
 .screen {
@@ -90,32 +79,23 @@ html, body {
    SCREEN 1 — HOME
 ════════════════════════════════════ */
 #screen-home { background: var(--bg); }
-
-.home-header {
-  background: var(--surface); padding: 52px 20px 20px;
-  border-bottom: 1px solid var(--border); box-shadow: var(--shadow-sm); flex-shrink: 0;
-}
-.home-greeting { font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+.home-header { background: var(--surface); padding: 52px 20px 20px; border-bottom: 1px solid var(--border); box-shadow: var(--shadow-sm); flex-shrink: 0; }
+.home-greeting { font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; border-radius: 4px; padding: 2px 6px; margin-left: -6px; transition: background 0.2s; }
+.home-greeting:active { background: var(--border); }
 .home-title { font-size: 28px; font-weight: 900; letter-spacing: -0.02em; color: var(--text); line-height: 1; margin-bottom: 4px; }
 .home-title span { color: var(--orange); }
-
 .home-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
 .home-date { font-size: 12px; color: var(--text-muted); font-weight: 500; }
 
 .badges-wrap { display: flex; gap: 6px; }
-.schedule-badge { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; background: var(--orange-light); color: var(--orange); border: 1px solid rgba(232,93,4,0.2); }
-.streak-badge { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; background: var(--red-light); color: var(--red); border: 1px solid rgba(193,18,31,0.2); display: none; }
+.schedule-badge, .streak-badge { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; }
+.schedule-badge { background: var(--orange-light); color: var(--orange); border: 1px solid rgba(232,93,4,0.2); }
+.streak-badge { background: var(--red-light); color: var(--red); border: 1px solid rgba(193,18,31,0.2); display: none; }
 
-/* Install App Banner */
-.install-banner {
-  background: var(--indigo); color: white; padding: 12px 16px;
-  display: flex; justify-content: space-between; align-items: center;
-  font-size: 13px; font-weight: 600; display: none;
-}
+.install-banner { background: var(--indigo); color: white; padding: 12px 16px; display: none; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600; }
 .install-banner.visible { display: flex; }
 .install-btn { background: white; color: var(--indigo); border: none; padding: 6px 12px; border-radius: 999px; font-size: 11px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
 
-/* Stats strip */
 .home-stats { display: flex; background: var(--surface); padding: 12px 20px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
 .stat-pill { flex: 1; text-align: center; padding: 0 8px; border-right: 1px solid var(--border); }
 .stat-pill:last-child { border-right: none; }
@@ -123,7 +103,6 @@ html, body {
 .stat-pill-val.orange { color: var(--orange); } .stat-pill-val.blue { color: var(--blue); } .stat-pill-val.green { color: var(--green); }
 .stat-pill-label { font-size: 9px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-muted); margin-top: 2px; }
 
-/* Session list */
 .session-list-wrap { flex: 1; overflow-y: auto; padding: 12px 16px 100px; -webkit-overflow-scrolling: touch; }
 .session-list-title { font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; padding-left: 4px; }
 .session-item { display: flex; align-items: center; gap: 12px; background: var(--surface); border-radius: var(--radius-md); padding: 11px 14px; margin-bottom: 6px; border-left: 4px solid; box-shadow: var(--shadow-sm); cursor: pointer; transition: transform var(--transition); user-select: none; }
@@ -135,23 +114,20 @@ html, body {
 .session-item-right { text-align: right; flex-shrink: 0; }
 .session-item-dur { font-size: 12px; font-weight: 800; font-family: var(--font-mono); color: var(--text-dim); }
 .session-item-time { font-size: 10px; color: var(--text-muted); margin-top: 2px; font-weight: 500; }
-
 .hrv-badge { display: inline-flex; align-items: center; gap: 3px; font-size: 9px; font-weight: 700; letter-spacing: 0.04em; padding: 2px 6px; border-radius: 4px; background: var(--purple-light); color: var(--purple); margin-top: 3px; }
 
-/* Bottom CTA */
 .home-cta { position: fixed; bottom: 0; left: 0; right: 0; padding: 16px 16px 28px; background: linear-gradient(to top, var(--bg) 80%, transparent); display: flex; gap: 10px; z-index: 100; }
-.btn-primary { flex: 1; background: var(--orange); color: white; border: none; border-radius: var(--radius-lg); padding: 16px 20px; font-size: 15px; font-weight: 900; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; box-shadow: 0 4px 16px rgba(232,93,4,0.35); transition: transform var(--transition); -webkit-tap-highlight-color: transparent; }
+.btn-primary { flex: 1; background: var(--orange); color: white; border: none; border-radius: var(--radius-lg); padding: 16px 20px; font-size: 15px; font-weight: 900; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; box-shadow: 0 4px 16px rgba(232,93,4,0.35); transition: transform var(--transition); }
 .btn-primary:active { transform: scale(0.97); box-shadow: 0 2px 8px rgba(232,93,4,0.25); }
-.btn-secondary { background: var(--surface); color: var(--text); border: 1.5px solid var(--border-md); border-radius: var(--radius-lg); padding: 16px 18px; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; box-shadow: var(--shadow-sm); transition: transform var(--transition); white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+.btn-secondary { background: var(--surface); color: var(--text); border: 1.5px solid var(--border-md); border-radius: var(--radius-lg); padding: 16px 18px; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; box-shadow: var(--shadow-sm); transition: transform var(--transition); white-space: nowrap; }
 .btn-secondary:active { transform: scale(0.97); }
 
 /* ════════════════════════════════════
    SCREEN 2 — ACTIVE TIMER
 ════════════════════════════════════ */
 #screen-timer { background: var(--bg); overflow: hidden; display: flex; flex-direction: column; }
-
 .timer-topbar { display: flex; align-items: center; gap: 12px; padding: 48px 16px 12px; background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0; }
-.timer-home-btn, .timer-skip-btn { width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid var(--border-md); background: var(--surface2); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--text-dim); -webkit-tap-highlight-color: transparent; }
+.timer-home-btn, .timer-skip-btn { width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid var(--border-md); background: var(--surface2); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--text-dim); }
 .timer-progress-wrap { flex: 1; display: flex; flex-direction: column; gap: 5px; }
 .timer-day-progress-track { height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
 .timer-day-progress-fill { height: 100%; border-radius: 3px; background: var(--orange); transition: width 1s linear; width: 0%; }
@@ -175,7 +151,6 @@ html, body {
 .timer-session-bar-fill { height: 100%; border-radius: 3px; background: var(--orange); width: 0%; transition: width 1s linear, background 0.5s ease; }
 .timer-session-elapsed { text-align: center; font-size: 11px; font-weight: 600; color: var(--text-muted); }
 
-/* HRV Alert */
 .hrv-alert { margin: 10px 16px 0; background: var(--purple-light); border: 1.5px solid var(--purple); border-radius: var(--radius-md); padding: 10px 12px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; transform: translateY(-8px); opacity: 0; pointer-events: none; transition: opacity 0.3s ease, transform 0.3s ease; }
 .hrv-alert.visible { opacity: 1; transform: translateY(0); pointer-events: all; }
 .hrv-alert-icon { font-size: 22px; flex-shrink: 0; }
@@ -196,7 +171,6 @@ html, body {
 .timer-ctrl-btn:active { transform: scale(0.93); }
 .timer-ctrl-btn.paused { background: var(--text-muted); box-shadow: 0 4px 18px rgba(0,0,0,0.15); }
 
-/* Settings Tray */
 .timer-settings-tray { display: none; flex-direction: column; gap: 10px; background: var(--surface); border-radius: var(--radius-md); padding: 14px 16px; margin: 0 16px; border: 1px solid var(--border-md); box-shadow: var(--shadow-md); flex-shrink: 0; }
 .timer-settings-tray.open { display: flex; }
 .tray-row { display: flex; align-items: center; gap: 10px; }
@@ -206,7 +180,6 @@ html, body {
 .tray-notif-btn { padding: 5px 14px; border-radius: 999px; font-size: 11px; font-weight: 700; border: 1.5px solid var(--orange); background: var(--orange-light); color: var(--orange); cursor: pointer; }
 .tray-notif-btn.granted { border-color: var(--green); background: var(--green-light); color: var(--green); }
 
-/* Skip confirm sheet */
 .skip-sheet { position: absolute; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; z-index: 200; }
 .skip-sheet.open { opacity: 1; pointer-events: all; }
 .skip-sheet-inner { width: 100%; background: var(--surface); border-radius: var(--radius-xl) var(--radius-xl) 0 0; padding: 24px 20px 36px; transform: translateY(100%); transition: transform 0.25s cubic-bezier(0.4,0,0.2,1); }
@@ -219,7 +192,7 @@ html, body {
 .skip-btn-confirm { background: var(--red); color: white; box-shadow: 0 3px 12px rgba(193,18,31,0.3); }
 
 /* ════════════════════════════════════
-   SCREEN 3 — TRANSITION CARD
+   SCREEN 3 — TRANSITION CARD (Journal Added)
 ════════════════════════════════════ */
 #screen-transition { background: var(--surface); justify-content: center; }
 .transition-wrap { display: flex; flex-direction: column; align-items: center; padding: 48px 28px 36px; height: 100%; justify-content: center; }
@@ -228,7 +201,11 @@ html, body {
 .trans-done-label, .trans-next-label { font-size: 10px; font-weight: 800; letter-spacing: 0.22em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
 .trans-done-name, .trans-next-name { font-size: 22px; font-weight: 900; color: var(--text); margin-bottom: 4px; }
 .trans-done-stat { font-size: 13px; color: var(--text-muted); font-weight: 500; }
-.trans-divider { width: 60px; height: 2px; background: var(--border-md); margin: 4px auto 24px; }
+.trans-divider { width: 60px; height: 2px; background: var(--border-md); margin: 4px auto 20px; }
+.trans-note-wrap { width: 100%; max-width: 320px; margin-bottom: 24px; }
+.trans-note-input { width: 100%; background: var(--surface2); border: 1.5px solid var(--border-md); border-radius: var(--radius-md); padding: 12px; font-size: 13px; color: var(--text); resize: none; outline: none; font-family: inherit; font-weight: 500; transition: border-color var(--transition); box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }
+.trans-note-input:focus { border-color: var(--orange); background: var(--surface); }
+
 .trans-next-icon { font-size: 48px; display: block; margin-bottom: 10px; }
 .trans-next-dur { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
 .trans-next-tip { font-size: 12px; color: var(--text-muted); font-style: italic; line-height: 1.5; max-width: 260px; margin: 0 auto; }
@@ -257,7 +234,7 @@ html, body {
 .eod-stat-val { font-size: 24px; font-weight: 900; color: var(--text); margin-bottom: 4px; }
 .eod-stat-val.orange { color: var(--orange); } .eod-stat-val.blue { color: var(--blue); } .eod-stat-val.red { color: var(--red); }
 .eod-stat-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
-.eod-actions { width: 100%; display: flex; flex-direction: column; gap: 12px; margin-top: auto; }
+.eod-actions { width: 100%; display: flex; flex-direction: column; gap: 8px; margin-top: auto; }
 
 /* ════════════════════════════════════
    SCREEN 5 — SCHEDULE EDITOR
@@ -269,7 +246,6 @@ html, body {
 .editor-title { font-size: 20px; font-weight: 900; }
 .editor-subtitle { font-size: 11px; color: var(--text-muted); }
 .btn-reset { font-size: 11px; font-weight: 700; color: var(--red); background: var(--red-light); border: none; border-radius: var(--radius-sm); padding: 6px 10px; text-transform: uppercase; }
-
 .editor-list { flex: 1; overflow-y: auto; padding: 12px 16px 100px; }
 .editor-card { background: var(--surface); border-radius: var(--radius-md); margin-bottom: 8px; border-left: 4px solid; box-shadow: var(--shadow-sm); overflow: hidden; }
 .editor-card-header { display: flex; align-items: center; gap: 10px; padding: 12px 14px; cursor: pointer; }
@@ -280,36 +256,28 @@ html, body {
 .editor-card-dur { font-size: 14px; font-weight: 800; font-family: var(--font-mono); color: var(--text-dim); }
 .editor-chevron { font-size: 12px; color: var(--text-muted); transition: transform var(--transition); }
 .editor-card.expanded .editor-chevron { transform: rotate(180deg); }
-
 .editor-expand { display: none; padding: 0 14px 14px; border-top: 1px solid var(--border); }
 .editor-card.expanded .editor-expand { display: block; }
-
 .editor-field { margin-top: 12px; }
 .editor-field-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
 .editor-field input[type="text"] { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border-md); border-radius: var(--radius-sm); font-size: 14px; background: var(--bg); outline: none; }
 .editor-field input[type="text"]:focus { border-color: var(--orange); }
-
 .dur-spinner { display: flex; align-items: center; gap: 10px; }
 .dur-btn { width: 40px; height: 40px; border-radius: var(--radius-sm); border: 1.5px solid var(--border-md); background: var(--surface2); font-size: 20px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
 .dur-val { font-size: 18px; font-weight: 900; font-family: var(--font-mono); min-width: 80px; text-align: center; }
-
 .type-selector { display: flex; flex-wrap: wrap; gap: 6px; }
 .type-chip { padding: 6px 11px; border-radius: 999px; font-size: 11px; font-weight: 700; border: 1.5px solid transparent; }
 .type-chip.selected { border-color: currentColor; font-weight: 800; }
-
 .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; }
 .toggle-label { font-size: 13px; font-weight: 600; color: var(--text-dim); }
 .toggle { width: 44px; height: 24px; border-radius: 999px; background: var(--border-md); position: relative; border: none; }
 .toggle.on { background: var(--orange); }
 .toggle::after { content: ''; position: absolute; width: 18px; height: 18px; border-radius: 50%; background: white; top: 3px; left: 3px; transition: left var(--transition); }
 .toggle.on::after { left: 23px; }
-
 .editor-card-actions { display: flex; gap: 8px; margin-top: 12px; }
 .btn-delete { flex: 1; padding: 10px; border-radius: var(--radius-sm); background: var(--red-light); color: var(--red); border: none; font-size: 12px; font-weight: 700; text-transform: uppercase; }
 .btn-save-session { flex: 2; padding: 10px; border-radius: var(--radius-sm); background: var(--orange); color: white; border: none; font-size: 12px; font-weight: 700; text-transform: uppercase; }
-.btn-move { padding: 10px 14px; border-radius: var(--radius-sm); background: var(--surface2); color: var(--text-dim); border: none; font-size: 16px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
-.btn-move:disabled { opacity: 0.3; pointer-events: none; }
-
+.btn-move { padding: 10px 14px; border-radius: var(--radius-sm); background: var(--surface2); color: var(--text-dim); border: none; font-size: 16px; font-weight: 700; cursor: pointer; }
 .btn-add-session { width: 100%; padding: 14px; border-radius: var(--radius-md); background: var(--surface); color: var(--text-dim); border: 2px dashed var(--border-md); font-size: 14px; font-weight: 700; margin-top: 4px; }
 .editor-save-bar { position: fixed; bottom: 0; left: 0; right: 0; padding: 12px 16px 28px; background: linear-gradient(to top, var(--bg) 70%, transparent); z-index: 100; }
 
@@ -332,15 +300,13 @@ html, body {
 
   <!-- ══ SCREEN 1: HOME ══ -->
   <div id="screen-home" class="screen active">
-
-    <!-- Install Banner (Dynamic via PWA) -->
     <div class="install-banner" id="install-banner">
       <span>Install App for offline use</span>
       <button class="install-btn" id="btn-install">Install</button>
     </div>
 
     <div class="home-header">
-      <div class="home-greeting" id="home-greeting">Good morning</div>
+      <div class="home-greeting" id="home-greeting">Good morning, Master <span style="opacity:0.6;font-size:10px">✎</span></div>
       <div class="home-title">MASTERY <span>TIMER</span></div>
       <div class="home-meta">
         <div class="home-date" id="home-date">—</div>
@@ -422,11 +388,7 @@ html, body {
     <div class="timer-controls"><button class="timer-ctrl-btn" id="btn-pause-resume">⏸</button></div>
 
     <div class="timer-settings-tray" id="timer-settings-tray">
-      <div class="tray-row">
-        <span class="tray-label">🔊 Volume</span>
-        <input type="range" min="0" max="100" value="70" id="tray-volume" class="tray-slider">
-        <span class="tray-vol-val" id="tray-vol-val">70%</span>
-      </div>
+      <div class="tray-row"><span class="tray-label">🔊 Volume</span><input type="range" min="0" max="100" value="70" id="tray-volume" class="tray-slider"><span class="tray-vol-val" id="tray-vol-val">70%</span></div>
       <div class="tray-row"><span class="tray-label">📳 Vibration</span><button class="toggle" id="tray-vibration-toggle">on</button></div>
       <div class="tray-row"><span class="tray-label">🔔 Notifications</span><button class="tray-notif-btn" id="tray-notif-btn">Enable</button></div>
     </div>
@@ -435,10 +397,7 @@ html, body {
       <div class="skip-sheet-inner">
         <div class="skip-sheet-title">Skip this session?</div>
         <div class="skip-sheet-sub" id="skip-sheet-sub">You'll move to the next block.</div>
-        <div class="skip-sheet-btns">
-          <button class="skip-btn-cancel" id="skip-btn-cancel">Keep Going</button>
-          <button class="skip-btn-confirm" id="skip-btn-confirm">Skip ⏭</button>
-        </div>
+        <div class="skip-sheet-btns"><button class="skip-btn-cancel" id="skip-btn-cancel">Keep Going</button><button class="skip-btn-confirm" id="skip-btn-confirm">Skip ⏭</button></div>
       </div>
     </div>
   </div>
@@ -452,14 +411,21 @@ html, body {
         <div class="trans-done-name" id="trans-done-name">Deep Work Block 1</div>
         <div class="trans-done-stat" id="trans-done-stat">You focused for 3 hours</div>
       </div>
+      
       <div class="trans-divider"></div>
-      <div class="trans-next-block">
+      
+      <div class="trans-note-wrap">
+        <textarea id="trans-note-input" class="trans-note-input" rows="2" placeholder="Session Note / What did you cover? (Optional)"></textarea>
+      </div>
+
+      <div class="trans-next-block" id="trans-next-block">
         <div class="trans-next-label">UP NEXT</div>
         <div class="trans-next-icon" id="trans-next-icon">🛌</div>
         <div class="trans-next-name" id="trans-next-name">NSDR — Yoga Nidra</div>
         <div class="trans-next-dur" id="trans-next-dur">20 minutes</div>
         <div class="trans-next-tip" id="trans-next-tip">Lie still. Eyes closed.</div>
       </div>
+
       <div class="trans-auto-wrap">
         <div class="trans-auto-ring-wrap">
           <svg viewBox="0 0 64 64" class="trans-auto-ring-svg">
@@ -468,8 +434,9 @@ html, body {
           </svg>
           <div class="trans-auto-num" id="trans-auto-num">10</div>
         </div>
-        <div class="trans-auto-text">Auto-starting</div>
+        <div class="trans-auto-text" id="trans-auto-text">Auto-starting</div>
       </div>
+
       <div class="trans-btns">
         <button class="trans-btn-add" id="trans-btn-add">+ 5 min</button>
         <button class="trans-btn-start" id="trans-btn-start">START NOW</button>
@@ -492,6 +459,7 @@ html, body {
       </div>
       <div class="eod-actions">
         <button class="btn-primary" id="btn-eod-home">Back to Home</button>
+        <button class="btn-secondary" id="btn-eod-export">📄 Export Daily Log</button>
         <button class="btn-secondary" id="btn-eod-save-template">Save Today as Template</button>
       </div>
     </div>
@@ -501,16 +469,11 @@ html, body {
   <div id="screen-editor" class="screen">
     <div class="editor-header">
       <button class="editor-back" id="editor-back">←</button>
-      <div class="editor-header-text">
-        <div class="editor-title">Edit Schedule</div>
-        <div class="editor-subtitle" id="editor-subtitle">Tap a session to edit</div>
-      </div>
+      <div class="editor-header-text"><div class="editor-title">Edit Schedule</div><div class="editor-subtitle" id="editor-subtitle">Tap a session to edit</div></div>
       <button class="btn-reset" id="btn-reset-schedule">Reset</button>
     </div>
     <div class="editor-list" id="editor-list"></div>
-    <div class="editor-save-bar">
-      <button class="btn-primary" id="btn-save-schedule">💾 Save Schedule</button>
-    </div>
+    <div class="editor-save-bar"><button class="btn-primary" id="btn-save-schedule">💾 Save Schedule</button></div>
   </div>
 
 </div>
@@ -524,22 +487,15 @@ html, body {
     <div class="modal-subtitle" id="modal-session-sub">Tap Edit Schedule for full control</div>
     <div class="editor-field">
       <div class="editor-field-label">Duration</div>
-      <div class="dur-spinner">
-        <button class="dur-btn" id="modal-dur-minus">−</button>
-        <div class="dur-val" id="modal-dur-val">60 min</div>
-        <button class="dur-btn" id="modal-dur-plus">+</button>
-      </div>
+      <div class="dur-spinner"><button class="dur-btn" id="modal-dur-minus">−</button><div class="dur-val" id="modal-dur-val">60 min</div><button class="dur-btn" id="modal-dur-plus">+</button></div>
     </div>
-    <div style="display:flex;gap:10px;margin-top:16px">
-      <button class="btn-secondary" style="flex:1" id="modal-cancel">Cancel</button>
-      <button class="btn-primary" style="flex:2" id="modal-save">Save This Session</button>
-    </div>
+    <div style="display:flex;gap:10px;margin-top:16px"><button class="btn-secondary" style="flex:1" id="modal-cancel">Cancel</button><button class="btn-primary" style="flex:2" id="modal-save">Save</button></div>
   </div>
 </div>
 
 <script>
 // ════════════════════════════════════════════════════════════
-//  SECTION A — DEFAULT SCHEDULE DATA
+//  SECTION A & B — DATA & STATE
 // ════════════════════════════════════════════════════════════
 const DEFAULT_SCHEDULE = [
   { id: 'dw1', name: 'Deep Work Block 1', subtitle: 'Hardest Topics', durationMins: 180, type: 'deep', color: '#e85d04', icon: '🧠', hrvReset: false, tips: 'Peak cortisol window. Attack the hardest subject first.' },
@@ -558,116 +514,63 @@ const DEFAULT_SCHEDULE = [
 ];
 
 const TYPE_CONFIG = {
-  deep:   { label: 'Deep Work',    color: '#e85d04', bg: '#fff3e0' },
-  nsdr:   { label: 'NSDR',         color: '#0077b6', bg: '#e0f4fb' },
-  meal:   { label: 'Meal',         color: '#2d6a4f', bg: '#e8f5ee' },
-  recall: { label: 'Active Recall', color: '#c1121f', bg: '#fde8ea' },
-  move:   { label: 'Movement',     color: '#40916c', bg: '#eaf7f0' },
-  review: { label: 'Review',       color: '#b45309', bg: '#fef9e7' },
-  sleep:  { label: 'Wind Down',    color: '#3730a3', bg: '#eef0fd' }
+  deep: { label: 'Deep Work', color: '#e85d04', bg: '#fff3e0' }, nsdr: { label: 'NSDR', color: '#0077b6', bg: '#e0f4fb' },
+  meal: { label: 'Meal', color: '#2d6a4f', bg: '#e8f5ee' }, recall: { label: 'Active Recall', color: '#c1121f', bg: '#fde8ea' },
+  move: { label: 'Movement', color: '#40916c', bg: '#eaf7f0' }, review: { label: 'Review', color: '#b45309', bg: '#fef9e7' },
+  sleep: { label: 'Wind Down', color: '#3730a3', bg: '#eef0fd' }
 };
 
-// ════════════════════════════════════════════════════════════
-//  SECTION B — STATE
-// ════════════════════════════════════════════════════════════
 const State = {
   schedule: [], isCustom: false, editorSchedule: [], expandedEditorId: null,
   modalSessionIndex: -1, modalTempDur: 0, dailyLog: [],
-  timer: {
-    running: false, paused: false, currentIndex: 0, sessionStartTs: 0, pausedElapsedMs: 0,
-    totalDayMins: 0, dayElapsedMins: 0, hrvFired: false, hrvAcknowledgedCount: 0, transitionExtras: 0,
-    rafId: null, heartbeatId: null,
-  }
+  timer: { running: false, paused: false, currentIndex: 0, sessionStartTs: 0, pausedElapsedMs: 0, totalDayMins: 0, dayElapsedMins: 0, hrvFired: false, hrvAcknowledgedCount: 0, transitionExtras: 0, rafId: null, heartbeatId: null }
 };
 
-const STORAGE_KEYS = {
-  SCHEDULE: 'mastery_schedule', VOLUME: 'mastery_volume', VIBRATION: 'mastery_vibration',
-  STATE: 'mastery_session_state', LAST_DATE: 'mastery_last_date', STREAK: 'mastery_streak'
-};
-
+const STORAGE_KEYS = { SCHEDULE: 'mastery_schedule', VOLUME: 'mastery_volume', VIBRATION: 'mastery_vibration', STATE: 'mastery_session_state', LAST_DATE: 'mastery_last_date', STREAK: 'mastery_streak', USER_NAME: 'mastery_user_name' };
 function deepClone(obj) { return JSON.parse(JSON.stringify(obj)); }
 function saveSchedule(schedule) { try { localStorage.setItem(STORAGE_KEYS.SCHEDULE, JSON.stringify(schedule)); } catch(e) {} }
-function loadSchedule() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.SCHEDULE);
-    if (!raw) return null;
-    const p = JSON.parse(raw);
-    if (!Array.isArray(p) || p.length === 0 || !p[0].id) return null;
-    return p;
-  } catch(e) { return null; }
-}
+function loadSchedule() { try { const raw = localStorage.getItem(STORAGE_KEYS.SCHEDULE); if (!raw) return null; const p = JSON.parse(raw); if (!Array.isArray(p) || p.length === 0 || !p[0].id) return null; return p; } catch(e) { return null; } }
 function clearSavedSchedule() { localStorage.removeItem(STORAGE_KEYS.SCHEDULE); }
 
 // ════════════════════════════════════════════════════════════
 //  SECTION G — UI UTILITIES & HOME
 // ════════════════════════════════════════════════════════════
-function fmtDur(mins) {
-  if (mins < 60) return `${mins}m`;
-  return mins % 60 === 0 ? `${Math.floor(mins / 60)}h` : `${Math.floor(mins / 60)}h ${mins % 60}m`;
-}
+function fmtDur(mins) { if (mins < 60) return `${mins}m`; return mins % 60 === 0 ? `${Math.floor(mins / 60)}h` : `${Math.floor(mins / 60)}h ${mins % 60}m`; }
 function calcStartTimes(schedule) { let offset = 0; return schedule.map(s => { const start = offset; offset += s.durationMins; return start; }); }
-function fmtStartTime(offsetMins, baseHour = 5, baseMin = 0) {
-  const t = baseHour * 60 + baseMin + offsetMins;
-  const h = Math.floor(t / 60) % 24;
-  return `${h % 12 === 0 ? 12 : h % 12}:${String(t % 60).padStart(2,'0')} ${h < 12 ? 'AM' : 'PM'}`;
-}
+function fmtStartTime(offsetMins, baseHour = 5, baseMin = 0) { const t = baseHour * 60 + baseMin + offsetMins; const h = Math.floor(t / 60) % 24; return `${h % 12 === 0 ? 12 : h % 12}:${String(t % 60).padStart(2,'0')} ${h < 12 ? 'AM' : 'PM'}`; }
 
 let toastTimer = null;
-function showToast(msg, duration = 2200) {
-  const el = document.getElementById('toast'); el.textContent = msg; el.classList.add('show');
-  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), duration);
-}
-function showScreen(screenId) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active', 'exit-left'));
-  const target = document.getElementById(screenId);
-  if (target) { target.classList.add('active'); target.scrollTop = 0; }
-}
+function showToast(msg, duration = 2200) { const el = document.getElementById('toast'); el.textContent = msg; el.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), duration); }
+function showScreen(screenId) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active', 'exit-left')); const target = document.getElementById(screenId); if (target) { target.classList.add('active'); target.scrollTop = 0; } }
 
 function renderHomeHeader() {
   const h = new Date().getHours();
-  document.getElementById('home-greeting').textContent = h >= 17 ? 'Good evening' : h >= 12 ? 'Good afternoon' : 'Good morning';
+  const timeStr = h >= 17 ? 'Good evening' : h >= 12 ? 'Good afternoon' : 'Good morning';
+  const name = localStorage.getItem(STORAGE_KEYS.USER_NAME) || 'Master';
+  document.getElementById('home-greeting').innerHTML = `${timeStr}, ${name} <span style="opacity:0.6;font-size:10px">✎</span>`;
   document.getElementById('home-date').textContent = new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   document.getElementById('schedule-badge').textContent = State.isCustom ? 'Custom Schedule' : 'Default Schedule';
   
-  // Display Streak
   const streak = parseInt(localStorage.getItem(STORAGE_KEYS.STREAK) || '0');
   const badge = document.getElementById('streak-badge');
-  if (streak > 0) {
-    badge.textContent = `🔥 ${streak} Day Streak`;
-    badge.style.display = 'inline-block';
-  } else {
-    badge.style.display = 'none';
-  }
+  if (streak > 0) { badge.textContent = `🔥 ${streak} Day Streak`; badge.style.display = 'inline-block'; } else badge.style.display = 'none';
 }
 
 function renderHomeStats() {
   const s = State.schedule;
-  document.getElementById('stat-deep').textContent  = fmtDur(s.filter(x => ['deep','recall'].includes(x.type)).reduce((a,b) => a + b.durationMins, 0));
-  document.getElementById('stat-nsdr').textContent  = `${s.filter(x => x.type === 'nsdr').length}×`;
+  document.getElementById('stat-deep').textContent = fmtDur(s.filter(x => ['deep','recall'].includes(x.type)).reduce((a,b) => a + b.durationMins, 0));
+  document.getElementById('stat-nsdr').textContent = `${s.filter(x => x.type === 'nsdr').length}×`;
   document.getElementById('stat-sessions').textContent = s.length;
   document.getElementById('stat-total').textContent = fmtDur(s.reduce((a,b) => a + b.durationMins, 0));
 }
 
 function renderSessionList() {
-  const container = document.getElementById('session-list'); container.innerHTML = '';
-  const offsets = calcStartTimes(State.schedule);
+  const container = document.getElementById('session-list'); container.innerHTML = ''; const offsets = calcStartTimes(State.schedule);
   State.schedule.forEach((session, i) => {
-    const tc = TYPE_CONFIG[session.type] || TYPE_CONFIG.deep;
-    const item = document.createElement('div');
+    const tc = TYPE_CONFIG[session.type] || TYPE_CONFIG.deep; const item = document.createElement('div');
     item.className = 'session-item'; item.style.borderColor = tc.color; item.style.background = tc.bg;
-    item.innerHTML = `
-      <div class="session-item-icon">${session.icon}</div>
-      <div class="session-item-body">
-        <div class="session-item-name">${session.name}</div>
-        <div class="session-item-sub">${session.subtitle}</div>
-        ${session.hrvReset ? `<div class="hrv-badge">🫁 HRV Reset</div>` : ''}
-      </div>
-      <div class="session-item-right">
-        <div class="session-item-dur">${fmtDur(session.durationMins)}</div>
-        <div class="session-item-time">${fmtStartTime(offsets[i])}</div>
-      </div>`;
-    item.addEventListener('click', () => openQuickModal(i));
-    container.appendChild(item);
+    item.innerHTML = `<div class="session-item-icon">${session.icon}</div><div class="session-item-body"><div class="session-item-name">${session.name}</div><div class="session-item-sub">${session.subtitle}</div>${session.hrvReset ? `<div class="hrv-badge">🫁 HRV Reset</div>` : ''}</div><div class="session-item-right"><div class="session-item-dur">${fmtDur(session.durationMins)}</div><div class="session-item-time">${fmtStartTime(offsets[i])}</div></div>`;
+    item.addEventListener('click', () => openQuickModal(i)); container.appendChild(item);
   });
 }
 function renderHome() { renderHomeHeader(); renderHomeStats(); renderSessionList(); }
@@ -675,71 +578,29 @@ function renderHome() { renderHomeHeader(); renderHomeStats(); renderSessionList
 function openQuickModal(index) {
   State.modalSessionIndex = index; State.modalTempDur = State.schedule[index].durationMins;
   document.getElementById('modal-session-name').textContent = `${State.schedule[index].icon} ${State.schedule[index].name}`;
-  document.getElementById('modal-session-sub').textContent = State.schedule[index].subtitle;
-  document.getElementById('modal-dur-val').textContent = `${State.modalTempDur} min`;
+  document.getElementById('modal-session-sub').textContent = State.schedule[index].subtitle; document.getElementById('modal-dur-val').textContent = `${State.modalTempDur} min`;
   document.getElementById('quick-modal').classList.add('open');
 }
 function closeQuickModal() { document.getElementById('quick-modal').classList.remove('open'); State.modalSessionIndex = -1; }
 
 // ════════════════════════════════════════════════════════════
-//  SECTION H — SCHEDULE EDITOR (Phase 5 Additions)
+//  SECTION H — SCHEDULE EDITOR
 // ════════════════════════════════════════════════════════════
-function openEditor() {
-  State.editorSchedule = deepClone(State.schedule); State.expandedEditorId = null;
-  renderEditorList(); updateEditorSubtitle(); showScreen('screen-editor');
-}
+function openEditor() { State.editorSchedule = deepClone(State.schedule); State.expandedEditorId = null; renderEditorList(); updateEditorSubtitle(); showScreen('screen-editor'); }
 function updateEditorSubtitle() { document.getElementById('editor-subtitle').textContent = `${State.editorSchedule.length} sessions · ${fmtDur(State.editorSchedule.reduce((a,b) => a + b.durationMins, 0))} total`; }
-
 function renderEditorList() {
   const container = document.getElementById('editor-list'); container.innerHTML = '';
   State.editorSchedule.forEach((session, i) => {
-    const tc = TYPE_CONFIG[session.type] || TYPE_CONFIG.deep;
-    const isExpanded = State.expandedEditorId === session.id;
-    const card = document.createElement('div');
-    card.className = `editor-card${isExpanded ? ' expanded' : ''}`;
-    card.style.borderColor = tc.color; card.dataset.id = session.id;
-
-    const typeChips = Object.entries(TYPE_CONFIG).map(([key, cfg]) => 
-      `<div class="type-chip${session.type === key ? ' selected' : ''}" style="background:${cfg.bg};color:${cfg.color}" data-type="${key}" data-idx="${i}">${cfg.label}</div>`
-    ).join('');
-
-    card.innerHTML = `
-      <div class="editor-card-header" data-id="${session.id}">
-        <div class="editor-card-icon">${session.icon}</div>
-        <div class="editor-card-info"><div class="editor-card-name">${session.name}</div><div class="editor-card-meta">${fmtDur(session.durationMins)} · ${tc.label}</div></div>
-        <div class="editor-card-dur">${fmtDur(session.durationMins)}</div>
-        <div class="editor-chevron">▾</div>
-      </div>
-      <div class="editor-expand">
-        <div class="editor-field"><div class="editor-field-label">Session Name</div><input type="text" class="editor-name-input" value="${session.name}" data-idx="${i}"></div>
-        <div class="editor-field"><div class="editor-field-label">Subtitle / Note</div><input type="text" class="editor-sub-input" value="${session.subtitle}" data-idx="${i}"></div>
-        <div class="editor-field"><div class="editor-field-label">Duration</div>
-          <div class="dur-spinner">
-            <button class="dur-btn editor-dur-minus" data-idx="${i}">−</button>
-            <div class="dur-val editor-dur-display" data-idx="${i}">${session.durationMins} min</div>
-            <button class="dur-btn editor-dur-plus" data-idx="${i}">+</button>
-          </div>
-        </div>
-        <div class="editor-field"><div class="editor-field-label">Session Type</div><div class="type-selector">${typeChips}</div></div>
-        <div class="editor-field"><div class="toggle-row"><span class="toggle-label">🫁 HRV Reset Reminder</span><button class="toggle${session.hrvReset ? ' on' : ''}" data-idx="${i}"></button></div></div>
-        <div class="editor-card-actions">
-          <button class="btn-delete" data-idx="${i}">🗑 Remove</button>
-          <button class="btn-move" data-idx="${i}" data-dir="-1" ${i === 0 ? 'disabled' : ''}>↑</button>
-          <button class="btn-move" data-idx="${i}" data-dir="1" ${i === State.editorSchedule.length - 1 ? 'disabled' : ''}>↓</button>
-          <button class="btn-save-session" data-idx="${i}">✓ Done</button>
-        </div>
-      </div>`;
+    const tc = TYPE_CONFIG[session.type] || TYPE_CONFIG.deep; const isExpanded = State.expandedEditorId === session.id;
+    const card = document.createElement('div'); card.className = `editor-card${isExpanded ? ' expanded' : ''}`; card.style.borderColor = tc.color; card.dataset.id = session.id;
+    const typeChips = Object.entries(TYPE_CONFIG).map(([key, cfg]) => `<div class="type-chip${session.type === key ? ' selected' : ''}" style="background:${cfg.bg};color:${cfg.color}" data-type="${key}" data-idx="${i}">${cfg.label}</div>`).join('');
+    card.innerHTML = `<div class="editor-card-header" data-id="${session.id}"><div class="editor-card-icon">${session.icon}</div><div class="editor-card-info"><div class="editor-card-name">${session.name}</div><div class="editor-card-meta">${fmtDur(session.durationMins)} · ${tc.label}</div></div><div class="editor-card-dur">${fmtDur(session.durationMins)}</div><div class="editor-chevron">▾</div></div><div class="editor-expand"><div class="editor-field"><div class="editor-field-label">Session Name</div><input type="text" class="editor-name-input" value="${session.name}" data-idx="${i}"></div><div class="editor-field"><div class="editor-field-label">Subtitle / Note</div><input type="text" class="editor-sub-input" value="${session.subtitle}" data-idx="${i}"></div><div class="editor-field"><div class="editor-field-label">Duration</div><div class="dur-spinner"><button class="dur-btn editor-dur-minus" data-idx="${i}">−</button><div class="dur-val editor-dur-display" data-idx="${i}">${session.durationMins} min</div><button class="dur-btn editor-dur-plus" data-idx="${i}">+</button></div></div><div class="editor-field"><div class="editor-field-label">Session Type</div><div class="type-selector">${typeChips}</div></div><div class="editor-field"><div class="toggle-row"><span class="toggle-label">🫁 HRV Reset Reminder</span><button class="toggle${session.hrvReset ? ' on' : ''}" data-idx="${i}"></button></div></div><div class="editor-card-actions"><button class="btn-delete" data-idx="${i}">🗑 Remove</button><button class="btn-move" data-idx="${i}" data-dir="-1" ${i === 0 ? 'disabled' : ''}>↑</button><button class="btn-move" data-idx="${i}" data-dir="1" ${i === State.editorSchedule.length - 1 ? 'disabled' : ''}>↓</button><button class="btn-save-session" data-idx="${i}">✓ Done</button></div></div>`;
     container.appendChild(card);
   });
-  const addBtn = document.createElement('button'); addBtn.className = 'btn-add-session'; addBtn.textContent = '+ Add Session'; addBtn.addEventListener('click', addNewSession);
-  container.appendChild(addBtn);
-  attachEditorEvents(container);
+  const addBtn = document.createElement('button'); addBtn.className = 'btn-add-session'; addBtn.textContent = '+ Add Session'; addBtn.addEventListener('click', () => { const ns = { id: 'c_' + Date.now(), name: 'New Session', subtitle: 'Tap to edit', durationMins: 30, type: 'deep', color: '#e85d04', icon: '📌', hrvReset: false, tips: '' }; State.editorSchedule.push(ns); State.expandedEditorId = ns.id; renderEditorList(); updateEditorSubtitle(); setTimeout(() => document.getElementById('editor-list').scrollTo({ top: document.getElementById('editor-list').scrollHeight, behavior: 'smooth' }), 50); }); container.appendChild(addBtn); attachEditorEvents(container);
 }
-
 function attachEditorEvents(container) {
-  container.querySelectorAll('.editor-card-header').forEach(h => h.addEventListener('click', () => {
-    State.expandedEditorId = State.expandedEditorId === h.dataset.id ? null : h.dataset.id; renderEditorList();
-  }));
+  container.querySelectorAll('.editor-card-header').forEach(h => h.addEventListener('click', () => { State.expandedEditorId = State.expandedEditorId === h.dataset.id ? null : h.dataset.id; renderEditorList(); }));
   container.querySelectorAll('.editor-dur-minus').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); const i = parseInt(b.dataset.idx); if(State.editorSchedule[i].durationMins > 5) { State.editorSchedule[i].durationMins -= 5; renderEditorList(); updateEditorSubtitle(); } }));
   container.querySelectorAll('.editor-dur-plus').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); State.editorSchedule[parseInt(b.dataset.idx)].durationMins += 5; renderEditorList(); updateEditorSubtitle(); }));
   container.querySelectorAll('.editor-name-input').forEach(i => { i.addEventListener('input', () => State.editorSchedule[parseInt(i.dataset.idx)].name = i.value); i.addEventListener('click', e => e.stopPropagation()); });
@@ -748,37 +609,9 @@ function attachEditorEvents(container) {
   container.querySelectorAll('.toggle').forEach(t => t.addEventListener('click', e => { e.stopPropagation(); const i = parseInt(t.dataset.idx); State.editorSchedule[i].hrvReset = !State.editorSchedule[i].hrvReset; t.classList.toggle('on'); }));
   container.querySelectorAll('.btn-delete').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); if (State.editorSchedule.length <= 1) return showToast('Must have at least one session'); State.editorSchedule.splice(parseInt(b.dataset.idx), 1); State.expandedEditorId = null; renderEditorList(); updateEditorSubtitle(); showToast('Session removed'); }));
   container.querySelectorAll('.btn-save-session').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); State.expandedEditorId = null; renderEditorList(); }));
-  
-  // Sorting controls
-  container.querySelectorAll('.btn-move').forEach(b => b.addEventListener('click', e => {
-    e.stopPropagation();
-    const idx = parseInt(b.dataset.idx);
-    const target = idx + parseInt(b.dataset.dir);
-    const temp = State.editorSchedule[idx];
-    State.editorSchedule[idx] = State.editorSchedule[target];
-    State.editorSchedule[target] = temp;
-    State.expandedEditorId = temp.id; // Keep expanded to visually track it
-    renderEditorList();
-  }));
-}
-
-function addNewSession() {
-  const ns = { id: 'c_' + Date.now(), name: 'New Session', subtitle: 'Tap to edit', durationMins: 30, type: 'deep', color: '#e85d04', icon: '📌', hrvReset: false, tips: '' };
-  State.editorSchedule.push(ns); State.expandedEditorId = ns.id; renderEditorList(); updateEditorSubtitle();
-  setTimeout(() => document.getElementById('editor-list').scrollTo({ top: document.getElementById('editor-list').scrollHeight, behavior: 'smooth' }), 50);
+  container.querySelectorAll('.btn-move').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); const idx = parseInt(b.dataset.idx), target = idx + parseInt(b.dataset.dir), temp = State.editorSchedule[idx]; State.editorSchedule[idx] = State.editorSchedule[target]; State.editorSchedule[target] = temp; State.expandedEditorId = temp.id; renderEditorList(); }));
 }
 function saveScheduleFromEditor() { State.schedule = deepClone(State.editorSchedule); State.isCustom = true; saveSchedule(State.schedule); renderHome(); showScreen('screen-home'); showToast('✓ Schedule saved!'); }
-function showResetSheet() {
-  let sheet = document.getElementById('reset-sheet');
-  if (!sheet) {
-    sheet = document.createElement('div'); sheet.id = 'reset-sheet'; sheet.className = 'skip-sheet';
-    sheet.innerHTML = `<div class="skip-sheet-inner"><div class="skip-sheet-title">Reset schedule?</div><div class="skip-sheet-sub">This restores the default 13-session schedule. Custom changes will be lost.</div><div class="skip-sheet-btns"><button class="skip-btn-cancel" id="reset-sheet-cancel">Cancel</button><button class="skip-btn-confirm" id="reset-sheet-confirm">Reset ↺</button></div></div>`;
-    document.getElementById('app').appendChild(sheet);
-    document.getElementById('reset-sheet-cancel').addEventListener('click', () => sheet.classList.remove('open'));
-    document.getElementById('reset-sheet-confirm').addEventListener('click', () => { sheet.classList.remove('open'); clearSavedSchedule(); State.schedule = deepClone(DEFAULT_SCHEDULE); State.isCustom = false; renderHome(); showScreen('screen-home'); showToast('↺ Reset to default'); });
-  }
-  sheet.classList.add('open');
-}
 
 // ════════════════════════════════════════════════════════════
 //  SECTION F & G — TIMER ENGINE & EOD
@@ -791,35 +624,17 @@ document.addEventListener('visibilitychange', async () => { if (document.visibil
 function saveTimerState() { if(State.timer.running) try { localStorage.setItem(STORAGE_KEYS.STATE, JSON.stringify({ currentIndex: State.timer.currentIndex, sessionStartTs: State.timer.sessionStartTs, pausedElapsedMs: State.timer.pausedElapsedMs, paused: State.timer.paused, dayElapsedMins: State.timer.dayElapsedMins, savedAt: Date.now() })); } catch(e) {} }
 function clearTimerState() { try { localStorage.removeItem(STORAGE_KEYS.STATE); } catch(e) {} }
 
-function checkCrashRecovery() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.STATE); if (!raw) return false;
-    const snap = JSON.parse(raw); if (Date.now() - snap.savedAt > 2 * 60 * 60 * 1000 || snap.currentIndex >= State.schedule.length) { clearTimerState(); return false; }
-    const session = State.schedule[snap.currentIndex];
-    const remainingMins = Math.ceil((session.durationMins * 60000 - (snap.paused ? snap.pausedElapsedMs : (Date.now() - snap.sessionStartTs))) / 60000);
-    if (remainingMins <= 0) { clearTimerState(); return false; }
-    if (confirm(`Resume "${session.name}"?\n${remainingMins} min remaining.`)) {
-      State.timer = { ...State.timer, currentIndex: snap.currentIndex, dayElapsedMins: snap.dayElapsedMins, paused: snap.paused, pausedElapsedMs: snap.pausedElapsedMs, totalDayMins: State.schedule.reduce((a,b)=>a+b.durationMins,0), sessionStartTs: snap.paused ? snap.sessionStartTs : (Date.now() - (Date.now() - snap.sessionStartTs)), running: true, hrvFired: false };
-      updateTimerUI(snap.currentIndex); showScreen('screen-timer'); if (!snap.paused) startTimerLoop(); else renderTimerPaused(); return true;
-    }
-    clearTimerState(); return false;
-  } catch(e) { clearTimerState(); return false; }
-}
-
 function applyTimerTheme(session) {
-  const c = session.color || '#e85d04';
-  document.getElementById('ring-fill').style.stroke = c; document.getElementById('timer-day-fill').style.background = c; document.getElementById('timer-session-fill').style.background = c;
+  const c = session.color || '#e85d04'; document.getElementById('ring-fill').style.stroke = c; document.getElementById('timer-day-fill').style.background = c; document.getElementById('timer-session-fill').style.background = c;
   if(document.getElementById('timer-ctrl-btn')) document.getElementById('btn-pause-resume').style.background = c;
-  document.getElementById('timer-session-name').style.color = c; document.getElementById('timer-countdown').style.color = c;
-  const arc = document.getElementById('trans-auto-arc'); if (arc) arc.style.stroke = c;
-  document.querySelectorAll('.trans-next-dur').forEach(el => el.style.color = c);
+  document.getElementById('timer-session-name').style.color = c; document.getElementById('timer-countdown').style.color = c; const arc = document.getElementById('trans-auto-arc'); if (arc) arc.style.stroke = c;
 }
 
 function updateTimerUI(index) {
   const session = State.schedule[index], nextSession = State.schedule[index + 1];
   document.getElementById('timer-icon').textContent = session.icon; document.getElementById('timer-session-name').textContent = session.name; document.getElementById('timer-session-sub').textContent = session.subtitle;
   document.getElementById('timer-session-counter').textContent = `${index + 1} of ${State.schedule.length}`; document.getElementById('timer-tip').textContent = session.tips || '';
-  if (nextSession) { document.getElementById('timer-next').style.display = 'flex'; document.getElementById('timer-next-icon').textContent = nextSession.icon; document.getElementById('timer-next-name').textContent = `${nextSession.name} · ${fmtDur(nextSession.durationMins)}`; } else { document.getElementById('timer-next').style.display = 'none'; }
+  if (nextSession) { document.getElementById('timer-next').style.display = 'flex'; document.getElementById('timer-next-icon').textContent = nextSession.icon; document.getElementById('timer-next-name').textContent = `${nextSession.name} · ${fmtDur(nextSession.durationMins)}`; } else document.getElementById('timer-next').style.display = 'none';
   document.getElementById('hrv-alert').classList.remove('visible'); applyTimerTheme(session);
   document.getElementById('timer-day-fill').style.width = State.timer.totalDayMins > 0 ? Math.min(100, (State.timer.dayElapsedMins / State.timer.totalDayMins) * 100) + '%' : '0%';
 }
@@ -833,7 +648,6 @@ function timerTick() {
   document.getElementById('ring-fill').style.strokeDashoffset = Math.max(0, Math.min(RING_CIRCUMFERENCE, RING_CIRCUMFERENCE * (1 - elMs / sMs)));
   document.getElementById('timer-session-fill').style.width = Math.min(100, (elMs / sMs) * 100) + '%';
   document.getElementById('timer-session-elapsed').textContent = elMs/60000 < 1 ? 'just started' : `${Math.floor(elMs/60000)}m elapsed`;
-  
   if (State.schedule[t.currentIndex].hrvReset && !t.hrvFired && Math.floor(elMs/60000) >= (State.schedule[t.currentIndex].durationMins >= 120 ? 60 : 90)) { t.hrvFired = true; document.getElementById('hrv-alert').classList.add('visible'); }
   if (rMs <= 0) return onSessionComplete();
   if (rSec % 30 === 0) saveTimerState();
@@ -846,103 +660,104 @@ function startTimerLoop() { cancelAnimationFrame(State.timer.rafId); State.timer
 async function startDay() {
   await requestNotifPermission(); State.dailyLog = [];
   State.timer = { ...State.timer, currentIndex: 0, running: true, paused: false, dayElapsedMins: 0, totalDayMins: State.schedule.reduce((a,b)=>a+b.durationMins,0), hrvFired: false, hrvAcknowledgedCount: 0, transitionExtras: 0 };
-  await requestWakeLock(); updateTimerUI(0); beginSession(0); showScreen('screen-timer');
+  await requestWakeLock(); beginSession(0);
 }
 
 function beginSession(i) {
+  // Capture Note from transition screen if applicable
+  if (State.dailyLog.length > 0) { const noteEl = document.getElementById('trans-note-input'); if (noteEl && noteEl.value.trim() && State.dailyLog[State.dailyLog.length - 1].status === 'completed') State.dailyLog[State.dailyLog.length - 1].note = noteEl.value.trim(); }
+  
   State.timer.currentIndex = i; State.timer.running = true; State.timer.paused = false; State.timer.hrvFired = false; State.timer.transitionExtras = 0; State.timer.sessionStartTs = Date.now(); State.timer.pausedElapsedMs = 0;
-  updateTimerUI(i); applyTimerTheme(State.schedule[i]); showScreen('screen-timer');
+  updateTimerUI(i); showScreen('screen-timer');
   const btn = document.getElementById('btn-pause-resume'); btn.textContent = '⏸'; btn.classList.remove('paused');
   startTimerLoop(); saveTimerState(); setTimeout(() => alertSessionStart(State.schedule[i]), 120);
 }
 
-function pauseTimer() { if (!State.timer.running || State.timer.paused) return; State.timer.paused = true; State.timer.pausedElapsedMs = Date.now() - State.timer.sessionStartTs; cancelAnimationFrame(State.timer.rafId); clearTimeout(State.timer.heartbeatId); releaseWakeLock(); renderTimerPaused(); saveTimerState(); }
-function resumeTimer() { if (!State.timer.paused) return; State.timer.paused = false; State.timer.sessionStartTs = Date.now() - State.timer.pausedElapsedMs; State.timer.pausedElapsedMs = 0; requestWakeLock(); startTimerLoop(); const btn = document.getElementById('btn-pause-resume'); btn.textContent = '⏸'; btn.classList.remove('paused'); }
-function renderTimerPaused() { const btn = document.getElementById('btn-pause-resume'); btn.textContent = '▶'; btn.classList.add('paused'); document.getElementById('timer-countdown-label').textContent = 'paused'; }
-function togglePause() { if (State.timer.paused) resumeTimer(); else pauseTimer(); }
+function pauseTimer() { if (!State.timer.running || State.timer.paused) return; State.timer.paused = true; State.timer.pausedElapsedMs = Date.now() - State.timer.sessionStartTs; cancelAnimationFrame(State.timer.rafId); clearTimeout(State.timer.heartbeatId); releaseWakeLock(); document.getElementById('btn-pause-resume').textContent = '▶'; document.getElementById('btn-pause-resume').classList.add('paused'); document.getElementById('timer-countdown-label').textContent = 'paused'; saveTimerState(); }
+function resumeTimer() { if (!State.timer.paused) return; State.timer.paused = false; State.timer.sessionStartTs = Date.now() - State.timer.pausedElapsedMs; State.timer.pausedElapsedMs = 0; requestWakeLock(); startTimerLoop(); document.getElementById('btn-pause-resume').textContent = '⏸'; document.getElementById('btn-pause-resume').classList.remove('paused'); }
 
 function advanceToNextSession() {
   cancelAnimationFrame(State.timer.rafId); clearTimeout(State.timer.heartbeatId); vibrate(VIBRATION_PATTERNS.skip);
   const s = State.schedule[State.timer.currentIndex]; State.dailyLog.push({ ...s, status: 'skipped' }); State.timer.dayElapsedMins += s.durationMins;
   if (State.timer.currentIndex + 1 >= State.schedule.length) return endDay();
-  beginSession(++State.timer.currentIndex);
+  beginSession(State.timer.currentIndex + 1);
 }
 
 function onSessionComplete() {
   cancelAnimationFrame(State.timer.rafId); clearTimeout(State.timer.heartbeatId);
   const s = State.schedule[State.timer.currentIndex]; State.dailyLog.push({ ...s, status: 'completed' }); State.timer.dayElapsedMins += s.durationMins;
-  if (State.timer.currentIndex + 1 >= State.schedule.length) return endDay();
-  showTransitionCard(s, State.schedule[++State.timer.currentIndex]);
+  const nextSession = State.schedule[State.timer.currentIndex + 1];
+  showTransitionCard(s, nextSession);
 }
 
 // ════════════════════════════════════════════════════════════
-//  STREAK TRACKER
+//  STREAK & EXPORT
 // ════════════════════════════════════════════════════════════
 function updateStreak(skippedCount) {
-  if (skippedCount > 1) return; // Spec: completed without skipping MORE than 1
-  const today = new Date().toDateString();
-  const lastDateStr = localStorage.getItem(STORAGE_KEYS.LAST_DATE);
+  if (skippedCount > 1) return; 
+  const today = new Date().toDateString(); const lastDateStr = localStorage.getItem(STORAGE_KEYS.LAST_DATE);
   let streak = parseInt(localStorage.getItem(STORAGE_KEYS.STREAK) || '0');
+  if (lastDateStr === today) return;
+  if (lastDateStr) { const diffDays = (new Date() - new Date(lastDateStr)) / 86400000; if (diffDays <= 2) streak++; else streak = 1; } else streak = 1;
+  localStorage.setItem(STORAGE_KEYS.LAST_DATE, today); localStorage.setItem(STORAGE_KEYS.STREAK, streak);
+}
 
-  if (lastDateStr === today) return; // Already logged today
-
-  if (lastDateStr) {
-    const diffDays = (new Date() - new Date(lastDateStr)) / (1000 * 60 * 60 * 24);
-    if (diffDays <= 2) streak++; else streak = 1; // Missed a day
-  } else {
-    streak = 1;
-  }
-  
-  localStorage.setItem(STORAGE_KEYS.LAST_DATE, today);
-  localStorage.setItem(STORAGE_KEYS.STREAK, streak);
+function exportDailyLog() {
+  let text = `MASTERY TIMER - DAILY LOG\nDate: ${new Date().toLocaleDateString()}\nStreak: ${localStorage.getItem(STORAGE_KEYS.STREAK) || 0} Days\n------------------------------------------\n\n`;
+  let compCount = 0;
+  State.dailyLog.forEach(log => {
+    const isComp = log.status === 'completed'; if(isComp) compCount++;
+    text += `[${isComp ? '✅ DONE' : '⏭ SKIPPED'}] ${log.name} (${fmtDur(log.durationMins)})\n`;
+    if (log.note) text += `Notes: ${log.note}\n`;
+    text += `\n`;
+  });
+  text += `------------------------------------------\nTotal Completed: ${compCount} / ${State.schedule.length}\n`;
+  const blob = new Blob([text], {type: 'text/plain'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `Mastery_Log_${new Date().toISOString().split('T')[0]}.txt`; a.click(); showToast('✓ Log exported');
 }
 
 // ════════════════════════════════════════════════════════════
 //  EOD & TRANSITIONS
 // ════════════════════════════════════════════════════════════
-function endDay() {
-  alertEndDay(); State.timer.running = false; clearTimerState(); releaseWakeLock();
-  cancelAnimationFrame(State.timer.rafId); clearTimeout(State.timer.heartbeatId);
-  renderEOD(); showScreen('screen-eod');
-}
+function endDay() { alertEndDay(); State.timer.running = false; clearTimerState(); releaseWakeLock(); cancelAnimationFrame(State.timer.rafId); clearTimeout(State.timer.heartbeatId); renderEOD(); showScreen('screen-eod'); }
 
 function renderEOD() {
   let focus = 0, nsdr = 0, comp = 0, skip = 0;
   State.dailyLog.forEach(l => { if (l.status === 'completed') { comp++; if (l.type === 'deep' || l.type === 'recall') focus += l.durationMins; if (l.type === 'nsdr') nsdr++; } else skip++; });
-  
   document.getElementById('eod-focus-time').textContent = fmtDur(focus); document.getElementById('eod-nsdr-count').textContent = nsdr;
   document.getElementById('eod-completed-count').textContent = `${comp} / ${State.schedule.length}`; document.getElementById('eod-skip-count').textContent = skip;
-  
   const t = document.querySelector('.eod-title'), s = document.querySelector('.eod-subtitle');
-  if (skip === 0) { t.textContent = 'Perfect Day 🏆'; s.innerHTML = 'Every session completed.<br>Incredible discipline.'; document.getElementById('eod-skip-count').classList.add('blue'); }
-  else { t.textContent = 'Day Complete 🎯'; s.innerHTML = 'You made it through the schedule.<br>Sleep now — your brain consolidates tonight.'; document.getElementById('eod-skip-count').classList.add('red'); }
-  
-  const hrvEl = document.getElementById('eod-hrv-stat');
-  if (State.timer.hrvAcknowledgedCount > 0) { document.getElementById('eod-hrv-count').textContent = State.timer.hrvAcknowledgedCount; hrvEl.style.display = 'inline-flex'; } else hrvEl.style.display = 'none';
-
-  // Process Phase 5 Streak
+  if (skip === 0) { t.textContent = 'Perfect Day 🏆'; s.innerHTML = 'Every session completed.<br>Incredible discipline.'; document.getElementById('eod-skip-count').classList.add('blue'); } else { t.textContent = 'Day Complete 🎯'; s.innerHTML = 'You made it through the schedule.<br>Sleep now — your brain consolidates tonight.'; document.getElementById('eod-skip-count').classList.add('red'); }
+  const hrvEl = document.getElementById('eod-hrv-stat'); if (State.timer.hrvAcknowledgedCount > 0) { document.getElementById('eod-hrv-count').textContent = State.timer.hrvAcknowledgedCount; hrvEl.style.display = 'inline-flex'; } else hrvEl.style.display = 'none';
   updateStreak(skip);
 }
 
 let transCountdownId = null;
 function showTransitionCard(completedSession, nextSession) {
+  document.getElementById('trans-note-input').value = '';
   document.getElementById('trans-done-name').textContent = completedSession.name; document.getElementById('trans-done-stat').textContent = `You completed ${fmtDur(completedSession.durationMins)}`;
-  document.getElementById('trans-next-icon').textContent = nextSession.icon; document.getElementById('trans-next-name').textContent = nextSession.name;
-  document.getElementById('trans-next-dur').textContent = fmtDur(nextSession.durationMins); document.getElementById('trans-next-tip').textContent = nextSession.tips || nextSession.subtitle;
-  document.getElementById('trans-next-dur').style.color = nextSession.color || '#e85d04'; document.getElementById('trans-auto-arc').style.stroke = nextSession.color || '#e85d04';
-  State.timer.transitionExtras = 0; document.getElementById('trans-btn-add').textContent = '+ 5 min';
-  showScreen('screen-transition'); startTransitionCountdown();
+  if (nextSession) {
+    document.getElementById('trans-next-block').style.display = 'block'; document.getElementById('trans-btn-add').style.display = 'block';
+    document.getElementById('trans-next-icon').textContent = nextSession.icon; document.getElementById('trans-next-name').textContent = nextSession.name;
+    document.getElementById('trans-next-dur').textContent = fmtDur(nextSession.durationMins); document.getElementById('trans-next-tip').textContent = nextSession.tips || nextSession.subtitle;
+    document.getElementById('trans-next-dur').style.color = nextSession.color || '#e85d04'; document.getElementById('trans-auto-arc').style.stroke = nextSession.color || '#e85d04';
+    document.getElementById('trans-auto-text').textContent = 'Auto-starting'; document.getElementById('trans-btn-start').textContent = 'START NOW';
+  } else {
+    document.getElementById('trans-next-block').style.display = 'none'; document.getElementById('trans-btn-add').style.display = 'none';
+    document.getElementById('trans-auto-arc').style.stroke = '#2d6a4f'; document.getElementById('trans-auto-text').textContent = 'Ending day'; document.getElementById('trans-btn-start').textContent = 'FINISH DAY';
+  }
+  State.timer.transitionExtras = 0; document.getElementById('trans-btn-add').textContent = '+ 5 min'; showScreen('screen-transition'); startTransitionCountdown(nextSession ? false : true);
 }
-function startTransitionCountdown() {
-  clearTransitionCountdown(); let secsLeft = TRANS_COUNTDOWN_SECS;
+function startTransitionCountdown(isLast) {
+  clearTransitionCountdown(); let secsLeft = 10;
   function tick() {
-    document.getElementById('trans-auto-num').textContent = secsLeft; document.getElementById('trans-auto-arc').style.strokeDashoffset = 176 * (1 - secsLeft / TRANS_COUNTDOWN_SECS);
-    if (secsLeft <= 0) { clearTransitionCountdown(); if (State.timer.transitionExtras > 0) State.schedule[State.timer.currentIndex].durationMins += State.timer.transitionExtras; return beginSession(State.timer.currentIndex); }
+    document.getElementById('trans-auto-num').textContent = secsLeft; document.getElementById('trans-auto-arc').style.strokeDashoffset = 176 * (1 - secsLeft / 10);
+    if (secsLeft <= 0) { clearTransitionCountdown(); if (!isLast && State.timer.transitionExtras > 0) State.schedule[State.timer.currentIndex + 1].durationMins += State.timer.transitionExtras; return isLast ? finishDayFromTransition() : beginSession(State.timer.currentIndex + 1); }
     secsLeft--; transCountdownId = setTimeout(tick, 1000);
   }
   tick();
 }
 function clearTransitionCountdown() { clearTimeout(transCountdownId); transCountdownId = null; }
+function finishDayFromTransition() { if (State.dailyLog.length > 0) { const noteEl = document.getElementById('trans-note-input'); if (noteEl && noteEl.value.trim() && State.dailyLog[State.dailyLog.length - 1].status === 'completed') State.dailyLog[State.dailyLog.length - 1].note = noteEl.value.trim(); } endDay(); }
 
 // ════════════════════════════════════════════════════════════
 //  SECTION D & E — AUDIO, VIBRATION & NOTIFS
@@ -973,21 +788,11 @@ function vibrate(p) { if(getVibrationEnabled() && navigator.vibrate) try{ naviga
 function vibrateForType(type) { vibrate(VIBRATION_PATTERNS[type] || VIBRATION_PATTERNS.deep); }
 
 let notifPermission = 'default';
-async function requestNotifPermission() {
-  if (!('Notification' in window)) return 'denied';
-  if (Notification.permission === 'granted') { notifPermission = 'granted'; return 'granted'; }
-  notifPermission = await Notification.requestPermission(); updateNotifBtn(); return notifPermission;
-}
-function updateNotifBtn() {
-  const btn = document.getElementById('tray-notif-btn'); if (!btn) return;
-  if (Notification.permission === 'granted') { btn.textContent = '✓ Enabled'; btn.classList.add('granted'); }
-  else if (Notification.permission === 'denied') { btn.textContent = 'Blocked'; btn.classList.remove('granted'); btn.style.opacity = '0.5'; }
-  else { btn.textContent = 'Enable'; btn.classList.remove('granted'); }
-}
-function sendNotification(t, b, tag='mastery-timer') {
-  if (Notification.permission === 'granted' && document.visibilityState !== 'visible')
-    try { new Notification(t, {body:b, tag, icon: PWA_ICON_DATA, requireInteraction: false}); } catch(e) {}
-}
+const PWA_ICON_DATA = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Ccircle cx='256' cy='256' r='256' fill='%23e85d04'/%3E%3Ctext x='256' y='340' font-size='240' font-family='sans-serif' text-anchor='middle' fill='%23ffffff'%3E⏱%3C/text%3E%3C/svg%3E";
+
+async function requestNotifPermission() { if (!('Notification' in window)) return 'denied'; if (Notification.permission === 'granted') { notifPermission = 'granted'; return 'granted'; } notifPermission = await Notification.requestPermission(); updateNotifBtn(); return notifPermission; }
+function updateNotifBtn() { const btn = document.getElementById('tray-notif-btn'); if (!btn) return; if (Notification.permission === 'granted') { btn.textContent = '✓ Enabled'; btn.classList.add('granted'); } else if (Notification.permission === 'denied') { btn.textContent = 'Blocked'; btn.classList.remove('granted'); btn.style.opacity = '0.5'; } else { btn.textContent = 'Enable'; btn.classList.remove('granted'); } }
+function sendNotification(t, b, tag='mastery-timer') { if (Notification.permission === 'granted' && document.visibilityState !== 'visible') try { new Notification(t, {body:b, tag, icon: PWA_ICON_DATA, requireInteraction: false}); } catch(e) {} }
 
 function alertSessionStart(s) { playSoundForType(s.type); vibrateForType(s.type); sendNotification(`${s.icon} ${s.name}`, `${fmtDur(s.durationMins)} · ${s.subtitle}`, 'mastery-session'); }
 function alertHRV() { sounds.hrv(); vibrate(VIBRATION_PATTERNS.hrv); sendNotification('🫁 HRV Reset Now', '2× inhale → long exhale · 5 minutes', 'mastery-hrv'); }
@@ -995,138 +800,83 @@ function alertEndDay() { sounds.endDay(); vibrate(VIBRATION_PATTERNS.endDay); se
 
 function initSettingsTray() {
   const sl = document.getElementById('tray-volume'), val = document.getElementById('tray-vol-val');
-  if (localStorage.getItem(STORAGE_KEYS.VOLUME)) sl.value = localStorage.getItem(STORAGE_KEYS.VOLUME);
-  val.textContent = sl.value + '%';
+  if (localStorage.getItem(STORAGE_KEYS.VOLUME)) sl.value = localStorage.getItem(STORAGE_KEYS.VOLUME); val.textContent = sl.value + '%';
   sl.addEventListener('input', () => { val.textContent = sl.value + '%'; localStorage.setItem(STORAGE_KEYS.VOLUME, sl.value); playTone({freq:440,duration:0.3,gain:0.4}); });
-  
-  const vT = document.getElementById('tray-vibration-toggle');
-  vT.classList.toggle('on', getVibrationEnabled()); vT.textContent = '';
+  const vT = document.getElementById('tray-vibration-toggle'); vT.classList.toggle('on', getVibrationEnabled()); vT.textContent = '';
   vT.addEventListener('click', () => { const on = !getVibrationEnabled(); localStorage.setItem(STORAGE_KEYS.VIBRATION, String(on)); vT.classList.toggle('on', on); if(on) vibrate([80,40,80]); });
-  
-  updateNotifBtn(); document.getElementById('tray-notif-btn').addEventListener('click', async () => { await requestNotifPermission(); updateNotifBtn(); if(Notification.permission==='granted') showToast('✓ Notifications enabled'); else if(Notification.permission==='denied') showToast('Blocked in browser settings'); });
+  updateNotifBtn(); document.getElementById('tray-notif-btn').addEventListener('click', async () => { await requestNotifPermission(); updateNotifBtn(); if(Notification.permission==='granted') showToast('✓ Notifications enabled'); });
   document.getElementById('timer-gear-btn').addEventListener('click', () => document.getElementById('timer-settings-tray').classList.toggle('open'));
 }
 
-(function patchHRVAlert() {
-  const el = document.getElementById('hrv-alert'); if (!el) return;
-  new MutationObserver(m => { m.forEach(x => { if (x.type==='attributes' && x.attributeName==='class' && el.classList.contains('visible')) alertHRV(); }); }).observe(el, {attributes:true});
-})();
+(function patchHRVAlert() { const el = document.getElementById('hrv-alert'); if (!el) return; new MutationObserver(m => { m.forEach(x => { if (x.type==='attributes' && x.attributeName==='class' && el.classList.contains('visible')) alertHRV(); }); }).observe(el, {attributes:true}); })();
 
-// ════════════════════════════════════════════════════════════
-//  SECTION I — PWA & SERVICE WORKER (Phase 5 Additions)
-// ════════════════════════════════════════════════════════════
-
-// Base64 generic timer icon so it works instantly without assets
-const PWA_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><circle cx="256" cy="256" r="256" fill="%23e85d04"/><text x="256" y="340" font-size="240" font-family="sans-serif" text-anchor="middle" fill="%23ffffff">⏱</text></svg>`;
-const PWA_ICON_DATA = 'data:image/svg+xml;charset=utf-8,' + PWA_ICON_SVG;
-
-function initPWA() {
-  // 1. Inject Dynamic Manifest
-  const manifest = {
-    name: "Mastery Timer", short_name: "Mastery", start_url: window.location.href.split('?')[0],
-    display: "standalone", background_color: "#f7f5f0", theme_color: "#f7f5f0",
-    icons: [
-      { src: PWA_ICON_DATA, sizes: "192x192", type: "image/svg+xml" },
-      { src: PWA_ICON_DATA, sizes: "512x512", type: "image/svg+xml" }
-    ]
-  };
-  const mBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
-  document.getElementById('manifest-link').href = URL.createObjectURL(mBlob);
-
-  // 2. Register Dynamic Service Worker
-  if ('serviceWorker' in navigator) {
-    const swCode = `
-      const CACHE_NAME = 'mastery-cache-v1';
-      self.addEventListener('install', e => { self.skipWaiting(); });
-      self.addEventListener('activate', e => { e.waitUntil(clients.claim()); });
-      self.addEventListener('fetch', e => {
-        // Only intercept GET requests, cache the current page
-        if(e.request.method !== 'GET') return;
-        e.respondWith(
-          fetch(e.request).then(res => {
-            const clone = res.clone();
-            caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
-            return res;
-          }).catch(() => caches.match(e.request))
-        );
-      });
-    `;
-    const swBlob = new Blob([swCode], {type: 'application/javascript'});
-    navigator.serviceWorker.register(URL.createObjectURL(swBlob))
-      .catch(err => console.log('SW registration failed (expected on file:// URLs)'));
-  }
-
-  // 3. Handle Installation Prompt
-  let deferredPrompt;
-  const banner = document.getElementById('install-banner');
-  const installBtn = document.getElementById('btn-install');
-
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    banner.classList.add('visible');
-  });
-
-  installBtn.addEventListener('click', async () => {
-    banner.classList.remove('visible');
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') showToast('✓ App installed successfully');
-      deferredPrompt = null;
-    }
-  });
-
-  // Hide banner if already installed
-  if (window.matchMedia('(display-mode: standalone)').matches) banner.classList.remove('visible');
+function checkCrashRecovery() {
+  try { const raw = localStorage.getItem(STORAGE_KEYS.STATE); if (!raw) return false; const snap = JSON.parse(raw); if (Date.now() - snap.savedAt > 2 * 60 * 60 * 1000 || snap.currentIndex >= State.schedule.length) { clearTimerState(); return false; } const session = State.schedule[snap.currentIndex]; const remainingMins = Math.ceil((session.durationMins * 60000 - (snap.paused ? snap.pausedElapsedMs : (Date.now() - snap.sessionStartTs))) / 60000); if (remainingMins <= 0) { clearTimerState(); return false; }
+    if (confirm(`Resume "${session.name}"?\n${remainingMins} min remaining.`)) { State.timer = { ...State.timer, currentIndex: snap.currentIndex, dayElapsedMins: snap.dayElapsedMins, paused: snap.paused, pausedElapsedMs: snap.pausedElapsedMs, totalDayMins: State.schedule.reduce((a,b)=>a+b.durationMins,0), sessionStartTs: snap.paused ? snap.sessionStartTs : (Date.now() - (Date.now() - snap.sessionStartTs)), running: true, hrvFired: false }; updateTimerUI(snap.currentIndex); showScreen('screen-timer'); if (!snap.paused) startTimerLoop(); else { document.getElementById('btn-pause-resume').textContent = '▶'; document.getElementById('btn-pause-resume').classList.add('paused'); document.getElementById('timer-countdown-label').textContent = 'paused'; } return true; } clearTimerState(); return false;
+  } catch(e) { clearTimerState(); return false; }
 }
 
+// ════════════════════════════════════════════════════════════
+//  SECTION I & J — PWA & INIT
+// ════════════════════════════════════════════════════════════
+function initPWA() {
+  let deferredPrompt; const banner = document.getElementById('install-banner'), installBtn = document.getElementById('btn-install');
+  window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; banner.classList.add('visible'); });
+  installBtn.addEventListener('click', async () => { banner.classList.remove('visible'); if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') showToast('✓ App installed successfully'); deferredPrompt = null; } });
+  if (window.matchMedia('(display-mode: standalone)').matches) banner.classList.remove('visible');
+  
+  // Register proper Service Worker for GitHub Pages offline support
+  if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(() => console.log('SW setup skipped (expected if not on HTTPs)')); }); }
+}
 
-// ════════════════════════════════════════════════════════════
-//  INIT APP
-// ════════════════════════════════════════════════════════════
 function initApp() {
-  const saved = loadSchedule();
-  if (saved) { State.schedule = saved; State.isCustom = true; } 
-  else { State.schedule = deepClone(DEFAULT_SCHEDULE); State.isCustom = false; }
-
-  renderHome();
-  initSettingsTray();
-  initPWA(); // Fire up PWA capabilities
-
+  const saved = loadSchedule(); if (saved) { State.schedule = saved; State.isCustom = true; } else { State.schedule = deepClone(DEFAULT_SCHEDULE); State.isCustom = false; }
+  renderHome(); initSettingsTray(); initPWA();
   if (!checkCrashRecovery()) showScreen('screen-home');
 
-  // DOM Events
+  document.getElementById('home-greeting').addEventListener('click', () => { const name = prompt('Enter your name:', localStorage.getItem(STORAGE_KEYS.USER_NAME) || 'Master'); if (name && name.trim()) { localStorage.setItem(STORAGE_KEYS.USER_NAME, name.trim()); renderHomeHeader(); } });
   document.getElementById('btn-start').addEventListener('click', startDay);
   document.getElementById('timer-home-btn').addEventListener('click', () => { pauseTimer(); showScreen('screen-home'); renderHome(); });
   document.getElementById('timer-skip-btn').addEventListener('click', () => { document.getElementById('skip-sheet-sub').textContent = `"${State.schedule[State.timer.currentIndex].name}" will be marked as skipped.`; document.getElementById('skip-sheet').classList.add('open'); });
   document.getElementById('skip-btn-cancel').addEventListener('click', () => document.getElementById('skip-sheet').classList.remove('open'));
   document.getElementById('skip-btn-confirm').addEventListener('click', () => { document.getElementById('skip-sheet').classList.remove('open'); advanceToNextSession(); });
-  document.getElementById('btn-pause-resume').addEventListener('click', togglePause);
+  document.getElementById('btn-pause-resume').addEventListener('click', () => { if (State.timer.paused) resumeTimer(); else pauseTimer(); });
   document.getElementById('hrv-alert-dismiss').addEventListener('click', () => { document.getElementById('hrv-alert').classList.remove('visible'); State.timer.hrvAcknowledgedCount++; });
-  document.getElementById('trans-btn-start').addEventListener('click', () => { clearTransitionCountdown(); beginSession(State.timer.currentIndex); });
-  document.getElementById('trans-btn-add').addEventListener('click', () => { State.timer.transitionExtras += 5; document.getElementById('trans-btn-add').textContent = `+5 min (${State.timer.transitionExtras} added)`; showToast(`+5 min added`); });
+  
+  document.getElementById('trans-btn-start').addEventListener('click', () => {
+    clearTransitionCountdown();
+    const isLast = (State.timer.currentIndex + 1 >= State.schedule.length);
+    if (isLast) finishDayFromTransition(); else beginSession(State.timer.currentIndex + 1);
+  });
+  
+  document.getElementById('trans-btn-add').addEventListener('click', () => { State.timer.transitionExtras += 5; document.getElementById('trans-btn-add').textContent = `+ 5 min (${State.timer.transitionExtras}m added)`; showToast('+5 min added'); });
   document.getElementById('btn-edit').addEventListener('click', openEditor);
   document.getElementById('editor-back').addEventListener('click', () => { showScreen('screen-home'); renderHome(); });
   document.getElementById('btn-save-schedule').addEventListener('click', saveScheduleFromEditor);
-  document.getElementById('btn-reset-schedule').addEventListener('click', showResetSheet);
+  
+  document.getElementById('btn-reset-schedule').addEventListener('click', () => {
+    let sheet = document.getElementById('reset-sheet');
+    if (!sheet) {
+      sheet = document.createElement('div'); sheet.id = 'reset-sheet'; sheet.className = 'skip-sheet';
+      sheet.innerHTML = `<div class="skip-sheet-inner"><div class="skip-sheet-title">Reset schedule?</div><div class="skip-sheet-sub">This restores the default 13-session schedule. Custom changes will be lost.</div><div class="skip-sheet-btns"><button class="skip-btn-cancel" id="reset-sheet-cancel">Cancel</button><button class="skip-btn-confirm" id="reset-sheet-confirm">Reset ↺</button></div></div>`;
+      document.getElementById('app').appendChild(sheet);
+      document.getElementById('reset-sheet-cancel').addEventListener('click', () => sheet.classList.remove('open'));
+      document.getElementById('reset-sheet-confirm').addEventListener('click', () => { sheet.classList.remove('open'); clearSavedSchedule(); State.schedule = deepClone(DEFAULT_SCHEDULE); State.isCustom = false; renderHome(); showScreen('screen-home'); showToast('↺ Reset to default'); });
+    }
+    sheet.classList.add('open');
+  });
 
   let mTimer;
   document.getElementById('modal-dur-minus').addEventListener('click', () => { if(State.modalTempDur>5){State.modalTempDur-=5; document.getElementById('modal-dur-val').textContent=`${State.modalTempDur} min`;} });
   document.getElementById('modal-dur-plus').addEventListener('click', () => { State.modalTempDur+=5; document.getElementById('modal-dur-val').textContent=`${State.modalTempDur} min`; });
-  ['modal-dur-minus', 'modal-dur-plus'].forEach(id => {
-    document.getElementById(id).addEventListener('touchstart', () => {
-      const dir = id.includes('minus')?-1:1;
-      mTimer = setTimeout(() => { State.modalTempDur = Math.max(5, State.modalTempDur + dir*15); document.getElementById('modal-dur-val').textContent=`${State.modalTempDur} min`; showToast(`${dir>0?'+':''}${dir*15} min`); }, 600);
-    });
-    document.getElementById(id).addEventListener('touchend', () => clearTimeout(mTimer));
-  });
+  ['modal-dur-minus', 'modal-dur-plus'].forEach(id => { document.getElementById(id).addEventListener('touchstart', () => { const dir = id.includes('minus')?-1:1; mTimer = setTimeout(() => { State.modalTempDur = Math.max(5, State.modalTempDur + dir*15); document.getElementById('modal-dur-val').textContent=`${State.modalTempDur} min`; showToast(`${dir>0?'+':''}${dir*15} min`); }, 600); }); document.getElementById(id).addEventListener('touchend', () => clearTimeout(mTimer)); });
   document.getElementById('modal-cancel').addEventListener('click', closeQuickModal);
   document.getElementById('quick-modal').addEventListener('click', e => { if(e.target === document.getElementById('quick-modal')) closeQuickModal(); });
   document.getElementById('modal-save').addEventListener('click', () => { if(State.modalSessionIndex>=0) { State.schedule[State.modalSessionIndex].durationMins = State.modalTempDur; State.isCustom = true; saveSchedule(State.schedule); renderHome(); closeQuickModal(); showToast('✓ Duration updated'); } });
 
   document.getElementById('btn-eod-home').addEventListener('click', () => { showScreen('screen-home'); renderHome(); });
   document.getElementById('btn-eod-save-template').addEventListener('click', () => { State.isCustom = true; saveSchedule(State.schedule); showToast('✓ Saved today\'s schedule as template'); });
+  document.getElementById('btn-eod-export').addEventListener('click', exportDailyLog);
 }
 
 document.addEventListener('DOMContentLoaded', initApp);
