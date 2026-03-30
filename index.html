@@ -363,10 +363,7 @@ html, body {
 /* ════════════════════════════════════
    SCREEN 8 — CLOCK VIEW (Phase 5 Drag)
 ════════════════════════════════════ */
-.clock-svg {
-  /* Prevents the screen from scrolling while you are dragging an arc */
-  touch-action: none; 
-}
+
 .arc-dragging {
   filter: drop-shadow(0 8px 16px rgba(0,0,0,0.3));
   z-index: 100;
@@ -1428,14 +1425,18 @@ visibleArcs.forEach(arc => {
     }
     layer.appendChild(path);
 
-    // 2. Draw the Invisible Touch Hit Area
+// 2. Draw the Invisible Touch Hit Area
     const hitPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
     hitPath.setAttribute("d", hitPathStr);
     hitPath.setAttribute("fill", "transparent");
     hitPath.style.cursor = "pointer";
     hitPath.style.webkitTapHighlightColor = "transparent";
+    hitPath.style.touchAction = "none"; // Stop scrolling ONLY when touching the arc itself
     
-    // Phase 5: Smart Pointer Interaction (Tap to Edit, Long-Press to Drag)
+    // Stop mobile "Right Click / Copy Image" menus from killing the long-press
+    hitPath.addEventListener("contextmenu", (e) => e.preventDefault());
+
+    // Phase 5: Smart Pointer Interaction
     hitPath.addEventListener("pointerdown", (e) => {
       if (arc.status === 'done') {
         showToast("✓ Session already completed");
@@ -1447,15 +1448,14 @@ visibleArcs.forEach(arc => {
       ClockDrag.arcData = arc;
       ClockDrag.visualPath = path;
 
-      // Start a 500ms timer. If we don't move or lift finger, it becomes a drag!
       ClockDrag.timer = setTimeout(() => {
-        initDrag(e);
+        ClockDrag.timer = null;
+        initDrag();
       }, 500);
     });
 
     hitPath.addEventListener("pointermove", (e) => {
       if (!ClockDrag.active && ClockDrag.timer) {
-        // If finger moves more than 10px before 500ms, cancel the long-press (user is just scrolling)
         if (Math.abs(e.clientX - ClockDrag.startX) > 10 || Math.abs(e.clientY - ClockDrag.startY) > 10) {
           clearTimeout(ClockDrag.timer);
           ClockDrag.timer = null;
@@ -1465,7 +1465,6 @@ visibleArcs.forEach(arc => {
 
     hitPath.addEventListener("pointerup", (e) => {
       if (ClockDrag.timer) {
-        // Finger lifted BEFORE 500ms -> It was a tap! Open the editor modal.
         clearTimeout(ClockDrag.timer);
         ClockDrag.timer = null;
         
@@ -1476,9 +1475,11 @@ visibleArcs.forEach(arc => {
         }
       }
     });
+    
     hitPath.addEventListener("pointercancel", () => {
       if (ClockDrag.timer) { clearTimeout(ClockDrag.timer); ClockDrag.timer = null; }
     });
+    
     layer.appendChild(hitPath);
 
     // 3. Draw the Labels (Emoji & Name)
@@ -1623,57 +1624,51 @@ const ClockDrag = {
   startX: 0, startY: 0, currentMins: 0
 };
 
-/** Converts a pointer event (touch/mouse) to minutes on the clock face */
 function getMinsFromPointer(e) {
   const svg = document.getElementById('clock-svg');
   const pt = svg.createSVGPoint();
-  // Support both touch and mouse
   pt.x = e.touches ? e.touches[0].clientX : e.clientX; 
   pt.y = e.touches ? e.touches[0].clientY : e.clientY;
   
   const loc = pt.matrixTransform(svg.getScreenCTM().inverse());
   let angle = Math.atan2(loc.y - 200, loc.x - 200) * 180 / Math.PI;
-  angle += 90; // Top is 0
+  angle += 90; 
   if (angle < 0) angle += 360;
 
   let mins = (angle / 360) * 720;
   if (State.clock.mode === 'pm') mins += 720;
 
-  // Snap to nearest 5 minutes
-  return Math.round(mins / 5) * 5;
+  return Math.round(mins / 5) * 5; // Snap to 5 mins
 }
 
-function initDrag(e) {
+function initDrag() {
   ClockDrag.active = true;
-  if (navigator.vibrate && getVibrationEnabled()) navigator.vibrate(30); // Haptic pop
+  if (navigator.vibrate && getVibrationEnabled()) navigator.vibrate(30);
   
   const layer = document.getElementById('clock-arcs-layer');
   
-  // Calculate constraints (cannot drag before previous session ends)
+  // Safe array lookup to prevent crashes if a session is skipped
   const allArcs = buildClockArcs(State.activeSchedule.length > 0 ? State.activeSchedule : State.schedule, State.clock.dayOffset);
-  ClockDrag.minMins = ClockDrag.arcData.index > 0 ? allArcs[ClockDrag.arcData.index - 1].endMinutes : 300;
-  ClockDrag.maxMins = 1440 - ClockDrag.arcData.durationMins; // Can't go past midnight
+  const prevArc = allArcs.find(a => a.index === ClockDrag.arcData.index - 1);
+  ClockDrag.minMins = prevArc ? prevArc.endMinutes : 300;
+  ClockDrag.maxMins = 1440 - ClockDrag.arcData.durationMins; 
   
-  // Dim other arcs
   Array.from(layer.children).forEach(child => {
     if (child !== ClockDrag.visualPath) child.classList.add('arc-dimmed');
   });
 
-  // Create Ghost (leaves a faint trace of original position)
   ClockDrag.ghostPath = ClockDrag.visualPath.cloneNode(true);
   ClockDrag.ghostPath.classList.add('arc-ghost');
   layer.insertBefore(ClockDrag.ghostPath, ClockDrag.visualPath);
 
-  // Bring active path to front and style it
   ClockDrag.visualPath.classList.add('arc-dragging');
-  layer.appendChild(ClockDrag.visualPath); // Moves to top of SVG stack
+  layer.appendChild(ClockDrag.visualPath);
 
-  // Create floating time tooltip
   ClockDrag.tooltipG = document.createElementNS("http://www.w3.org/2000/svg", "g");
   const tooltipBg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
   tooltipBg.setAttribute("class", "clock-drag-tooltip-bg");
-  tooltipBg.setAttribute("width", "60"); tooltipBg.setAttribute("height", "24");
-  tooltipBg.setAttribute("x", "-30"); tooltipBg.setAttribute("y", "-35");
+  tooltipBg.setAttribute("width", "64"); tooltipBg.setAttribute("height", "24");
+  tooltipBg.setAttribute("x", "-32"); tooltipBg.setAttribute("y", "-35");
   
   const tooltipText = document.createElementNS("http://www.w3.org/2000/svg", "text");
   tooltipText.setAttribute("class", "clock-drag-tooltip");
@@ -1684,11 +1679,68 @@ function initDrag(e) {
   ClockDrag.tooltipG.appendChild(tooltipText);
   layer.appendChild(ClockDrag.tooltipG);
 
-  // Attach global drag listeners
   document.addEventListener('pointermove', onDragMove, {passive: false});
   document.addEventListener('pointerup', onDragEnd);
   document.addEventListener('pointercancel', onDragEnd);
 }
+
+function onDragMove(e) {
+  if (!ClockDrag.active) return;
+  e.preventDefault();
+
+  let newMins = getMinsFromPointer(e);
+  const isInvalid = newMins < ClockDrag.minMins || newMins > ClockDrag.maxMins;
+  if (newMins < ClockDrag.minMins) newMins = ClockDrag.minMins;
+  if (newMins > ClockDrag.maxMins) newMins = ClockDrag.maxMins;
+  
+  ClockDrag.currentMins = newMins;
+
+  const sAngle = minutesToAngle(newMins);
+  const eAngle = minutesToAngle(newMins + ClockDrag.arcData.durationMins);
+  ClockDrag.visualPath.setAttribute("d", describeArc(200, 200, 110, 175, sAngle, eAngle));
+
+  const svg = document.getElementById('clock-svg');
+  const pt = svg.createSVGPoint();
+  pt.x = e.touches ? e.touches[0].clientX : e.clientX; 
+  pt.y = e.touches ? e.touches[0].clientY : e.clientY;
+  const loc = pt.matrixTransform(svg.getScreenCTM().inverse());
+  
+  ClockDrag.tooltipG.setAttribute("transform", `translate(${loc.x}, ${loc.y})`);
+  
+  const dH = Math.floor(newMins / 60) % 12 || 12;
+  const dM = String(newMins % 60).padStart(2, '0');
+  const dAmPm = newMins < 720 ? 'AM' : 'PM';
+  ClockDrag.tooltipG.querySelector('text').textContent = `${dH}:${dM} ${dAmPm}`;
+  ClockDrag.tooltipG.querySelector('rect').setAttribute("stroke", isInvalid ? "var(--red)" : "var(--orange)");
+}
+
+function onDragEnd(e) {
+  document.removeEventListener('pointermove', onDragMove);
+  document.removeEventListener('pointerup', onDragEnd);
+  document.removeEventListener('pointercancel', onDragEnd);
+
+  if (!ClockDrag.active) return;
+  ClockDrag.active = false;
+
+  if (ClockDrag.ghostPath) ClockDrag.ghostPath.remove();
+  if (ClockDrag.tooltipG) ClockDrag.tooltipG.remove();
+  ClockDrag.visualPath.classList.remove('arc-dragging');
+
+  const targetSession = State.activeSchedule[ClockDrag.arcData.index];
+  const originalSession = State.schedule[ClockDrag.arcData.index];
+  
+  if (targetSession && originalSession && ClockDrag.currentMins !== ClockDrag.arcData.startMinutes) {
+    targetSession.startMinutesOverride = ClockDrag.currentMins;
+    originalSession.startMinutesOverride = ClockDrag.currentMins;
+    State.isCustom = true;
+    saveSchedule(State.schedule);
+    showToast("↕ Schedule shifted");
+    if (navigator.vibrate && getVibrationEnabled()) vibrate([20, 10, 20]);
+  }
+
+  renderClock();
+}
+
 
 function onDragMove(e) {
   if (!ClockDrag.active) return;
