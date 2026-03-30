@@ -1527,7 +1527,12 @@ function initPWA() {
 
 function initApp() {
   State.rotation = loadRotation();
-  const saved = loadSchedule(); if (saved) { State.schedule = saved; State.isCustom = true; } else { State.schedule = deepClone(DEFAULT_SCHEDULE); State.isCustom = false; 
+  const saved = loadSchedule(); 
+  if (saved) { State.schedule = saved; State.isCustom = true; } 
+  else { State.schedule = deepClone(DEFAULT_SCHEDULE); State.isCustom = false; }
+  
+  // Force active schedule to build so the clock has data to draw immediately
+  buildActiveSchedule();
   
   // ══ Clock View Interactions ══
   const btnToday = document.getElementById('clock-day-today');
@@ -1561,9 +1566,7 @@ function initApp() {
     }
   }, 10000);  
   
-}
-  
-// Initialize Tabs
+  // ══ Initialize Tabs ══
   const tabC = document.getElementById('tab-current');
   const tabS = document.getElementById('tab-schedule');
   const tabK = document.getElementById('tab-clock'); // NEW CLOCK TAB
