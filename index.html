@@ -339,6 +339,27 @@ html, body {
 .modal-handle { width: 40px; height: 4px; border-radius: 2px; background: var(--border-md); margin: 0 auto 16px; }
 .modal-title { font-size: 18px; font-weight: 900; color: var(--text); margin-bottom: 4px; }
 .modal-subtitle { font-size: 12px; color: var(--text-muted); margin-bottom: 20px; }
+/* ════════════════════════════════════
+   SCREEN 8 — CLOCK VIEW (Phase 1)
+════════════════════════════════════ */
+.clock-header { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+.clock-title { font-size: 20px; font-weight: 900; color: var(--text); letter-spacing: -0.02em; }
+.clock-toggles-row { display: flex; justify-content: space-between; align-items: center; }
+.toggle-group { display: flex; background: var(--surface2); border-radius: 999px; padding: 4px; gap: 2px; }
+.pill-btn { background: transparent; border: none; color: var(--text-dim); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; padding: 6px 14px; border-radius: 999px; cursor: pointer; transition: all var(--transition); }
+.pill-btn.active { background: var(--surface); color: var(--orange); box-shadow: var(--shadow-sm); }
+.clock-container { display: flex; justify-content: center; align-items: center; margin: 10px 0 30px; position: relative; }
+.clock-svg { width: 85vw; max-width: 360px; height: auto; overflow: visible; filter: drop-shadow(var(--shadow-sm)); }
+.clock-face-bg { fill: #faf8f4; stroke: var(--border-md); stroke-width: 2; }
+.clock-center-dot { fill: var(--text-dim); }
+.clock-tick-major { stroke: var(--text-muted); stroke-width: 2; stroke-linecap: round; }
+.clock-tick-minor { stroke: var(--border-md); stroke-width: 1.5; stroke-linecap: round; }
+.clock-label { font-size: 14px; font-weight: 800; fill: var(--text-dim); text-anchor: middle; dominant-baseline: central; font-family: var(--font-display); }
+.clock-legend-wrap { width: 100%; overflow-x: auto; padding-bottom: 20px; -webkit-overflow-scrolling: touch; display: flex; gap: 10px; }
+.clock-legend-pill { flex-shrink: 0; display: flex; align-items: center; gap: 6px; background: var(--surface); border: 1.5px solid var(--border); padding: 8px 12px; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); }
+.legend-color-dot { width: 10px; height: 10px; border-radius: 50%; }
+.legend-text { font-size: 11px; font-weight: 700; color: var(--text); }
+.legend-time { font-size: 10px; font-weight: 600; color: var(--text-muted); font-family: var(--font-mono); }
 </style>
 </head>
 
@@ -377,10 +398,11 @@ html, body {
       <div class="stat-pill"><div class="stat-pill-val" id="stat-total">—</div><div class="stat-pill-label">Total</div></div>
     </div>
 
-    <!-- ══ NEW TAB BAR ══ -->
+<!-- ══ NEW TAB BAR ══ -->
     <div class="home-tabs">
       <button class="home-tab active" id="tab-current">Current Session</button>
       <button class="home-tab" id="tab-schedule">Schedule</button>
+      <button class="home-tab" id="tab-clock">Clock</button>
     </div>
 
     <!-- ══ TAB PANE 1: Current Session ══ -->
@@ -395,6 +417,73 @@ html, body {
         <span class="rotation-indicator" id="rotation-indicator" style="display:none">↻ Subject Rotation ON</span>
       </div>
       <div id="session-list"></div>
+    </div>
+
+<!-- ══ TAB PANE 3: Clock View (Phase 1) ══ -->
+    <div class="tab-pane" id="pane-clock">
+      <div class="clock-header">
+        <div class="clock-title">Time Blocks</div>
+        <div class="clock-toggles-row">
+          <div class="toggle-group">
+            <button class="pill-btn active" id="clock-day-today">Today</button>
+            <button class="pill-btn" id="clock-day-tomorrow">Tomorrow</button>
+          </div>
+          <div class="toggle-group">
+            <button class="pill-btn" id="clock-mode-am">AM</button>
+            <button class="pill-btn active" id="clock-mode-pm">PM</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="clock-container">
+        <!-- SVG Clock Canvas -->
+        <svg viewBox="0 0 400 400" class="clock-svg" id="clock-svg">
+          <circle cx="200" cy="200" r="180" class="clock-face-bg" />
+          
+          <g id="clock-ticks-layer">
+            <line x1="200" y1="20" x2="200" y2="35" class="clock-tick-major" transform="rotate(0 200 200)"/>
+            <line x1="200" y1="20" x2="200" y2="30" class="clock-tick-minor" transform="rotate(30 200 200)"/>
+            <line x1="200" y1="20" x2="200" y2="30" class="clock-tick-minor" transform="rotate(60 200 200)"/>
+            <line x1="200" y1="20" x2="200" y2="35" class="clock-tick-major" transform="rotate(90 200 200)"/>
+            <line x1="200" y1="20" x2="200" y2="30" class="clock-tick-minor" transform="rotate(120 200 200)"/>
+            <line x1="200" y1="20" x2="200" y2="30" class="clock-tick-minor" transform="rotate(150 200 200)"/>
+            <line x1="200" y1="20" x2="200" y2="35" class="clock-tick-major" transform="rotate(180 200 200)"/>
+            <line x1="200" y1="20" x2="200" y2="30" class="clock-tick-minor" transform="rotate(210 200 200)"/>
+            <line x1="200" y1="20" x2="200" y2="30" class="clock-tick-minor" transform="rotate(240 200 200)"/>
+            <line x1="200" y1="20" x2="200" y2="35" class="clock-tick-major" transform="rotate(270 200 200)"/>
+            <line x1="200" y1="20" x2="200" y2="30" class="clock-tick-minor" transform="rotate(300 200 200)"/>
+            <line x1="200" y1="20" x2="200" y2="30" class="clock-tick-minor" transform="rotate(330 200 200)"/>
+          </g>
+
+          <g id="clock-labels-layer">
+            <text x="200" y="55" class="clock-label">12</text>
+            <text x="245" y="67" class="clock-label">1</text>
+            <text x="277" y="103" class="clock-label">2</text>
+            <text x="290" y="200" class="clock-label">3</text>
+            <text x="277" y="297" class="clock-label">4</text>
+            <text x="245" y="333" class="clock-label">5</text>
+            <text x="200" y="345" class="clock-label">6</text>
+            <text x="155" y="333" class="clock-label">7</text>
+            <text x="123" y="297" class="clock-label">8</text>
+            <text x="110" y="200" class="clock-label">9</text>
+            <text x="123" y="103" class="clock-label">10</text>
+            <text x="155" y="67" class="clock-label">11</text>
+          </g>
+
+          <!-- Layer where JS will inject colored arcs -->
+          <g id="clock-arcs-layer"></g>
+          <circle cx="200" cy="200" r="4" class="clock-center-dot" />
+        </svg>
+      </div>
+
+      <!-- Legend placeholder -->
+      <div class="clock-legend-wrap" id="clock-legend-wrap">
+         <div class="clock-legend-pill">
+           <div class="legend-color-dot" style="background: var(--orange)"></div>
+           <div class="legend-text">🧠 Deep Work 1</div>
+           <div class="legend-time">5:00–8:00</div>
+         </div>
+      </div>
     </div>
 
     <div class="home-cta">
@@ -1123,6 +1212,311 @@ function saveRotation() {
 // ════════════════════════════════════════════════════════════
 //  SECTION I & J — PWA & INIT
 // ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
+//  SECTION L — CLOCK VIEW ENGINE (Phase 2 Data Math)
+// ════════════════════════════════════════════════════════════
+
+/**
+ * Converts minutes from midnight into degrees on a 12-hour clock.
+ * 0 mins (12:00) = 0°, 180 mins (3:00) = 90°.
+ */
+function minutesToAngle(minutes) {
+  return ((minutes % 720) / 720) * 360;
+}
+
+/**
+ * Transforms a schedule array into clock arc data.
+ * The standard day starts at 5:00 AM (300 minutes from midnight).
+ */
+function buildClockArcs(scheduleArray, dayOffsetDays = 0) {
+  const arcs = [];
+  let currentMins = 300; // 5:00 AM
+
+  scheduleArray.forEach((session, index) => {
+    if (session.durationMins <= 0) return;
+
+    // Phase 5 override support (defaults to standard sequential flow for now)
+    if (session.startMinutesOverride !== undefined) {
+      currentMins = session.startMinutesOverride;
+    }
+
+    const startMinutes = currentMins;
+    const endMinutes = Math.min(1440, startMinutes + session.durationMins); // Clamp to midnight
+
+    // Determine which half of the clock this belongs to
+    let halfMode = 'am';
+    if (startMinutes >= 720) halfMode = 'pm';
+    else if (startMinutes < 720 && endMinutes > 720) halfMode = 'both';
+
+    // Determine visual status
+    let status = 'upcoming';
+    if (dayOffsetDays === 0) {
+      if (index < State.timer.currentIndex) status = 'done';
+      else if (index === State.timer.currentIndex) status = 'active';
+    }
+
+    arcs.push({
+      index,
+      name: session.name,
+      emoji: session.icon,
+      color: session.color || '#e85d04',
+      type: session.type,
+      durationMins: session.durationMins,
+      startMinutes,
+      endMinutes,
+      startAngle: minutesToAngle(startMinutes),
+      endAngle: minutesToAngle(endMinutes),
+      halfMode,
+      status
+    });
+
+    currentMins = endMinutes;
+  });
+
+  return arcs;
+}
+
+/**
+ * Filters and splits arcs based on the selected clock mode ('am' or 'pm').
+ * If a session spans across noon, it splits it into two pieces.
+ */
+function filterArcsForMode(arcs, mode) {
+  const filtered = [];
+  
+  arcs.forEach(arc => {
+    if (arc.halfMode === mode) {
+      filtered.push({ ...arc });
+    } else if (arc.halfMode === 'both') {
+      // Split the arc at noon (720 mins)
+      if (mode === 'am') {
+        filtered.push({ ...arc, endMinutes: 720, endAngle: 360, isSplit: true });
+      } else if (mode === 'pm') {
+        filtered.push({ ...arc, startMinutes: 720, startAngle: 0, isSplit: true });
+      }
+    }
+  });
+  
+  return filtered;
+}
+
+// State variables for the clock view UI
+State.clock = { mode: 'pm', dayOffset: 0 };
+
+// ════════════════════════════════════════════════════════════
+//  SECTION M — CLOCK VIEW ENGINE (Phase 3 Rendering)
+// ════════════════════════════════════════════════════════════
+
+/**
+ * Helper: Converts polar coordinates (angle + radius) to cartesian (x, y) for SVG.
+ * Subtracts 90 degrees so 0° starts at the top (12 o'clock).
+ */
+function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+  const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+  return {
+    x: centerX + (radius * Math.cos(angleInRadians)),
+    y: centerY + (radius * Math.sin(angleInRadians))
+  };
+}
+
+/**
+ * Helper: Generates the SVG path 'd' string for a thick arc (donut slice).
+ */
+function describeArc(x, y, radiusIn, radiusOut, startAngle, endAngle) {
+  // Add a 0.5 degree gap so arcs don't perfectly touch (creates the white line effect)
+  const gap = 0.5;
+  let sA = startAngle + gap;
+  let eA = endAngle - gap;
+  if (eA <= sA) { eA = startAngle; sA = startAngle; } // Guard for tiny durations
+
+  const startIn = polarToCartesian(x, y, radiusIn, eA);
+  const endIn = polarToCartesian(x, y, radiusIn, sA);
+  const startOut = polarToCartesian(x, y, radiusOut, eA);
+  const endOut = polarToCartesian(x, y, radiusOut, sA);
+
+  const largeArcFlag = eA - sA <= 180 ? "0" : "1";
+
+  return [
+    "M", startOut.x, startOut.y,
+    "A", radiusOut, radiusOut, 0, largeArcFlag, 0, endOut.x, endOut.y,
+    "L", endIn.x, endIn.y,
+    "A", radiusIn, radiusIn, 0, largeArcFlag, 1, startIn.x, startIn.y,
+    "Z"
+  ].join(" ");
+}
+
+/**
+ * Main Render Function: Clears and redraws the clock face.
+ */
+function renderClock(mode = State.clock.mode, dayOffset = State.clock.dayOffset) {
+  if (!State.schedule || State.schedule.length === 0) return;
+  
+  State.clock.mode = mode;
+  State.clock.dayOffset = dayOffset;
+
+  const layer = document.getElementById('clock-arcs-layer');
+  if (!layer) return;
+  layer.innerHTML = ''; // Clear previous drawing
+
+  // Use activeSchedule if today, base schedule if tomorrow
+  const baseArray = State.activeSchedule.length > 0 ? State.activeSchedule : State.schedule;
+  const rawArcs = buildClockArcs(baseArray, dayOffset);
+  const visibleArcs = filterArcsForMode(rawArcs, mode);
+
+  visibleArcs.forEach(arc => {
+    const pathStr = describeArc(200, 200, 110, 175, arc.startAngle, arc.endAngle);
+    
+    // 1. Draw the Arc Path
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", pathStr);
+    path.dataset.index = arc.index;
+    
+    // Apply Colors based on status
+    if (arc.status === 'done') {
+      path.setAttribute("fill", "#2a2a2a");
+      path.setAttribute("fill-opacity", "0.55");
+    } else {
+      path.setAttribute("fill", arc.color);
+      path.setAttribute("fill-opacity", "0.9");
+      if (arc.status === 'active') {
+        // Glowing effect for the active session
+        path.setAttribute("stroke", arc.color);
+        path.setAttribute("stroke-width", "3");
+        path.setAttribute("filter", `drop-shadow(0 0 6px ${arc.color})`);
+      }
+    }
+    layer.appendChild(path);
+
+    // 2. Draw the Labels (Emoji & Name)
+    const spanDeg = arc.endAngle - arc.startAngle;
+    if (spanDeg > 20) {
+      const midAngle = arc.startAngle + (spanDeg / 2);
+      const midPoint = polarToCartesian(200, 200, 142.5, midAngle);
+      
+      // Keep text upright-ish
+      let textRot = midAngle;
+      if (midAngle > 90 && midAngle < 270) textRot += 180;
+
+      const gText = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      gText.setAttribute("transform", `translate(${midPoint.x}, ${midPoint.y}) rotate(${textRot})`);
+
+      const emoji = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      emoji.textContent = arc.emoji;
+      emoji.setAttribute("text-anchor", "middle");
+      emoji.setAttribute("dominant-baseline", "central");
+      emoji.setAttribute("font-size", "14px");
+      if (arc.status === 'done') emoji.setAttribute("opacity", "0.4");
+      gText.appendChild(emoji);
+
+      if (spanDeg > 35) {
+        emoji.setAttribute("y", "-6");
+        const name = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        name.textContent = arc.name.substring(0, 8) + (arc.name.length > 8 ? '..' : '');
+        name.setAttribute("y", "8");
+        name.setAttribute("text-anchor", "middle");
+        name.setAttribute("dominant-baseline", "central");
+        name.setAttribute("font-size", "8px");
+        name.setAttribute("font-weight", "800");
+        name.setAttribute("fill", arc.status === 'done' ? "rgba(255,255,255,0.6)" : "var(--surface)");
+        gText.appendChild(name);
+      }
+      layer.appendChild(gText);
+    }
+  });
+
+  drawCenterTimeAndHand(mode, dayOffset, layer);
+  renderClockLegend(rawArcs);
+}
+
+/**
+ * Draws the digital time in the center, and the sweeping orange "Now" hand.
+ */
+function drawCenterTimeAndHand(mode, dayOffset, layer) {
+  const now = new Date();
+  const h = now.getHours();
+  const m = now.getMinutes();
+  const currentMins = h * 60 + m;
+
+  // Center Digital Time
+  const centerG = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  const timeText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  
+  if (dayOffset === 1) {
+    timeText.textContent = "Tomorrow";
+    timeText.setAttribute("x", "200"); timeText.setAttribute("y", "200");
+    timeText.setAttribute("text-anchor", "middle"); timeText.setAttribute("dominant-baseline", "central");
+    timeText.setAttribute("font-size", "16px"); timeText.setAttribute("font-weight", "800");
+    timeText.setAttribute("fill", "var(--text-muted)");
+  } else {
+    const isAm = h < 12;
+    const displayH = h % 12 === 0 ? 12 : h % 12;
+    const displayM = m.toString().padStart(2, '0');
+    
+    timeText.textContent = `${displayH}:${displayM}`;
+    timeText.setAttribute("x", "200"); timeText.setAttribute("y", "195");
+    timeText.setAttribute("text-anchor", "middle"); timeText.setAttribute("dominant-baseline", "central");
+    timeText.setAttribute("font-size", "34px"); timeText.setAttribute("font-weight", "900");
+    timeText.setAttribute("fill", "var(--text)");
+
+    const ampmText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    ampmText.textContent = isAm ? "AM" : "PM";
+    ampmText.setAttribute("x", "200"); ampmText.setAttribute("y", "218");
+    ampmText.setAttribute("text-anchor", "middle"); ampmText.setAttribute("font-size", "12px");
+    ampmText.setAttribute("font-weight", "800"); ampmText.setAttribute("fill", "var(--text-muted)");
+    centerG.appendChild(ampmText);
+  }
+  centerG.appendChild(timeText);
+  layer.appendChild(centerG);
+
+  // The Orange "Now" Hand
+  if (dayOffset === 0) {
+    const nowAmPm = currentMins < 720 ? 'am' : 'pm';
+    if (nowAmPm === mode) {
+      const handAngle = minutesToAngle(currentMins);
+      const endPt = polarToCartesian(200, 200, 175, handAngle); // Reaches outer edge
+      
+      const hand = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      hand.setAttribute("x1", "200"); hand.setAttribute("y1", "200");
+      hand.setAttribute("x2", endPt.x); hand.setAttribute("y2", endPt.y);
+      hand.setAttribute("stroke", "var(--orange)");
+      hand.setAttribute("stroke-width", "2");
+      hand.setAttribute("stroke-linecap", "round");
+      layer.appendChild(hand);
+
+      const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      dot.setAttribute("cx", endPt.x); dot.setAttribute("cy", endPt.y);
+      dot.setAttribute("r", "4"); dot.setAttribute("fill", "var(--orange)");
+      layer.appendChild(dot);
+    }
+  }
+}
+
+/**
+ * Renders the scrollable horizontal list of sessions below the clock
+ */
+function renderClockLegend(rawArcs) {
+  const wrap = document.getElementById('clock-legend-wrap');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  
+  rawArcs.forEach(arc => {
+    const startH = Math.floor(arc.startMinutes / 60);
+    const startM = String(arc.startMinutes % 60).padStart(2,'0');
+    const endH = Math.floor(arc.endMinutes / 60);
+    const endM = String(arc.endMinutes % 60).padStart(2,'0');
+    const timeStr = `${startH % 12 || 12}:${startM}–${endH % 12 || 12}:${endM}`;
+    
+    wrap.innerHTML += `
+      <div class="clock-legend-pill" style="${arc.status === 'active' ? `border-color:${arc.color}` : ''}">
+        <div class="legend-color-dot" style="background: ${arc.status === 'done' ? 'var(--text-muted)' : arc.color}"></div>
+        <div class="legend-text" style="${arc.status === 'done' ? 'text-decoration:line-through; color:var(--text-muted)' : ''}">
+          ${arc.emoji} ${arc.name}
+        </div>
+        <div class="legend-time">${timeStr}</div>
+      </div>
+    `;
+  });
+}
+
 function initPWA() {
   let deferredPrompt; const banner = document.getElementById('install-banner'), installBtn = document.getElementById('btn-install');
   window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; banner.classList.add('visible'); });
@@ -1133,13 +1527,61 @@ function initPWA() {
 
 function initApp() {
   State.rotation = loadRotation();
-  const saved = loadSchedule(); if (saved) { State.schedule = saved; State.isCustom = true; } else { State.schedule = deepClone(DEFAULT_SCHEDULE); State.isCustom = false; }
+  const saved = loadSchedule(); if (saved) { State.schedule = saved; State.isCustom = true; } else { State.schedule = deepClone(DEFAULT_SCHEDULE); State.isCustom = false; 
   
-  // Initialize Tabs
-  const tabC = document.getElementById('tab-current'), tabS = document.getElementById('tab-schedule');
-  const paneC = document.getElementById('pane-current'), paneS = document.getElementById('pane-schedule');
-  tabC.addEventListener('click', () => { tabC.classList.add('active'); tabS.classList.remove('active'); paneC.classList.add('active'); paneS.classList.remove('active'); });
-  tabS.addEventListener('click', () => { tabS.classList.add('active'); tabC.classList.remove('active'); paneS.classList.add('active'); paneC.classList.remove('active'); });
+  // ══ Clock View Interactions ══
+  const btnToday = document.getElementById('clock-day-today');
+  const btnTomorrow = document.getElementById('clock-day-tomorrow');
+  const btnAM = document.getElementById('clock-mode-am');
+  const btnPM = document.getElementById('clock-mode-pm');
+
+  function updateClockButtons() {
+    btnToday.classList.toggle('active', State.clock.dayOffset === 0);
+    btnTomorrow.classList.toggle('active', State.clock.dayOffset === 1);
+    btnAM.classList.toggle('active', State.clock.mode === 'am');
+    btnPM.classList.toggle('active', State.clock.mode === 'pm');
+  }
+
+  btnToday.addEventListener('click', () => { State.clock.dayOffset = 0; updateClockButtons(); renderClock(); });
+  btnTomorrow.addEventListener('click', () => { State.clock.dayOffset = 1; updateClockButtons(); renderClock(); });
+  btnAM.addEventListener('click', () => { State.clock.mode = 'am'; updateClockButtons(); renderClock(); });
+  btnPM.addEventListener('click', () => { State.clock.mode = 'pm'; updateClockButtons(); renderClock(); });
+
+  // Auto-detect current half of the day on load
+  const initAmPm = new Date().getHours() < 12 ? 'am' : 'pm';
+  State.clock.mode = initAmPm;
+  updateClockButtons();
+
+  // Initial draw & Live Timer to update the hand/time every 10 seconds
+  renderClock();
+  setInterval(() => {
+    // Only bother recalculating if they are actually looking at the clock tab
+    if (document.getElementById('pane-clock').classList.contains('active')) {
+      renderClock();
+    }
+  }, 10000);  
+  
+}
+  
+// Initialize Tabs
+  const tabC = document.getElementById('tab-current');
+  const tabS = document.getElementById('tab-schedule');
+  const tabK = document.getElementById('tab-clock'); // NEW CLOCK TAB
+  
+  const paneC = document.getElementById('pane-current');
+  const paneS = document.getElementById('pane-schedule');
+  const paneK = document.getElementById('pane-clock'); // NEW CLOCK PANE
+
+  function switchTab(activeTab, activePane) {
+    [tabC, tabS, tabK].forEach(t => t.classList.remove('active'));
+    [paneC, paneS, paneK].forEach(p => p.classList.remove('active'));
+    activeTab.classList.add('active'); 
+    activePane.classList.add('active');
+  }
+
+  tabC.addEventListener('click', () => switchTab(tabC, paneC));
+  tabS.addEventListener('click', () => switchTab(tabS, paneS));
+  tabK.addEventListener('click', () => switchTab(tabK, paneK));
 
   renderHome(); initSettingsTray(); initPWA();
   if (!checkCrashRecovery()) showScreen('screen-home');
