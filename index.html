@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -97,7 +98,7 @@ html, body {
 .install-banner.visible { display: flex; }
 .install-btn { background: white; color: var(--indigo); border: none; padding: 6px 12px; border-radius: 999px; font-size: 11px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
 
-/* Insight Banner (Phase 9) */
+/* Insight Banner */
 .insight-banner { background: var(--yellow-light); border: 1.5px solid rgba(180, 83, 9, 0.2); margin: 12px 16px 0; border-radius: var(--radius-md); padding: 12px 14px; display: none; align-items: center; gap: 10px; box-shadow: var(--shadow-sm); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 .insight-btn { background: var(--yellow); color: white; border: none; padding: 8px 12px; border-radius: 999px; font-size: 10px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
 .insight-btn-dim { background: transparent; color: var(--text-muted); border: 1.5px solid var(--border-md); padding: 8px 12px; border-radius: 999px; font-size: 10px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
@@ -109,7 +110,29 @@ html, body {
 .stat-pill-val.orange { color: var(--orange); } .stat-pill-val.blue { color: var(--blue); } .stat-pill-val.green { color: var(--green); }
 .stat-pill-label { font-size: 9px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-muted); margin-top: 2px; }
 
-.session-list-wrap { flex: 1; overflow-y: auto; padding: 12px 16px 100px; -webkit-overflow-scrolling: touch; }
+/* ══ NEW: Tabs Infrastructure ══ */
+.home-tabs { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.home-tab { flex: 1; text-align: center; padding: 14px 0; font-size: 11px; font-weight: 800; color: var(--text-muted); background: transparent; border: none; border-bottom: 3px solid transparent; cursor: pointer; text-transform: uppercase; letter-spacing: 0.1em; transition: color 0.2s, border-color 0.2s; }
+.home-tab.active { color: var(--orange); border-bottom-color: var(--orange); }
+
+.tab-pane { display: none; flex: 1; overflow-y: auto; padding: 16px 16px 100px; -webkit-overflow-scrolling: touch; }
+.tab-pane.active { display: block; }
+
+/* ══ NEW: Current Session Card ══ */
+.cs-card { border-radius: var(--radius-xl); padding: 24px 20px; text-align: center; border: 2px solid; box-shadow: var(--shadow-sm); position: relative; overflow: hidden; transition: transform var(--transition); }
+.cs-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.cs-badge { font-size: 10px; font-weight: 800; letter-spacing: 0.1em; padding: 5px 10px; border-radius: 999px; text-transform: uppercase; }
+.cs-time { font-size: 13px; font-weight: 800; font-family: var(--font-mono); color: var(--text-dim); }
+.cs-icon-wrap { width: 72px; height: 72px; border-radius: 50%; background: var(--surface); display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+.cs-name { font-size: 20px; font-weight: 900; color: var(--text); letter-spacing: -0.02em; margin-bottom: 6px; line-height: 1.2; }
+.cs-sub { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 16px; }
+.cs-tips { font-size: 12px; color: var(--text-dim); font-style: italic; background: rgba(255,255,255,0.6); padding: 12px; border-radius: var(--radius-md); line-height: 1.5; border: 1px solid rgba(0,0,0,0.04); }
+
+.cs-empty { text-align: center; padding: 50px 20px; }
+.cs-empty-icon { font-size: 48px; margin-bottom: 16px; }
+.cs-empty-title { font-size: 22px; font-weight: 900; color: var(--text); margin-bottom: 8px; }
+.cs-empty-sub { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
 .session-list-title { font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; padding-left: 4px; display: flex; justify-content: space-between; align-items: center; }
 .rotation-indicator { color: var(--blue); font-weight: 800; background: var(--blue-light); padding: 2px 6px; border-radius: 4px; font-size: 9px; }
 
@@ -280,7 +303,7 @@ html, body {
 .lt-val { font-size: 28px; font-weight: 900; color: var(--orange); line-height: 1; margin-bottom: 4px; }
 .lt-label { font-size: 12px; font-weight: 600; color: var(--text-dim); }
 
-/* Streak Tracker (Phase 9) */
+/* Streak Tracker */
 .streak-dots-wrap { display: flex; gap: 8px; justify-content: center; margin-top: 12px; }
 .streak-dot { width: 22px; height: 22px; border-radius: 6px; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: rgba(0,0,0,0.2); }
 .streak-dot.active { background: var(--orange); color: white; box-shadow: 0 2px 6px rgba(232,93,4,0.3); }
@@ -345,7 +368,6 @@ html, body {
       </div>
     </div>
 
-    <!-- NEW: Adaptive Insights Banner -->
     <div class="insight-banner" id="insight-banner"></div>
 
     <div class="home-stats">
@@ -355,7 +377,19 @@ html, body {
       <div class="stat-pill"><div class="stat-pill-val" id="stat-total">—</div><div class="stat-pill-label">Total</div></div>
     </div>
 
-    <div class="session-list-wrap">
+    <!-- ══ NEW TAB BAR ══ -->
+    <div class="home-tabs">
+      <button class="home-tab active" id="tab-current">Current Session</button>
+      <button class="home-tab" id="tab-schedule">Schedule</button>
+    </div>
+
+    <!-- ══ TAB PANE 1: Current Session ══ -->
+    <div class="tab-pane active" id="pane-current">
+      <div id="current-session-container"></div>
+    </div>
+
+    <!-- ══ TAB PANE 2: Schedule (Original Session List) ══ -->
+    <div class="tab-pane" id="pane-schedule">
       <div class="session-list-title">
         <span>Today's Schedule</span>
         <span class="rotation-indicator" id="rotation-indicator" style="display:none">↻ Subject Rotation ON</span>
@@ -513,8 +547,6 @@ html, body {
       <div class="editor-header-text"><div class="editor-title">Analytics</div><div class="editor-subtitle">Your lifetime performance</div></div>
     </div>
     <div class="dash-content">
-      
-      <!-- NEW: Visual Consistency Tracker (Phase 9) -->
       <div class="dash-card">
         <div class="dash-card-title">7-Day Consistency</div>
         <div class="streak-dots-wrap" id="dash-streak-dots"></div>
@@ -573,7 +605,7 @@ html, body {
 // ════════════════════════════════════════════════════════════
 //  SECTION A & B — DATA & STATE
 // ════════════════════════════════════════════════════════════
-const DEFAULT_SCHEDULE = [
+const DEFAULT_SCHEDULE =[
   { id: 'dw1', name: 'Deep Work Block 1', subtitle: 'Hardest Topics', durationMins: 180, type: 'deep', color: '#e85d04', icon: '🧠', hrvReset: false, tips: 'Peak cortisol window. Attack the hardest subject first.' },
   { id: 'nsdr1', name: 'NSDR — Yoga Nidra', subtitle: 'Lie still, eyes closed', durationMins: 20, type: 'nsdr', color: '#0077b6', icon: '🛌', hrvReset: false, tips: 'Offline consolidation. Dopamine refills.' },
   { id: 'dw2', name: 'Deep Work Block 2', subtitle: 'Ride the NSDR boost', durationMins: 70, type: 'deep', color: '#e85d04', icon: '🧠', hrvReset: false, tips: 'NSDR cleared fatigue. Extended focus window.' },
@@ -596,11 +628,11 @@ const TYPE_CONFIG = {
   sleep: { label: 'Wind Down', color: '#3730a3', bg: '#eef0fd' }
 };
 
-const DEFAULT_ROTATION = { enabled: false, mapping: { 1: ['FR', 'AFM'], 2: ['Audit', 'DT'], 3: ['IDT', 'FR'], 4: ['AFM', 'Audit'], 5: ['DT', 'IDT'], 6: ['FR', 'DT'], 0: ['Mock', 'Review'] } };
+const DEFAULT_ROTATION = { enabled: false, mapping: { 1: ['FR', 'AFM'], 2: ['Audit', 'DT'], 3:['IDT', 'FR'], 4: ['AFM', 'Audit'], 5: ['DT', 'IDT'], 6: ['FR', 'DT'], 0: ['Mock', 'Review'] } };
 
 const State = {
-  schedule: [], activeSchedule: [], rotation: deepClone(DEFAULT_ROTATION), 
-  isCustom: false, editorSchedule: [], expandedEditorId: null, modalSessionIndex: -1, modalTempDur: 0, dailyLog: [],
+  schedule: [], activeSchedule:[], rotation: deepClone(DEFAULT_ROTATION), 
+  isCustom: false, editorSchedule:[], expandedEditorId: null, modalSessionIndex: -1, modalTempDur: 0, dailyLog:[], dayComplete: false,
   timer: { running: false, paused: false, currentIndex: 0, sessionStartTs: 0, pausedElapsedMs: 0, totalDayMins: 0, dayElapsedMins: 0, hrvFired: false, hrvAcknowledgedCount: 0, transitionExtras: 0, rafId: null, heartbeatId: null }
 };
 
@@ -619,11 +651,10 @@ function buildActiveSchedule() {
   });
 }
 
-// Phase 9: AI Adaptive Insights Tracker
 function recordSessionStat(id, status) {
   let stats = JSON.parse(localStorage.getItem(STORAGE_KEYS.STATS) || '{}');
   if(!stats[id]) stats[id] = { skips: 0, comps: 0 };
-  if(status === 'skipped') stats[id].skips++; else { stats[id].comps++; stats[id].skips = 0; } // reset skip count if completed
+  if(status === 'skipped') stats[id].skips++; else { stats[id].comps++; stats[id].skips = 0; }
   localStorage.setItem(STORAGE_KEYS.STATS, JSON.stringify(stats));
 }
 
@@ -655,10 +686,7 @@ window.applyInsight = function(id, action) {
   let stats = JSON.parse(localStorage.getItem(STORAGE_KEYS.STATS) || '{}');
   if(action === 'shorten') {
     const idx = State.schedule.findIndex(s => s.id === id);
-    if(idx > -1) {
-      State.schedule[idx].durationMins = Math.max(5, Math.floor(State.schedule[idx].durationMins * 0.5));
-      State.isCustom = true; saveSchedule(State.schedule); showToast('✓ Session shortened permanently');
-    }
+    if(idx > -1) { State.schedule[idx].durationMins = Math.max(5, Math.floor(State.schedule[idx].durationMins * 0.5)); State.isCustom = true; saveSchedule(State.schedule); showToast('✓ Session shortened permanently'); }
   }
   stats[id].skips = 0; localStorage.setItem(STORAGE_KEYS.STATS, JSON.stringify(stats)); renderHome();
 }
@@ -694,6 +722,74 @@ function renderHomeStats() {
   document.getElementById('stat-total').textContent = fmtDur(s.reduce((a,b) => a + b.durationMins, 0));
 }
 
+function renderCurrentSessionTab() {
+  const container = document.getElementById('current-session-container');
+  const startBtn = document.getElementById('btn-start');
+  
+  if (State.dayComplete && State.activeSchedule.length > 0) {
+    container.innerHTML = `
+      <div class="cs-empty">
+        <div class="cs-empty-icon">🎯</div>
+        <div class="cs-empty-title">Day Complete</div>
+        <div class="cs-empty-sub">Awesome work today! All sessions are finished.</div>
+      </div>
+    `;
+    // FIX: Turn the button into a restart button instead of hiding it!
+    startBtn.style.display = 'block';
+    startBtn.textContent = '▶ START NEW DAY';
+    return;
+  }
+  
+  const idx = State.timer.currentIndex || 0;
+  const session = State.activeSchedule[idx];
+  if (!session) return;
+  
+  const tc = TYPE_CONFIG[session.type] || TYPE_CONFIG.deep;
+  const isStarted = State.timer.sessionStartTs > 0;
+  
+  let progressPct = 0;
+  if (isStarted) {
+     const sMs = session.durationMins * 60000;
+     const elMs = State.timer.paused ? State.timer.pausedElapsedMs : (Date.now() - State.timer.sessionStartTs);
+     progressPct = Math.min(100, Math.max(0, (elMs / sMs) * 100));
+  }
+  
+  container.innerHTML = `
+    <div class="cs-card" style="border-color: ${tc.color}; background: ${tc.bg};">
+      <div class="cs-card-header">
+        <span class="cs-badge" style="color: ${tc.color}; background: ${tc.color}33">${isStarted ? 'CURRENTLY RUNNING' : 'UP NEXT'}</span>
+        <span class="cs-time">${fmtDur(session.durationMins)}</span>
+      </div>
+      <div class="cs-icon-wrap" style="color: ${tc.color}">
+         <div class="cs-icon">${session.icon}</div>
+      </div>
+      <div class="cs-info">
+         <div class="cs-name">${session.name}</div>
+         <div class="cs-sub">${session.subtitle}</div>
+      </div>
+      ${session.tips ? `<div class="cs-tips">💡 ${session.tips}</div>` : ''}
+      ${isStarted ? `
+        <div class="cs-progress-wrap" style="margin-top: 20px; text-align: left;">
+          <div style="display: flex; justify-content: space-between; font-size: 10px; font-weight: 800; letter-spacing: 0.05em; color: var(--text-dim); margin-bottom: 6px;">
+             <span>${State.timer.paused ? 'PAUSED' : 'IN PROGRESS'}</span>
+             <span>${Math.floor(progressPct)}%</span>
+          </div>
+          <div class="cs-progress-track" style="height: 6px; background: rgba(0,0,0,0.08); border-radius: 3px; overflow: hidden;">
+            <div class="cs-progress-fill" style="height: 100%; background: ${tc.color}; width: ${progressPct}%;"></div>
+          </div>
+        </div>
+      ` : ''}
+    </div>
+  `;
+  
+  startBtn.style.display = 'block';
+  if (isStarted) {
+    startBtn.textContent = State.timer.paused ? '▶ RESUME SESSION' : '▶ GO TO TIMER';
+  } else {
+    startBtn.textContent = '▶ START DAY';
+  }
+}
+
 function renderSessionList() {
   const container = document.getElementById('session-list'); container.innerHTML = ''; const offsets = calcStartTimes(State.activeSchedule);
   State.activeSchedule.forEach((session, i) => {
@@ -703,7 +799,15 @@ function renderSessionList() {
     item.addEventListener('click', () => openQuickModal(i)); container.appendChild(item);
   });
 }
-function renderHome() { buildActiveSchedule(); renderHomeHeader(); renderInsights(); renderHomeStats(); renderSessionList(); }
+
+function renderHome() { 
+  buildActiveSchedule(); 
+  renderHomeHeader(); 
+  renderInsights(); 
+  renderHomeStats(); 
+  renderCurrentSessionTab();
+  renderSessionList(); 
+}
 
 function openQuickModal(index) {
   State.modalSessionIndex = index; State.modalTempDur = State.activeSchedule[index].durationMins;
@@ -788,7 +892,7 @@ function startHeartbeat() { clearTimeout(State.timer.heartbeatId); State.timer.h
 function startTimerLoop() { cancelAnimationFrame(State.timer.rafId); State.timer.rafId = requestAnimationFrame(timerTick); startHeartbeat(); }
 
 async function startDay() {
-  await requestNotifPermission(); State.dailyLog = [];
+  await requestNotifPermission(); State.dailyLog =[]; State.dayComplete = false;
   State.timer = { ...State.timer, currentIndex: 0, running: true, paused: false, dayElapsedMins: 0, totalDayMins: State.activeSchedule.reduce((a,b)=>a+b.durationMins,0), hrvFired: false, hrvAcknowledgedCount: 0, transitionExtras: 0 };
   await requestWakeLock(); beginSession(0);
 }
@@ -807,7 +911,7 @@ function resumeTimer() { if (!State.timer.paused) return; State.timer.paused = f
 function advanceToNextSession() {
   cancelAnimationFrame(State.timer.rafId); clearTimeout(State.timer.heartbeatId); vibrate(VIBRATION_PATTERNS.skip);
   const s = State.activeSchedule[State.timer.currentIndex]; State.dailyLog.push({ ...s, status: 'skipped' }); State.timer.dayElapsedMins += s.durationMins;
-  recordSessionStat(s.id, 'skipped'); // Phase 9 Tracker
+  recordSessionStat(s.id, 'skipped');
   if (State.timer.currentIndex + 1 >= State.activeSchedule.length) return endDay();
   beginSession(State.timer.currentIndex + 1);
 }
@@ -815,7 +919,7 @@ function advanceToNextSession() {
 function onSessionComplete() {
   cancelAnimationFrame(State.timer.rafId); clearTimeout(State.timer.heartbeatId);
   const s = State.activeSchedule[State.timer.currentIndex]; State.dailyLog.push({ ...s, status: 'completed' }); State.timer.dayElapsedMins += s.durationMins;
-  recordSessionStat(s.id, 'completed'); // Phase 9 Tracker
+  recordSessionStat(s.id, 'completed');
   const nextSession = State.activeSchedule[State.timer.currentIndex + 1];
   showTransitionCard(s, nextSession);
 }
@@ -856,7 +960,18 @@ function exportDailyLog() {
 // ════════════════════════════════════════════════════════════
 //  EOD & TRANSITIONS
 // ════════════════════════════════════════════════════════════
-function endDay() { alertEndDay(); State.timer.running = false; clearTimerState(); releaseWakeLock(); cancelAnimationFrame(State.timer.rafId); clearTimeout(State.timer.heartbeatId); renderEOD(); showScreen('screen-eod'); }
+function endDay() { 
+  alertEndDay(); 
+  State.timer.running = false; 
+  State.timer.sessionStartTs = 0;
+  State.dayComplete = true;
+  clearTimerState(); 
+  releaseWakeLock(); 
+  cancelAnimationFrame(State.timer.rafId); 
+  clearTimeout(State.timer.heartbeatId); 
+  renderEOD(); 
+  showScreen('screen-eod'); 
+}
 
 function renderEOD() {
   let focus = 0, nsdr = 0, comp = 0, skip = 0;
@@ -913,9 +1028,9 @@ const sounds = {
   recall: () => { playTone({freq:330,type:'square',duration:0.18,gain:0.25,fadeOut:0.05}); playTone({freq:330,type:'square',duration:0.18,gain:0.25,fadeOut:0.05,startOffset:0.25}); },
   move: () => [330,440,550].forEach((f,i) => playTone({freq:f,duration:0.25,gain:0.4,fadeOut:0.1,startOffset:i*0.22})),
   review: () => playTone({freq:297,duration:1.0,gain:0.35,fadeIn:0.05,fadeOut:0.4}),
-  sleep: () => [220,196,165].forEach((f,i) => playTone({freq:f,duration:0.7,gain:0.3,fadeIn:0.1,fadeOut:0.3,startOffset:i*0.55})),
-  hrv: () => [0,0.22,0.5,1.1,1.32,1.6].forEach((o,i) => playTone({freq:i%3===2?180:260,duration:i%3===2?0.55:0.18,gain:0.35,fadeOut:0.1,startOffset:o})),
-  endDay: () => [261,329,392,523].forEach((f,i) => playTone({freq:f,duration:1.2,gain:0.35,fadeIn:0.02,fadeOut:0.5,startOffset:i*0.12}))
+  sleep: () =>[220,196,165].forEach((f,i) => playTone({freq:f,duration:0.7,gain:0.3,fadeIn:0.1,fadeOut:0.3,startOffset:i*0.55})),
+  hrv: () =>[0,0.22,0.5,1.1,1.32,1.6].forEach((o,i) => playTone({freq:i%3===2?180:260,duration:i%3===2?0.55:0.18,gain:0.35,fadeOut:0.1,startOffset:o})),
+  endDay: () =>[261,329,392,523].forEach((f,i) => playTone({freq:f,duration:1.2,gain:0.35,fadeIn:0.02,fadeOut:0.5,startOffset:i*0.12}))
 };
 function playSoundForType(type) { (sounds[type] || sounds.deep)(); }
 
@@ -960,7 +1075,6 @@ function renderDashboard() {
   let totalMins = 0; history.forEach(day => totalMins += (day.focusMins || 0));
   document.getElementById('dash-lt-hours').textContent = Math.floor(totalMins / 60); document.getElementById('dash-lt-days').textContent = history.length;
   
-  // Phase 9: Visual Consistency Tracker (Dots)
   const dotsContainer = document.getElementById('dash-streak-dots');
   let dotsHTML = '';
   for (let i = 6; i >= 0; i--) {
@@ -970,10 +1084,9 @@ function renderDashboard() {
   }
   dotsContainer.innerHTML = dotsHTML;
 
-  // Chart
   const chartContainer = document.getElementById('dash-chart-container');
   if (history.length === 0) { chartContainer.innerHTML = '<div class="chart-empty-state">Complete your first day to see the chart!</div>'; return; }
-  const last7Days = [];
+  const last7Days =[];
   for (let i = 6; i >= 0; i--) {
     let d = new Date(); d.setDate(d.getDate() - i); const dateStr = d.toISOString().split('T')[0]; const dayData = history.find(h => h.date === dateStr);
     last7Days.push({ label: d.toLocaleDateString('en-US', {weekday:'short'}).charAt(0), mins: dayData ? dayData.focusMins : 0 });
@@ -990,7 +1103,7 @@ function renderDashboard() {
 
 function openRotationManager() {
   const tgl = document.getElementById('rot-toggle-main'); tgl.classList.toggle('on', State.rotation.enabled);
-  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const days =['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const list = document.getElementById('rot-days-list'); list.innerHTML = '';
   days.forEach((dayName, idx) => {
     const s = State.rotation.mapping[idx];
@@ -1021,11 +1134,36 @@ function initPWA() {
 function initApp() {
   State.rotation = loadRotation();
   const saved = loadSchedule(); if (saved) { State.schedule = saved; State.isCustom = true; } else { State.schedule = deepClone(DEFAULT_SCHEDULE); State.isCustom = false; }
+  
+  // Initialize Tabs
+  const tabC = document.getElementById('tab-current'), tabS = document.getElementById('tab-schedule');
+  const paneC = document.getElementById('pane-current'), paneS = document.getElementById('pane-schedule');
+  tabC.addEventListener('click', () => { tabC.classList.add('active'); tabS.classList.remove('active'); paneC.classList.add('active'); paneS.classList.remove('active'); });
+  tabS.addEventListener('click', () => { tabS.classList.add('active'); tabC.classList.remove('active'); paneS.classList.add('active'); paneC.classList.remove('active'); });
+
   renderHome(); initSettingsTray(); initPWA();
   if (!checkCrashRecovery()) showScreen('screen-home');
 
   document.getElementById('home-greeting').addEventListener('click', () => { const name = prompt('Enter your name:', localStorage.getItem(STORAGE_KEYS.USER_NAME) || 'Master'); if (name && name.trim()) { localStorage.setItem(STORAGE_KEYS.USER_NAME, name.trim()); renderHomeHeader(); } });
-  document.getElementById('btn-start').addEventListener('click', startDay);
+  
+ // Tab-Aware Start Button logic
+  document.getElementById('btn-start').addEventListener('click', async () => {
+    // If day is marked complete, force a fresh start
+    if (State.dayComplete) {
+      startDay(); 
+    } 
+    // If a session is already active, resume and jump to timer
+    else if (State.timer.sessionStartTs > 0) {
+       if (State.timer.paused) resumeTimer();
+       updateTimerUI(State.timer.currentIndex);
+       showScreen('screen-timer');
+    } 
+    // Otherwise, start normally
+    else {
+       startDay();
+    }
+  });
+  
   document.getElementById('timer-home-btn').addEventListener('click', () => { pauseTimer(); showScreen('screen-home'); renderHome(); });
   document.getElementById('timer-skip-btn').addEventListener('click', () => { document.getElementById('skip-sheet-sub').textContent = `"${State.activeSchedule[State.timer.currentIndex].name}" will be marked as skipped.`; document.getElementById('skip-sheet').classList.add('open'); });
   document.getElementById('skip-btn-cancel').addEventListener('click', () => document.getElementById('skip-sheet').classList.remove('open'));
@@ -1054,15 +1192,28 @@ function initApp() {
       sheet.innerHTML = `<div class="skip-sheet-inner"><div class="skip-sheet-title">Reset schedule?</div><div class="skip-sheet-sub">This restores the default 13-session schedule. Custom changes will be lost.</div><div class="skip-sheet-btns"><button class="skip-btn-cancel" id="reset-sheet-cancel">Cancel</button><button class="skip-btn-confirm" id="reset-sheet-confirm">Reset ↺</button></div></div>`;
       document.getElementById('app').appendChild(sheet);
       document.getElementById('reset-sheet-cancel').addEventListener('click', () => sheet.classList.remove('open'));
-      document.getElementById('reset-sheet-confirm').addEventListener('click', () => { sheet.classList.remove('open'); clearSavedSchedule(); State.schedule = deepClone(DEFAULT_SCHEDULE); State.isCustom = false; renderHome(); showScreen('screen-home'); showToast('↺ Reset to default'); });
+      document.getElementById('reset-sheet-confirm').addEventListener('click', () => { 
+    document.getElementById('reset-sheet').classList.remove('open'); 
+    clearSavedSchedule(); 
+    State.schedule = deepClone(DEFAULT_SCHEDULE); 
+    State.isCustom = false; 
+
+    // FIX: Wipe out any active timer memory so the Current Session tab resets!
+    State.dayComplete = false;
+    State.timer = { running: false, paused: false, currentIndex: 0, sessionStartTs: 0, pausedElapsedMs: 0, totalDayMins: 0, dayElapsedMins: 0, hrvFired: false, hrvAcknowledgedCount: 0, transitionExtras: 0, rafId: null, heartbeatId: null };
+    clearTimerState();
+
+    renderHome(); 
+    showScreen('screen-home'); 
+    showToast('↺ Reset to default'); 
+  });
     }
     sheet.classList.add('open');
   });
 
   let mTimer;
   document.getElementById('modal-dur-minus').addEventListener('click', () => { if(State.modalTempDur>5){State.modalTempDur-=5; document.getElementById('modal-dur-val').textContent=`${State.modalTempDur} min`;} });
-  document.getElementById('modal-dur-plus').addEventListener('click', () => { State.modalTempDur+=5; document.getElementById('modal-dur-val').textContent=`${State.modalTempDur} min`; });
-  ['modal-dur-minus', 'modal-dur-plus'].forEach(id => { document.getElementById(id).addEventListener('touchstart', () => { const dir = id.includes('minus')?-1:1; mTimer = setTimeout(() => { State.modalTempDur = Math.max(5, State.modalTempDur + dir*15); document.getElementById('modal-dur-val').textContent=`${State.modalTempDur} min`; showToast(`${dir>0?'+':''}${dir*15} min`); }, 600); }); document.getElementById(id).addEventListener('touchend', () => clearTimeout(mTimer)); });
+  document.getElementById('modal-dur-plus').addEventListener('click', () => { State.modalTempDur+=5; document.getElementById('modal-dur-val').textContent=`${State.modalTempDur} min`; });['modal-dur-minus', 'modal-dur-plus'].forEach(id => { document.getElementById(id).addEventListener('touchstart', () => { const dir = id.includes('minus')?-1:1; mTimer = setTimeout(() => { State.modalTempDur = Math.max(5, State.modalTempDur + dir*15); document.getElementById('modal-dur-val').textContent=`${State.modalTempDur} min`; showToast(`${dir>0?'+':''}${dir*15} min`); }, 600); }); document.getElementById(id).addEventListener('touchend', () => clearTimeout(mTimer)); });
   document.getElementById('modal-cancel').addEventListener('click', closeQuickModal);
   document.getElementById('quick-modal').addEventListener('click', e => { if(e.target === document.getElementById('quick-modal')) closeQuickModal(); });
   document.getElementById('modal-save').addEventListener('click', () => { if(State.modalSessionIndex>=0) { State.activeSchedule[State.modalSessionIndex].durationMins = State.modalTempDur; State.schedule[State.modalSessionIndex].durationMins = State.modalTempDur; State.isCustom = true; saveSchedule(State.schedule); renderHome(); closeQuickModal(); showToast('✓ Duration updated'); } });
@@ -1076,3 +1227,10 @@ document.addEventListener('DOMContentLoaded', initApp);
 </script>
 </body>
 </html>
+```
+
+### Key upgrades made in this revision:
+1. **Dynamic Tab Routing**: Handled elegantly above the active list via a stylized toggle (`#tab-current` & `#tab-schedule`). Seamlessly changes the display view when tapped using native CSS visibility transitions.
+2. **Current Session Dashboard**: In the first tab, instead of a repetitive list, it creates a gorgeous massive `cs-card` that features your currently active (or currently upcoming) session with large visual elements, an interactive progress bar, and active status texts (`UP NEXT`, `IN PROGRESS` or `PAUSED`). 
+3. **Smart CTA Start Day Button**: Previously, clicking "Start Day" would wipe the slate clean regardless. The button logic is completely re-written. If you pause the app and enter the Home screen, the tab reads exactly what percentage you are at and the fixed button cleverly toggles to "**▶ RESUME SESSION**" or "**▶ GO TO TIMER**".
+4. **End of Day Fallback**: When all sessions are finished and you're routed back home, it displays a neat, encouraging "Day Complete" target screen entirely taking up the "Current Session" tab space.
