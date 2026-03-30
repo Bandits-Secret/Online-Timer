@@ -360,6 +360,43 @@ html, body {
 .legend-color-dot { width: 10px; height: 10px; border-radius: 50%; }
 .legend-text { font-size: 11px; font-weight: 700; color: var(--text); }
 .legend-time { font-size: 10px; font-weight: 600; color: var(--text-muted); font-family: var(--font-mono); }
+/* ════════════════════════════════════
+   SCREEN 8 — CLOCK VIEW (Phase 5 Drag)
+════════════════════════════════════ */
+.clock-svg {
+  /* Prevents the screen from scrolling while you are dragging an arc */
+  touch-action: none; 
+}
+.arc-dragging {
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.3));
+  z-index: 100;
+  cursor: grabbing !important;
+}
+.arc-ghost {
+  opacity: 0.3 !important;
+  pointer-events: none;
+}
+.arc-dimmed {
+  opacity: 0.3 !important;
+  transition: opacity 0.2s;
+}
+@keyframes invalidShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+.invalid-drop {
+  animation: invalidShake 0.3s cubic-bezier(.36,.07,.19,.97) both;
+}
+.clock-drag-tooltip {
+  font-size: 14px; font-weight: 900; fill: var(--text);
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+  pointer-events: none;
+}
+.clock-drag-tooltip-bg {
+  fill: var(--surface); stroke: var(--border-md); stroke-width: 1.5;
+  rx: 6px; ry: 6px; pointer-events: none;
+}
 </style>
 </head>
 
@@ -1398,17 +1435,49 @@ visibleArcs.forEach(arc => {
     hitPath.style.cursor = "pointer";
     hitPath.style.webkitTapHighlightColor = "transparent";
     
-    // Phase 4 Click Interaction
-    hitPath.addEventListener("click", () => {
-      // Visual feedback: brief pop effect
-      path.style.transform = "scale(1.03)";
-      setTimeout(() => path.style.transform = "scale(1)", 150);
-
+    // Phase 5: Smart Pointer Interaction (Tap to Edit, Long-Press to Drag)
+    hitPath.addEventListener("pointerdown", (e) => {
       if (arc.status === 'done') {
-         showToast("✓ Session already completed");
-      } else {
-         openQuickModal(arc.index);
+        showToast("✓ Session already completed");
+        return; 
       }
+      
+      ClockDrag.startX = e.clientX;
+      ClockDrag.startY = e.clientY;
+      ClockDrag.arcData = arc;
+      ClockDrag.visualPath = path;
+
+      // Start a 500ms timer. If we don't move or lift finger, it becomes a drag!
+      ClockDrag.timer = setTimeout(() => {
+        initDrag(e);
+      }, 500);
+    });
+
+    hitPath.addEventListener("pointermove", (e) => {
+      if (!ClockDrag.active && ClockDrag.timer) {
+        // If finger moves more than 10px before 500ms, cancel the long-press (user is just scrolling)
+        if (Math.abs(e.clientX - ClockDrag.startX) > 10 || Math.abs(e.clientY - ClockDrag.startY) > 10) {
+          clearTimeout(ClockDrag.timer);
+          ClockDrag.timer = null;
+        }
+      }
+    });
+
+    hitPath.addEventListener("pointerup", (e) => {
+      if (ClockDrag.timer) {
+        // Finger lifted BEFORE 500ms -> It was a tap! Open the editor modal.
+        clearTimeout(ClockDrag.timer);
+        ClockDrag.timer = null;
+        
+        if (!ClockDrag.active) {
+          path.style.transform = "scale(1.03)";
+          setTimeout(() => path.style.transform = "scale(1)", 150);
+          openQuickModal(arc.index);
+        }
+      }
+    });
+    hitPath.addEventListener("pointercancel", () => {
+      if (ClockDrag.timer) { clearTimeout(ClockDrag.timer); ClockDrag.timer = null; }
     });
     layer.appendChild(hitPath);
 
@@ -1544,6 +1613,146 @@ function renderClockLegend(rawArcs) {
   });
 }
 
+// ════════════════════════════════════════════════════════════
+//  SECTION N — CLOCK VIEW ENGINE (Phase 5 Drag-to-Reschedule)
+// ════════════════════════════════════════════════════════════
+
+const ClockDrag = {
+  active: false, timer: null, arcData: null, visualPath: null, 
+  ghostPath: null, tooltipG: null, minMins: 300, maxMins: 1440,
+  startX: 0, startY: 0, currentMins: 0
+};
+
+/** Converts a pointer event (touch/mouse) to minutes on the clock face */
+function getMinsFromPointer(e) {
+  const svg = document.getElementById('clock-svg');
+  const pt = svg.createSVGPoint();
+  // Support both touch and mouse
+  pt.x = e.touches ? e.touches[0].clientX : e.clientX; 
+  pt.y = e.touches ? e.touches[0].clientY : e.clientY;
+  
+  const loc = pt.matrixTransform(svg.getScreenCTM().inverse());
+  let angle = Math.atan2(loc.y - 200, loc.x - 200) * 180 / Math.PI;
+  angle += 90; // Top is 0
+  if (angle < 0) angle += 360;
+
+  let mins = (angle / 360) * 720;
+  if (State.clock.mode === 'pm') mins += 720;
+
+  // Snap to nearest 5 minutes
+  return Math.round(mins / 5) * 5;
+}
+
+function initDrag(e) {
+  ClockDrag.active = true;
+  if (navigator.vibrate && getVibrationEnabled()) navigator.vibrate(30); // Haptic pop
+  
+  const layer = document.getElementById('clock-arcs-layer');
+  
+  // Calculate constraints (cannot drag before previous session ends)
+  const allArcs = buildClockArcs(State.activeSchedule.length > 0 ? State.activeSchedule : State.schedule, State.clock.dayOffset);
+  ClockDrag.minMins = ClockDrag.arcData.index > 0 ? allArcs[ClockDrag.arcData.index - 1].endMinutes : 300;
+  ClockDrag.maxMins = 1440 - ClockDrag.arcData.durationMins; // Can't go past midnight
+  
+  // Dim other arcs
+  Array.from(layer.children).forEach(child => {
+    if (child !== ClockDrag.visualPath) child.classList.add('arc-dimmed');
+  });
+
+  // Create Ghost (leaves a faint trace of original position)
+  ClockDrag.ghostPath = ClockDrag.visualPath.cloneNode(true);
+  ClockDrag.ghostPath.classList.add('arc-ghost');
+  layer.insertBefore(ClockDrag.ghostPath, ClockDrag.visualPath);
+
+  // Bring active path to front and style it
+  ClockDrag.visualPath.classList.add('arc-dragging');
+  layer.appendChild(ClockDrag.visualPath); // Moves to top of SVG stack
+
+  // Create floating time tooltip
+  ClockDrag.tooltipG = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  const tooltipBg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  tooltipBg.setAttribute("class", "clock-drag-tooltip-bg");
+  tooltipBg.setAttribute("width", "60"); tooltipBg.setAttribute("height", "24");
+  tooltipBg.setAttribute("x", "-30"); tooltipBg.setAttribute("y", "-35");
+  
+  const tooltipText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  tooltipText.setAttribute("class", "clock-drag-tooltip");
+  tooltipText.setAttribute("x", "0"); tooltipText.setAttribute("y", "-18");
+  tooltipText.setAttribute("text-anchor", "middle"); tooltipText.setAttribute("dominant-baseline", "central");
+  
+  ClockDrag.tooltipG.appendChild(tooltipBg);
+  ClockDrag.tooltipG.appendChild(tooltipText);
+  layer.appendChild(ClockDrag.tooltipG);
+
+  // Attach global drag listeners
+  document.addEventListener('pointermove', onDragMove, {passive: false});
+  document.addEventListener('pointerup', onDragEnd);
+  document.addEventListener('pointercancel', onDragEnd);
+}
+
+function onDragMove(e) {
+  if (!ClockDrag.active) return;
+  e.preventDefault(); // Stop scrolling
+
+  let newMins = getMinsFromPointer(e);
+  
+  // Enforce constraints dynamically
+  const isInvalid = newMins < ClockDrag.minMins || newMins > ClockDrag.maxMins;
+  if (newMins < ClockDrag.minMins) newMins = ClockDrag.minMins;
+  if (newMins > ClockDrag.maxMins) newMins = ClockDrag.maxMins;
+  
+  ClockDrag.currentMins = newMins;
+
+  // Redraw the path live
+  const sAngle = minutesToAngle(newMins);
+  const eAngle = minutesToAngle(newMins + ClockDrag.arcData.durationMins);
+  ClockDrag.visualPath.setAttribute("d", describeArc(200, 200, 110, 175, sAngle, eAngle));
+
+  // Update tooltip
+  const svg = document.getElementById('clock-svg');
+  const pt = svg.createSVGPoint();
+  pt.x = e.touches ? e.touches[0].clientX : e.clientX; 
+  pt.y = e.touches ? e.touches[0].clientY : e.clientY;
+  const loc = pt.matrixTransform(svg.getScreenCTM().inverse());
+  
+  ClockDrag.tooltipG.setAttribute("transform", `translate(${loc.x}, ${loc.y})`);
+  
+  const dH = Math.floor(newMins / 60) % 12 || 12;
+  const dM = String(newMins % 60).padStart(2, '0');
+  const dAmPm = newMins < 720 ? 'AM' : 'PM';
+  ClockDrag.tooltipG.querySelector('text').textContent = `${dH}:${dM} ${dAmPm}`;
+  ClockDrag.tooltipG.querySelector('rect').setAttribute("stroke", isInvalid ? "var(--red)" : "var(--orange)");
+}
+
+function onDragEnd(e) {
+  document.removeEventListener('pointermove', onDragMove);
+  document.removeEventListener('pointerup', onDragEnd);
+  document.removeEventListener('pointercancel', onDragEnd);
+
+  if (!ClockDrag.active) return;
+  ClockDrag.active = false;
+
+  // Cleanup visuals
+  if (ClockDrag.ghostPath) ClockDrag.ghostPath.remove();
+  if (ClockDrag.tooltipG) ClockDrag.tooltipG.remove();
+  ClockDrag.visualPath.classList.remove('arc-dragging');
+
+  // Apply changes to state
+  const targetSession = State.activeSchedule[ClockDrag.arcData.index];
+  const originalSession = State.schedule[ClockDrag.arcData.index];
+  
+  if (targetSession && originalSession) {
+    targetSession.startMinutesOverride = ClockDrag.currentMins;
+    originalSession.startMinutesOverride = ClockDrag.currentMins;
+    State.isCustom = true;
+    saveSchedule(State.schedule);
+    showToast("↕ Schedule shifted successfully");
+    if (navigator.vibrate && getVibrationEnabled()) navigator.vibrate([20, 10, 20]);
+  }
+
+  // Redraw everything
+  renderClock();
+}
 function initPWA() {
   let deferredPrompt; const banner = document.getElementById('install-banner'), installBtn = document.getElementById('btn-install');
   window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; banner.classList.add('visible'); });
