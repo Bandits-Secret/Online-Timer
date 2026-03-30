@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1618,6 +1617,10 @@ function renderClockLegend(rawArcs) {
 //  SECTION N — CLOCK VIEW ENGINE (Phase 5 Drag-to-Reschedule)
 // ════════════════════════════════════════════════════════════
 
+// ════════════════════════════════════════════════════════════
+//  SECTION N — CLOCK VIEW ENGINE (Phase 5 Drag-to-Reschedule)
+// ════════════════════════════════════════════════════════════
+
 const ClockDrag = {
   active: false, timer: null, arcData: null, visualPath: null, 
   ghostPath: null, tooltipG: null, minMins: 300, maxMins: 1440,
@@ -1627,8 +1630,9 @@ const ClockDrag = {
 function getMinsFromPointer(e) {
   const svg = document.getElementById('clock-svg');
   const pt = svg.createSVGPoint();
-  pt.x = e.touches ? e.touches[0].clientX : e.clientX; 
-  pt.y = e.touches ? e.touches[0].clientY : e.clientY;
+  // Use clientX/Y which works universally for both touch and mouse PointerEvents
+  pt.x = e.clientX; 
+  pt.y = e.clientY;
   
   const loc = pt.matrixTransform(svg.getScreenCTM().inverse());
   let angle = Math.atan2(loc.y - 200, loc.x - 200) * 180 / Math.PI;
@@ -1643,27 +1647,34 @@ function getMinsFromPointer(e) {
 
 function initDrag() {
   ClockDrag.active = true;
-  if (navigator.vibrate && getVibrationEnabled()) navigator.vibrate(30);
+  // FIX 1: Initialize to the arc's actual start time so it doesn't jump to 0 (midnight)
+  ClockDrag.currentMins = ClockDrag.arcData.startMinutes;
+  
+  if (getVibrationEnabled()) vibrate(30); // Haptic pop
   
   const layer = document.getElementById('clock-arcs-layer');
   
-  // Safe array lookup to prevent crashes if a session is skipped
+  // Calculate boundaries
   const allArcs = buildClockArcs(State.activeSchedule.length > 0 ? State.activeSchedule : State.schedule, State.clock.dayOffset);
   const prevArc = allArcs.find(a => a.index === ClockDrag.arcData.index - 1);
   ClockDrag.minMins = prevArc ? prevArc.endMinutes : 300;
   ClockDrag.maxMins = 1440 - ClockDrag.arcData.durationMins; 
   
+  // Dim other arcs
   Array.from(layer.children).forEach(child => {
     if (child !== ClockDrag.visualPath) child.classList.add('arc-dimmed');
   });
 
+  // Create Ghost
   ClockDrag.ghostPath = ClockDrag.visualPath.cloneNode(true);
   ClockDrag.ghostPath.classList.add('arc-ghost');
   layer.insertBefore(ClockDrag.ghostPath, ClockDrag.visualPath);
 
+  // Bring active to front
   ClockDrag.visualPath.classList.add('arc-dragging');
   layer.appendChild(ClockDrag.visualPath);
 
+  // Create Tooltip
   ClockDrag.tooltipG = document.createElementNS("http://www.w3.org/2000/svg", "g");
   const tooltipBg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
   tooltipBg.setAttribute("class", "clock-drag-tooltip-bg");
@@ -1675,9 +1686,23 @@ function initDrag() {
   tooltipText.setAttribute("x", "0"); tooltipText.setAttribute("y", "-18");
   tooltipText.setAttribute("text-anchor", "middle"); tooltipText.setAttribute("dominant-baseline", "central");
   
+  // Set initial tooltip text
+  const dH = Math.floor(ClockDrag.currentMins / 60) % 12 || 12;
+  const dM = String(ClockDrag.currentMins % 60).padStart(2, '0');
+  const dAmPm = ClockDrag.currentMins < 720 ? 'AM' : 'PM';
+  tooltipText.textContent = `${dH}:${dM} ${dAmPm}`;
+  
   ClockDrag.tooltipG.appendChild(tooltipBg);
   ClockDrag.tooltipG.appendChild(tooltipText);
   layer.appendChild(ClockDrag.tooltipG);
+
+  // Position tooltip initially where the finger pressed
+  const svg = document.getElementById('clock-svg');
+  const pt = svg.createSVGPoint();
+  pt.x = ClockDrag.startX; 
+  pt.y = ClockDrag.startY;
+  const loc = pt.matrixTransform(svg.getScreenCTM().inverse());
+  ClockDrag.tooltipG.setAttribute("transform", `translate(${loc.x}, ${loc.y})`);
 
   document.addEventListener('pointermove', onDragMove, {passive: false});
   document.addEventListener('pointerup', onDragEnd);
@@ -1686,25 +1711,28 @@ function initDrag() {
 
 function onDragMove(e) {
   if (!ClockDrag.active) return;
-  e.preventDefault();
+  e.preventDefault(); // Stop scrolling while dragging
 
   let newMins = getMinsFromPointer(e);
+  
+  // Enforce limits
   const isInvalid = newMins < ClockDrag.minMins || newMins > ClockDrag.maxMins;
   if (newMins < ClockDrag.minMins) newMins = ClockDrag.minMins;
   if (newMins > ClockDrag.maxMins) newMins = ClockDrag.maxMins;
   
   ClockDrag.currentMins = newMins;
 
+  // Redraw Arc
   const sAngle = minutesToAngle(newMins);
   const eAngle = minutesToAngle(newMins + ClockDrag.arcData.durationMins);
   ClockDrag.visualPath.setAttribute("d", describeArc(200, 200, 110, 175, sAngle, eAngle));
 
+  // Move Tooltip
   const svg = document.getElementById('clock-svg');
   const pt = svg.createSVGPoint();
-  pt.x = e.touches ? e.touches[0].clientX : e.clientX; 
-  pt.y = e.touches ? e.touches[0].clientY : e.clientY;
+  pt.x = e.clientX; 
+  pt.y = e.clientY;
   const loc = pt.matrixTransform(svg.getScreenCTM().inverse());
-  
   ClockDrag.tooltipG.setAttribute("transform", `translate(${loc.x}, ${loc.y})`);
   
   const dH = Math.floor(newMins / 60) % 12 || 12;
@@ -1722,22 +1750,25 @@ function onDragEnd(e) {
   if (!ClockDrag.active) return;
   ClockDrag.active = false;
 
+  // Clean up visual drag elements
   if (ClockDrag.ghostPath) ClockDrag.ghostPath.remove();
   if (ClockDrag.tooltipG) ClockDrag.tooltipG.remove();
-  ClockDrag.visualPath.classList.remove('arc-dragging');
+  if (ClockDrag.visualPath) ClockDrag.visualPath.classList.remove('arc-dragging');
 
   const targetSession = State.activeSchedule[ClockDrag.arcData.index];
   const originalSession = State.schedule[ClockDrag.arcData.index];
   
+  // FIX 2: Only save if the time actually changed!
   if (targetSession && originalSession && ClockDrag.currentMins !== ClockDrag.arcData.startMinutes) {
     targetSession.startMinutesOverride = ClockDrag.currentMins;
     originalSession.startMinutesOverride = ClockDrag.currentMins;
     State.isCustom = true;
     saveSchedule(State.schedule);
     showToast("↕ Schedule shifted");
-    if (navigator.vibrate && getVibrationEnabled()) vibrate([20, 10, 20]);
+    if (getVibrationEnabled()) vibrate([20, 10, 20]);
   }
 
+  // Restore and redraw
   renderClock();
 }
 
