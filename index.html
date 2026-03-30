@@ -896,8 +896,10 @@ function renderHome() {
   renderHomeStats(); 
   renderCurrentSessionTab();
   renderSessionList(); 
+  
+  // PHASE 4: Keep the clock in perfect sync with any edits!
+  if (typeof renderClock === 'function') renderClock();
 }
-
 function openQuickModal(index) {
   State.modalSessionIndex = index; State.modalTempDur = State.activeSchedule[index].durationMins;
   document.getElementById('modal-session-name').textContent = `${State.activeSchedule[index].icon} ${State.activeSchedule[index].name}`;
@@ -1362,13 +1364,17 @@ function renderClock(mode = State.clock.mode, dayOffset = State.clock.dayOffset)
   const rawArcs = buildClockArcs(baseArray, dayOffset);
   const visibleArcs = filterArcsForMode(rawArcs, mode);
 
-  visibleArcs.forEach(arc => {
+visibleArcs.forEach(arc => {
     const pathStr = describeArc(200, 200, 110, 175, arc.startAngle, arc.endAngle);
+    // PHASE 4: Create a wider, invisible path for easier touch targeting on mobile
+    const hitPathStr = describeArc(200, 200, 90, 195, arc.startAngle, arc.endAngle);
     
-    // 1. Draw the Arc Path
+    // 1. Draw the Visual Arc Path
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     path.setAttribute("d", pathStr);
     path.dataset.index = arc.index;
+    path.style.transition = "transform 0.15s ease"; // Smooth pop animation
+    path.style.transformOrigin = "200px 200px";     // Scale from center
     
     // Apply Colors based on status
     if (arc.status === 'done') {
@@ -1378,7 +1384,6 @@ function renderClock(mode = State.clock.mode, dayOffset = State.clock.dayOffset)
       path.setAttribute("fill", arc.color);
       path.setAttribute("fill-opacity", "0.9");
       if (arc.status === 'active') {
-        // Glowing effect for the active session
         path.setAttribute("stroke", arc.color);
         path.setAttribute("stroke-width", "3");
         path.setAttribute("filter", `drop-shadow(0 0 6px ${arc.color})`);
@@ -1386,18 +1391,40 @@ function renderClock(mode = State.clock.mode, dayOffset = State.clock.dayOffset)
     }
     layer.appendChild(path);
 
-    // 2. Draw the Labels (Emoji & Name)
+    // 2. Draw the Invisible Touch Hit Area
+    const hitPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    hitPath.setAttribute("d", hitPathStr);
+    hitPath.setAttribute("fill", "transparent");
+    hitPath.style.cursor = "pointer";
+    hitPath.style.webkitTapHighlightColor = "transparent";
+    
+    // Phase 4 Click Interaction
+    hitPath.addEventListener("click", () => {
+      // Visual feedback: brief pop effect
+      path.style.transform = "scale(1.03)";
+      setTimeout(() => path.style.transform = "scale(1)", 150);
+
+      if (arc.status === 'done') {
+         showToast("✓ Session already completed");
+      } else {
+         openQuickModal(arc.index);
+      }
+    });
+    layer.appendChild(hitPath);
+
+    // 3. Draw the Labels (Emoji & Name)
     const spanDeg = arc.endAngle - arc.startAngle;
     if (spanDeg > 20) {
       const midAngle = arc.startAngle + (spanDeg / 2);
       const midPoint = polarToCartesian(200, 200, 142.5, midAngle);
       
-      // Keep text upright-ish
       let textRot = midAngle;
       if (midAngle > 90 && midAngle < 270) textRot += 180;
 
       const gText = document.createElementNS("http://www.w3.org/2000/svg", "g");
       gText.setAttribute("transform", `translate(${midPoint.x}, ${midPoint.y}) rotate(${textRot})`);
+      // Prevent text from blocking the touch area
+      gText.style.pointerEvents = "none"; 
 
       const emoji = document.createElementNS("http://www.w3.org/2000/svg", "text");
       emoji.textContent = arc.emoji;
@@ -1527,12 +1554,7 @@ function initPWA() {
 
 function initApp() {
   State.rotation = loadRotation();
-  const saved = loadSchedule(); 
-  if (saved) { State.schedule = saved; State.isCustom = true; } 
-  else { State.schedule = deepClone(DEFAULT_SCHEDULE); State.isCustom = false; }
-  
-  // Force active schedule to build so the clock has data to draw immediately
-  buildActiveSchedule();
+  const saved = loadSchedule(); if (saved) { State.schedule = saved; State.isCustom = true; } else { State.schedule = deepClone(DEFAULT_SCHEDULE); State.isCustom = false; 
   
   // ══ Clock View Interactions ══
   const btnToday = document.getElementById('clock-day-today');
@@ -1566,7 +1588,9 @@ function initApp() {
     }
   }, 10000);  
   
-  // ══ Initialize Tabs ══
+}
+  
+// Initialize Tabs
   const tabC = document.getElementById('tab-current');
   const tabS = document.getElementById('tab-schedule');
   const tabK = document.getElementById('tab-clock'); // NEW CLOCK TAB
