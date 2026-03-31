@@ -12,6 +12,10 @@
 <title>Mastery Timer</title>
 
 <style>
+.clock-svg {
+  touch-action: none; /* Crucial: Stops the tab from scrolling when dragging arcs */
+}
+
 /* ════════════════════════════════════
    CSS — DESIGN TOKENS & RESET
 ════════════════════════════════════ */
@@ -1432,23 +1436,29 @@ visibleArcs.forEach(arc => {
     hitPath.style.webkitTapHighlightColor = "transparent";
     hitPath.style.touchAction = "none"; // Stop scrolling ONLY when touching the arc itself
     
-    // Stop mobile "Right Click / Copy Image" menus from killing the long-press
+// Stop mobile context menus
     hitPath.addEventListener("contextmenu", (e) => e.preventDefault());
 
-    // Phase 5: Smart Pointer Interaction
     hitPath.addEventListener("pointerdown", (e) => {
-      if (arc.status === 'done') {
-        showToast("✓ Session already completed");
-        return; 
-      }
+      if (arc.status === 'done') { showToast("✓ Session already completed"); return; }
       
       ClockDrag.startX = e.clientX;
       ClockDrag.startY = e.clientY;
       ClockDrag.arcData = arc;
       ClockDrag.visualPath = path;
+      ClockDrag.pointerId = e.pointerId; // Save pointer ID for capture
+
+      // 1. Calculate the exact offset of where the finger grabbed the arc!
+      const rawFingerMins = getMinsFromPointer(e);
+      ClockDrag.grabOffsetMins = rawFingerMins - arc.startMinutes;
+
+      // 2. Immediate visual feedback (Hover state)
+      path.style.transform = "scale(1.02)";
+      if (getVibrationEnabled()) vibrate(10); // Tiny tick
 
       ClockDrag.timer = setTimeout(() => {
         ClockDrag.timer = null;
+        path.style.transform = "scale(1.05)"; // Bigger pop when armed
         initDrag();
       }, 500);
     });
@@ -1458,25 +1468,28 @@ visibleArcs.forEach(arc => {
         if (Math.abs(e.clientX - ClockDrag.startX) > 10 || Math.abs(e.clientY - ClockDrag.startY) > 10) {
           clearTimeout(ClockDrag.timer);
           ClockDrag.timer = null;
+          path.style.transform = "scale(1)"; // Revert hover
         }
       }
     });
 
     hitPath.addEventListener("pointerup", (e) => {
       if (ClockDrag.timer) {
+        // Was a tap, not a drag
         clearTimeout(ClockDrag.timer);
         ClockDrag.timer = null;
         
-        if (!ClockDrag.active) {
-          path.style.transform = "scale(1.03)";
-          setTimeout(() => path.style.transform = "scale(1)", 150);
-          openQuickModal(arc.index);
-        }
+        path.style.transform = "scale(1)"; // Revert hover
+        if (!ClockDrag.active) openQuickModal(arc.index);
       }
     });
     
     hitPath.addEventListener("pointercancel", () => {
-      if (ClockDrag.timer) { clearTimeout(ClockDrag.timer); ClockDrag.timer = null; }
+      if (ClockDrag.timer) { 
+        clearTimeout(ClockDrag.timer); 
+        ClockDrag.timer = null; 
+        path.style.transform = "scale(1)";
+      }
     });
     
     layer.appendChild(hitPath);
@@ -1617,22 +1630,18 @@ function renderClockLegend(rawArcs) {
 //  SECTION N — CLOCK VIEW ENGINE (Phase 5 Drag-to-Reschedule)
 // ════════════════════════════════════════════════════════════
 
-// ════════════════════════════════════════════════════════════
-//  SECTION N — CLOCK VIEW ENGINE (Phase 5 Drag-to-Reschedule)
-// ════════════════════════════════════════════════════════════
-
 const ClockDrag = {
   active: false, timer: null, arcData: null, visualPath: null, 
   ghostPath: null, tooltipG: null, minMins: 300, maxMins: 1440,
-  startX: 0, startY: 0, currentMins: 0
+  startX: 0, startY: 0, currentMins: 0, 
+  grabOffsetMins: 0, pointerId: null // NEW: For smooth dragging and pointer capture
 };
 
+/** Gets raw minutes from pointer without snapping yet */
 function getMinsFromPointer(e) {
   const svg = document.getElementById('clock-svg');
   const pt = svg.createSVGPoint();
-  // Use clientX/Y which works universally for both touch and mouse PointerEvents
-  pt.x = e.clientX; 
-  pt.y = e.clientY;
+  pt.x = e.clientX; pt.y = e.clientY;
   
   const loc = pt.matrixTransform(svg.getScreenCTM().inverse());
   let angle = Math.atan2(loc.y - 200, loc.x - 200) * 180 / Math.PI;
@@ -1641,40 +1650,41 @@ function getMinsFromPointer(e) {
 
   let mins = (angle / 360) * 720;
   if (State.clock.mode === 'pm') mins += 720;
-
-  return Math.round(mins / 5) * 5; // Snap to 5 mins
+  return mins;
 }
 
 function initDrag() {
   ClockDrag.active = true;
-  // FIX 1: Initialize to the arc's actual start time so it doesn't jump to 0 (midnight)
-  ClockDrag.currentMins = ClockDrag.arcData.startMinutes;
-  
-  if (getVibrationEnabled()) vibrate(30); // Haptic pop
+  if (getVibrationEnabled()) vibrate(30); // Stronger haptic pop when drag arms
   
   const layer = document.getElementById('clock-arcs-layer');
   
-  // Calculate boundaries
+  // CRITICAL FIX: Lock the pointer to the dragged arc so it doesn't drop if you move fast
+  if (ClockDrag.visualPath.setPointerCapture) {
+    ClockDrag.visualPath.setPointerCapture(ClockDrag.pointerId);
+  }
+  
+  // Calculate boundaries (Clamp to previous end AND next start)
   const allArcs = buildClockArcs(State.activeSchedule.length > 0 ? State.activeSchedule : State.schedule, State.clock.dayOffset);
   const prevArc = allArcs.find(a => a.index === ClockDrag.arcData.index - 1);
+  const nextArc = allArcs.find(a => a.index === ClockDrag.arcData.index + 1);
+  
   ClockDrag.minMins = prevArc ? prevArc.endMinutes : 300;
-  ClockDrag.maxMins = 1440 - ClockDrag.arcData.durationMins; 
+  ClockDrag.maxMins = nextArc ? (nextArc.startMinutes - ClockDrag.arcData.durationMins) : (1440 - ClockDrag.arcData.durationMins);
   
   // Dim other arcs
   Array.from(layer.children).forEach(child => {
     if (child !== ClockDrag.visualPath) child.classList.add('arc-dimmed');
   });
 
-  // Create Ghost
   ClockDrag.ghostPath = ClockDrag.visualPath.cloneNode(true);
   ClockDrag.ghostPath.classList.add('arc-ghost');
   layer.insertBefore(ClockDrag.ghostPath, ClockDrag.visualPath);
 
-  // Bring active to front
   ClockDrag.visualPath.classList.add('arc-dragging');
   layer.appendChild(ClockDrag.visualPath);
 
-  // Create Tooltip
+  // Setup Tooltip
   ClockDrag.tooltipG = document.createElementNS("http://www.w3.org/2000/svg", "g");
   const tooltipBg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
   tooltipBg.setAttribute("class", "clock-drag-tooltip-bg");
@@ -1686,71 +1696,72 @@ function initDrag() {
   tooltipText.setAttribute("x", "0"); tooltipText.setAttribute("y", "-18");
   tooltipText.setAttribute("text-anchor", "middle"); tooltipText.setAttribute("dominant-baseline", "central");
   
-  // Set initial tooltip text
-  const dH = Math.floor(ClockDrag.currentMins / 60) % 12 || 12;
-  const dM = String(ClockDrag.currentMins % 60).padStart(2, '0');
-  const dAmPm = ClockDrag.currentMins < 720 ? 'AM' : 'PM';
-  tooltipText.textContent = `${dH}:${dM} ${dAmPm}`;
-  
   ClockDrag.tooltipG.appendChild(tooltipBg);
   ClockDrag.tooltipG.appendChild(tooltipText);
   layer.appendChild(ClockDrag.tooltipG);
 
-  // Position tooltip initially where the finger pressed
-  const svg = document.getElementById('clock-svg');
-  const pt = svg.createSVGPoint();
-  pt.x = ClockDrag.startX; 
-  pt.y = ClockDrag.startY;
-  const loc = pt.matrixTransform(svg.getScreenCTM().inverse());
-  ClockDrag.tooltipG.setAttribute("transform", `translate(${loc.x}, ${loc.y})`);
-
-  document.addEventListener('pointermove', onDragMove, {passive: false});
-  document.addEventListener('pointerup', onDragEnd);
-  document.addEventListener('pointercancel', onDragEnd);
+  // We attach move/up to the hitPath directly, not the document, because it has pointer capture!
+  ClockDrag.visualPath.addEventListener('pointermove', onDragMove);
+  ClockDrag.visualPath.addEventListener('pointerup', onDragEnd);
+  ClockDrag.visualPath.addEventListener('pointercancel', onDragEnd);
+  
+  // Trigger initial move to place tooltip
+  onDragMove({ clientX: ClockDrag.startX, clientY: ClockDrag.startY, preventDefault: ()=>{} });
 }
 
 function onDragMove(e) {
   if (!ClockDrag.active) return;
-  e.preventDefault(); // Stop scrolling while dragging
+  if (e.preventDefault) e.preventDefault();
 
-  let newMins = getMinsFromPointer(e);
+  // 1. Get raw finger time
+  const rawMins = getMinsFromPointer(e);
   
-  // Enforce limits
-  const isInvalid = newMins < ClockDrag.minMins || newMins > ClockDrag.maxMins;
-  if (newMins < ClockDrag.minMins) newMins = ClockDrag.minMins;
-  if (newMins > ClockDrag.maxMins) newMins = ClockDrag.maxMins;
+  // 2. Apply grab offset (stops the jumping bug!)
+  let targetMins = rawMins - ClockDrag.grabOffsetMins;
   
-  ClockDrag.currentMins = newMins;
+  // 3. Clamp to boundaries
+  const isInvalid = targetMins < ClockDrag.minMins || targetMins > ClockDrag.maxMins;
+  if (targetMins < ClockDrag.minMins) targetMins = ClockDrag.minMins;
+  if (targetMins > ClockDrag.maxMins) targetMins = ClockDrag.maxMins;
+  
+  // 4. Snap to 5 minutes AFTER clamping
+  let snappedMins = Math.round(targetMins / 5) * 5;
+  if (snappedMins < ClockDrag.minMins) snappedMins = ClockDrag.minMins;
+  if (snappedMins > ClockDrag.maxMins) snappedMins = ClockDrag.maxMins;
+  
+  ClockDrag.currentMins = snappedMins;
 
   // Redraw Arc
-  const sAngle = minutesToAngle(newMins);
-  const eAngle = minutesToAngle(newMins + ClockDrag.arcData.durationMins);
+  const sAngle = minutesToAngle(snappedMins);
+  const eAngle = minutesToAngle(snappedMins + ClockDrag.arcData.durationMins);
   ClockDrag.visualPath.setAttribute("d", describeArc(200, 200, 110, 175, sAngle, eAngle));
 
   // Move Tooltip
   const svg = document.getElementById('clock-svg');
   const pt = svg.createSVGPoint();
-  pt.x = e.clientX; 
-  pt.y = e.clientY;
+  pt.x = e.clientX; pt.y = e.clientY;
   const loc = pt.matrixTransform(svg.getScreenCTM().inverse());
   ClockDrag.tooltipG.setAttribute("transform", `translate(${loc.x}, ${loc.y})`);
   
-  const dH = Math.floor(newMins / 60) % 12 || 12;
-  const dM = String(newMins % 60).padStart(2, '0');
-  const dAmPm = newMins < 720 ? 'AM' : 'PM';
+  const dH = Math.floor(snappedMins / 60) % 12 || 12;
+  const dM = String(snappedMins % 60).padStart(2, '0');
+  const dAmPm = snappedMins < 720 ? 'AM' : 'PM';
   ClockDrag.tooltipG.querySelector('text').textContent = `${dH}:${dM} ${dAmPm}`;
   ClockDrag.tooltipG.querySelector('rect').setAttribute("stroke", isInvalid ? "var(--red)" : "var(--orange)");
 }
 
 function onDragEnd(e) {
-  document.removeEventListener('pointermove', onDragMove);
-  document.removeEventListener('pointerup', onDragEnd);
-  document.removeEventListener('pointercancel', onDragEnd);
-
   if (!ClockDrag.active) return;
   ClockDrag.active = false;
 
-  // Clean up visual drag elements
+  ClockDrag.visualPath.removeEventListener('pointermove', onDragMove);
+  ClockDrag.visualPath.removeEventListener('pointerup', onDragEnd);
+  ClockDrag.visualPath.removeEventListener('pointercancel', onDragEnd);
+  
+  if (ClockDrag.visualPath.releasePointerCapture) {
+    ClockDrag.visualPath.releasePointerCapture(ClockDrag.pointerId);
+  }
+
   if (ClockDrag.ghostPath) ClockDrag.ghostPath.remove();
   if (ClockDrag.tooltipG) ClockDrag.tooltipG.remove();
   if (ClockDrag.visualPath) ClockDrag.visualPath.classList.remove('arc-dragging');
@@ -1758,7 +1769,6 @@ function onDragEnd(e) {
   const targetSession = State.activeSchedule[ClockDrag.arcData.index];
   const originalSession = State.schedule[ClockDrag.arcData.index];
   
-  // FIX 2: Only save if the time actually changed!
   if (targetSession && originalSession && ClockDrag.currentMins !== ClockDrag.arcData.startMinutes) {
     targetSession.startMinutesOverride = ClockDrag.currentMins;
     originalSession.startMinutesOverride = ClockDrag.currentMins;
@@ -1768,10 +1778,8 @@ function onDragEnd(e) {
     if (getVibrationEnabled()) vibrate([20, 10, 20]);
   }
 
-  // Restore and redraw
   renderClock();
 }
-
 
 function onDragMove(e) {
   if (!ClockDrag.active) return;
