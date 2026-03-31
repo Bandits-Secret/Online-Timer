@@ -12,22 +12,6 @@
 <title>Mastery Timer</title>
 
 <style>
-.clock-svg {
-  touch-action: none; /* Crucial: Stops the tab from scrolling when dragging arcs */
-}
-
-#home-top-wrapper {
-  max-height: 400px;
-  overflow: hidden;
-  flex-shrink: 0;
-  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
-}
-#home-top-wrapper.collapsed {
-  max-height: 0;
-  opacity: 0;
-  pointer-events: none;
-}
-
 /* ════════════════════════════════════
    CSS — DESIGN TOKENS & RESET
 ════════════════════════════════════ */
@@ -84,7 +68,7 @@ html, body {
   position: absolute; inset: 0; display: flex; flex-direction: column; opacity: 0;
   pointer-events: none; transform: translateX(30px);
   transition: opacity var(--transition), transform var(--transition);
-  overflow: hidden; /* ← FIX: Changed from overflow-y: auto to hidden */
+  overflow: hidden; /* Stops native scroll conflicts */
 }
 .screen.active { opacity: 1; pointer-events: all; transform: translateX(0); }
 .screen.exit-left { opacity: 0; transform: translateX(-30px); }
@@ -93,6 +77,19 @@ html, body {
    SCREEN 1 — HOME
 ════════════════════════════════════ */
 #screen-home { background: var(--bg); }
+
+#home-top-wrapper {
+  max-height: 400px;
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+}
+#home-top-wrapper.collapsed {
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .home-header { background: var(--surface); padding: 52px 20px 20px; border-bottom: 1px solid var(--border); box-shadow: var(--shadow-sm); flex-shrink: 0; position: relative; }
 .home-greeting { font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; border-radius: 4px; padding: 2px 6px; margin-left: -6px; transition: background 0.2s; }
 .home-greeting:active { background: var(--border); }
@@ -113,7 +110,6 @@ html, body {
 .install-banner.visible { display: flex; }
 .install-btn { background: white; color: var(--indigo); border: none; padding: 6px 12px; border-radius: 999px; font-size: 11px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
 
-/* Insight Banner */
 .insight-banner { background: var(--yellow-light); border: 1.5px solid rgba(180, 83, 9, 0.2); margin: 12px 16px 0; border-radius: var(--radius-md); padding: 12px 14px; display: none; align-items: center; gap: 10px; box-shadow: var(--shadow-sm); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 .insight-btn { background: var(--yellow); color: white; border: none; padding: 8px 12px; border-radius: 999px; font-size: 10px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
 .insight-btn-dim { background: transparent; color: var(--text-muted); border: 1.5px solid var(--border-md); padding: 8px 12px; border-radius: 999px; font-size: 10px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
@@ -125,22 +121,18 @@ html, body {
 .stat-pill-val.orange { color: var(--orange); } .stat-pill-val.blue { color: var(--blue); } .stat-pill-val.green { color: var(--green); }
 .stat-pill-label { font-size: 9px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-muted); margin-top: 2px; }
 
-/* ══ NEW: Tabs Infrastructure ══ */
+/* Tabs Infrastructure */
 .home-tabs { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0; }
 .home-tab { flex: 1; text-align: center; padding: 14px 0; font-size: 11px; font-weight: 800; color: var(--text-muted); background: transparent; border: none; border-bottom: 3px solid transparent; cursor: pointer; text-transform: uppercase; letter-spacing: 0.1em; transition: color 0.2s, border-color 0.2s; }
 .home-tab.active { color: var(--orange); border-bottom-color: var(--orange); }
 
 .tab-pane { 
-  display: none; 
-  flex: 1; 
-  overflow-y: auto; 
-  padding: 16px 16px 100px; 
-  -webkit-overflow-scrolling: touch; 
-  min-height: 0; /* ← FIX: Required for flex children to scroll properly */
+  display: none; flex: 1; overflow-y: auto; padding: 16px 16px 100px; 
+  -webkit-overflow-scrolling: touch; min-height: 0; 
 }
 .tab-pane.active { display: block; }
 
-/* ══ NEW: Current Session Card ══ */
+/* Current Session Card */
 .cs-card { border-radius: var(--radius-xl); padding: 24px 20px; text-align: center; border: 2px solid; box-shadow: var(--shadow-sm); position: relative; overflow: hidden; transition: transform var(--transition); }
 .cs-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
 .cs-badge { font-size: 10px; font-weight: 800; letter-spacing: 0.1em; padding: 5px 10px; border-radius: 999px; text-transform: uppercase; }
@@ -167,7 +159,6 @@ html, body {
 .session-item-right { text-align: right; flex-shrink: 0; }
 .session-item-dur { font-size: 12px; font-weight: 800; font-family: var(--font-mono); color: var(--text-dim); }
 .session-item-time { font-size: 10px; color: var(--text-muted); margin-top: 2px; font-weight: 500; }
-.hrv-badge { display: inline-flex; align-items: center; gap: 3px; font-size: 9px; font-weight: 700; letter-spacing: 0.04em; padding: 2px 6px; border-radius: 4px; background: var(--purple-light); color: var(--purple); margin-top: 3px; }
 
 .home-cta { position: fixed; bottom: 0; left: 0; right: 0; padding: 16px 16px 28px; background: linear-gradient(to top, var(--bg) 80%, transparent); display: flex; gap: 10px; z-index: 100; }
 .btn-primary { flex: 1; background: var(--orange); color: white; border: none; border-radius: var(--radius-lg); padding: 16px 20px; font-size: 15px; font-weight: 900; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; box-shadow: 0 4px 16px rgba(232,93,4,0.35); transition: transform var(--transition); }
@@ -224,6 +215,8 @@ html, body {
 .tray-vol-val { font-size: 11px; font-weight: 700; color: var(--text-muted); font-family: var(--font-mono); width: 34px; text-align: right; }
 .tray-notif-btn { padding: 5px 14px; border-radius: 999px; font-size: 11px; font-weight: 700; border: 1.5px solid var(--orange); background: var(--orange-light); color: var(--orange); cursor: pointer; }
 .tray-notif-btn.granted { border-color: var(--green); background: var(--green-light); color: var(--green); }
+
+/* Modals */
 .skip-sheet { position: absolute; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; z-index: 200; }
 .skip-sheet.open { opacity: 1; pointer-events: all; }
 .skip-sheet-inner { width: 100%; background: var(--surface); border-radius: var(--radius-xl) var(--radius-xl) 0 0; padding: 24px 20px 36px; transform: translateY(100%); transition: transform 0.25s cubic-bezier(0.4,0,0.2,1); }
@@ -325,7 +318,6 @@ html, body {
 .lt-val { font-size: 28px; font-weight: 900; color: var(--orange); line-height: 1; margin-bottom: 4px; }
 .lt-label { font-size: 12px; font-weight: 600; color: var(--text-dim); }
 
-/* Streak Tracker */
 .streak-dots-wrap { display: flex; gap: 8px; justify-content: center; margin-top: 12px; }
 .streak-dot { width: 22px; height: 22px; border-radius: 6px; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: rgba(0,0,0,0.2); }
 .streak-dot.active { background: var(--orange); color: white; box-shadow: 0 2px 6px rgba(232,93,4,0.3); }
@@ -361,8 +353,9 @@ html, body {
 .modal-handle { width: 40px; height: 4px; border-radius: 2px; background: var(--border-md); margin: 0 auto 16px; }
 .modal-title { font-size: 18px; font-weight: 900; color: var(--text); margin-bottom: 4px; }
 .modal-subtitle { font-size: 12px; color: var(--text-muted); margin-bottom: 20px; }
+
 /* ════════════════════════════════════
-   SCREEN 8 — CLOCK VIEW (Phase 1)
+   SCREEN 8 — CLOCK VIEW (Phase 1, 5, 6)
 ════════════════════════════════════ */
 .clock-header { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
 .clock-title { font-size: 20px; font-weight: 900; color: var(--text); letter-spacing: -0.02em; }
@@ -371,51 +364,30 @@ html, body {
 .pill-btn { background: transparent; border: none; color: var(--text-dim); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; padding: 6px 14px; border-radius: 999px; cursor: pointer; transition: all var(--transition); }
 .pill-btn.active { background: var(--surface); color: var(--orange); box-shadow: var(--shadow-sm); }
 .clock-container { display: flex; justify-content: center; align-items: center; margin: 10px 0 30px; position: relative; }
-.clock-svg { width: 85vw; max-width: 360px; height: auto; overflow: visible; filter: drop-shadow(var(--shadow-sm)); }
+.clock-svg { 
+  user-select: none; -webkit-user-select: none;
+  width: 85vw; max-width: 360px; height: auto; overflow: visible; 
+  filter: drop-shadow(var(--shadow-sm)); 
+}
 .clock-face-bg { fill: #faf8f4; stroke: var(--border-md); stroke-width: 2; }
 .clock-center-dot { fill: var(--text-dim); }
 .clock-tick-major { stroke: var(--text-muted); stroke-width: 2; stroke-linecap: round; }
 .clock-tick-minor { stroke: var(--border-md); stroke-width: 1.5; stroke-linecap: round; }
-.clock-label { font-size: 14px; font-weight: 800; fill: var(--text-dim); text-anchor: middle; dominant-baseline: central; font-family: var(--font-display); }
+.clock-label { font-size: 14px; font-weight: 800; fill: var(--text-dim); text-anchor: middle; dominant-baseline: central; font-family: var(--font-display); pointer-events: none; }
 .clock-legend-wrap { width: 100%; overflow-x: auto; padding-bottom: 20px; -webkit-overflow-scrolling: touch; display: flex; gap: 10px; }
 .clock-legend-pill { flex-shrink: 0; display: flex; align-items: center; gap: 6px; background: var(--surface); border: 1.5px solid var(--border); padding: 8px 12px; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); }
 .legend-color-dot { width: 10px; height: 10px; border-radius: 50%; }
 .legend-text { font-size: 11px; font-weight: 700; color: var(--text); }
 .legend-time { font-size: 10px; font-weight: 600; color: var(--text-muted); font-family: var(--font-mono); }
-/* ════════════════════════════════════
-   SCREEN 8 — CLOCK VIEW (Phase 5 Drag)
-════════════════════════════════════ */
 
-.arc-dragging {
-  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.3));
-  z-index: 100;
-  cursor: grabbing !important;
-}
-.arc-ghost {
-  opacity: 0.3 !important;
-  pointer-events: none;
-}
-.arc-dimmed {
-  opacity: 0.3 !important;
-  transition: opacity 0.2s;
-}
-@keyframes invalidShake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-4px); }
-  75% { transform: translateX(4px); }
-}
-.invalid-drop {
-  animation: invalidShake 0.3s cubic-bezier(.36,.07,.19,.97) both;
-}
-.clock-drag-tooltip {
-  font-size: 14px; font-weight: 900; fill: var(--text);
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
-  pointer-events: none;
-}
-.clock-drag-tooltip-bg {
-  fill: var(--surface); stroke: var(--border-md); stroke-width: 1.5;
-  rx: 6px; ry: 6px; pointer-events: none;
-}
+.arc-path-anim { transition: d 0.35s cubic-bezier(0.4, 0, 0.2, 1), transform 0.15s ease; }
+.arc-dragging { filter: drop-shadow(0 8px 16px rgba(0,0,0,0.3)); z-index: 100; cursor: grabbing !important; }
+.arc-ghost { opacity: 0.3 !important; pointer-events: none; }
+.arc-dimmed { opacity: 0.3 !important; transition: opacity 0.2s; }
+@keyframes invalidShake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+.invalid-drop { animation: invalidShake 0.3s cubic-bezier(.36,.07,.19,.97) both; }
+.clock-drag-tooltip { font-size: 14px; font-weight: 900; fill: var(--text); filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); pointer-events: none; }
+.clock-drag-tooltip-bg { fill: var(--surface); stroke: var(--border-md); stroke-width: 1.5; rx: 6px; ry: 6px; pointer-events: none; }
 </style>
 </head>
 
@@ -518,10 +490,9 @@ html, body {
             <line x1="200" y1="20" x2="200" y2="30" class="clock-tick-minor" transform="rotate(330 200 200)"/>
           </g>
 
-          <!-- Layer where JS will inject colored arcs -->
           <g id="clock-arcs-layer"></g>
 
-          <!-- Labels moved AFTER arcs to render on top, with white backdrops -->
+          <!-- Labels AFTER arcs with backdrops -->
           <g id="clock-labels-layer">
             <circle cx="200" cy="55" r="10" fill="#ffffff" opacity="0.85"/>
             <text x="200" y="55" class="clock-label">12</text>
@@ -917,175 +888,6 @@ function openQuickModal(index) {
 function closeQuickModal() { document.getElementById('quick-modal').classList.remove('open'); State.modalSessionIndex = -1; }
 
 // ════════════════════════════════════════════════════════════
-//  CLOCK ENGINE (Math, Render & Drag)
-// ════════════════════════════════════════════════════════════
-function minutesToAngle(minutes) { return ((minutes % 720) / 720) * 360; }
-function buildClockArcs(scheduleArray, dayOffsetDays = 0) {
-  const arcs = []; let currentMins = 300;
-  scheduleArray.forEach((session, index) => {
-    if (session.durationMins <= 0) return;
-    if (session.startMinutesOverride !== undefined) currentMins = session.startMinutesOverride;
-    const startMinutes = currentMins; const endMinutes = Math.min(1440, startMinutes + session.durationMins);
-    let halfMode = 'am'; if (startMinutes >= 720) halfMode = 'pm'; else if (startMinutes < 720 && endMinutes > 720) halfMode = 'both';
-    let status = 'upcoming';
-    if (dayOffsetDays === 0) { if (index < State.timer.currentIndex) status = 'done'; else if (index === State.timer.currentIndex) status = 'active'; }
-    arcs.push({ index, name: session.name, emoji: session.icon, color: session.color || '#e85d04', type: session.type, durationMins: session.durationMins, startMinutes, endMinutes, startAngle: minutesToAngle(startMinutes), endAngle: minutesToAngle(endMinutes), halfMode, status });
-    currentMins = endMinutes;
-  }); return arcs;
-}
-
-function filterArcsForMode(arcs, mode) {
-  const filtered = [];
-  arcs.forEach(arc => {
-    if (arc.halfMode === mode) filtered.push({ ...arc });
-    else if (arc.halfMode === 'both') {
-      if (mode === 'am') filtered.push({ ...arc, endMinutes: 720, endAngle: 360, isSplit: true });
-      else if (mode === 'pm') filtered.push({ ...arc, startMinutes: 720, startAngle: 0, isSplit: true });
-    }
-  }); return filtered;
-}
-
-function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
-  const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
-  return { x: centerX + (radius * Math.cos(angleInRadians)), y: centerY + (radius * Math.sin(angleInRadians)) };
-}
-
-function describeArc(x, y, radiusIn, radiusOut, startAngle, endAngle) {
-  const gap = 0.5; let sA = startAngle + gap; let eA = endAngle - gap; if (eA <= sA) { eA = startAngle; sA = startAngle; }
-  const startIn = polarToCartesian(x, y, radiusIn, eA); const endIn = polarToCartesian(x, y, radiusIn, sA); const startOut = polarToCartesian(x, y, radiusOut, eA); const endOut = polarToCartesian(x, y, radiusOut, sA);
-  const largeArcFlag = eA - sA <= 180 ? "0" : "1";
-  return ["M", startOut.x, startOut.y, "A", radiusOut, radiusOut, 0, largeArcFlag, 0, endOut.x, endOut.y, "L", endIn.x, endIn.y, "A", radiusIn, radiusIn, 0, largeArcFlag, 1, startIn.x, startIn.y, "Z"].join(" ");
-}
-
-const ClockDrag = { active: false, timer: null, arcData: null, visualPath: null, ghostPath: null, tooltipG: null, minMins: 300, maxMins: 1440, startX: 0, startY: 0, currentMins: 0, grabOffsetMins: 0, pointerId: null };
-
-function getMinsFromPointer(e) {
-  const svg = document.getElementById('clock-svg'); const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
-  const loc = pt.matrixTransform(svg.getScreenCTM().inverse());
-  let angle = Math.atan2(loc.y - 200, loc.x - 200) * 180 / Math.PI; angle += 90; if (angle < 0) angle += 360;
-  let mins = (angle / 360) * 720; if (State.clock.mode === 'pm') mins += 720; return mins;
-}
-
-function initDrag() {
-  ClockDrag.active = true; if (getVibrationEnabled()) vibrate(30);
-  const layer = document.getElementById('clock-arcs-layer');
-  if (ClockDrag.visualPath.setPointerCapture) ClockDrag.visualPath.setPointerCapture(ClockDrag.pointerId);
-  const allArcs = buildClockArcs(State.activeSchedule.length > 0 ? State.activeSchedule : State.schedule, State.clock.dayOffset);
-  const prevArc = allArcs.find(a => a.index === ClockDrag.arcData.index - 1); const nextArc = allArcs.find(a => a.index === ClockDrag.arcData.index + 1);
-  ClockDrag.minMins = prevArc ? prevArc.endMinutes : 300; ClockDrag.maxMins = nextArc ? (nextArc.startMinutes - ClockDrag.arcData.durationMins) : (1440 - ClockDrag.arcData.durationMins);
-  
-  Array.from(layer.children).forEach(child => { if (child !== ClockDrag.visualPath) child.classList.add('arc-dimmed'); });
-  ClockDrag.ghostPath = ClockDrag.visualPath.cloneNode(true); ClockDrag.ghostPath.classList.add('arc-ghost'); layer.insertBefore(ClockDrag.ghostPath, ClockDrag.visualPath);
-  ClockDrag.visualPath.classList.add('arc-dragging'); layer.appendChild(ClockDrag.visualPath);
-
-  ClockDrag.tooltipG = document.createElementNS("http://www.w3.org/2000/svg", "g");
-  const tooltipBg = document.createElementNS("http://www.w3.org/2000/svg", "rect"); tooltipBg.setAttribute("class", "clock-drag-tooltip-bg"); tooltipBg.setAttribute("width", "64"); tooltipBg.setAttribute("height", "24"); tooltipBg.setAttribute("x", "-32"); tooltipBg.setAttribute("y", "-35");
-  const tooltipText = document.createElementNS("http://www.w3.org/2000/svg", "text"); tooltipText.setAttribute("class", "clock-drag-tooltip"); tooltipText.setAttribute("x", "0"); tooltipText.setAttribute("y", "-18"); tooltipText.setAttribute("text-anchor", "middle"); tooltipText.setAttribute("dominant-baseline", "central");
-  ClockDrag.tooltipG.appendChild(tooltipBg); ClockDrag.tooltipG.appendChild(tooltipText); layer.appendChild(ClockDrag.tooltipG);
-  
-  ClockDrag.visualPath.addEventListener('pointermove', onDragMove); ClockDrag.visualPath.addEventListener('pointerup', onDragEnd); ClockDrag.visualPath.addEventListener('pointercancel', onDragEnd);
-  onDragMove({ clientX: ClockDrag.startX, clientY: ClockDrag.startY, preventDefault: ()=>{} });
-}
-
-function onDragMove(e) {
-  if (!ClockDrag.active) return; if (e.preventDefault) e.preventDefault();
-  let targetMins = getMinsFromPointer(e) - ClockDrag.grabOffsetMins;
-  const isInvalid = targetMins < ClockDrag.minMins || targetMins > ClockDrag.maxMins;
-  if (targetMins < ClockDrag.minMins) targetMins = ClockDrag.minMins; if (targetMins > ClockDrag.maxMins) targetMins = ClockDrag.maxMins;
-  let snappedMins = Math.round(targetMins / 5) * 5;
-  if (snappedMins < ClockDrag.minMins) snappedMins = ClockDrag.minMins; if (snappedMins > ClockDrag.maxMins) snappedMins = ClockDrag.maxMins;
-  ClockDrag.currentMins = snappedMins;
-
-  ClockDrag.visualPath.setAttribute("d", describeArc(200, 200, 110, 175, minutesToAngle(snappedMins), minutesToAngle(snappedMins + ClockDrag.arcData.durationMins)));
-  const svg = document.getElementById('clock-svg'); const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
-  const loc = pt.matrixTransform(svg.getScreenCTM().inverse()); ClockDrag.tooltipG.setAttribute("transform", `translate(${loc.x}, ${loc.y})`);
-  
-  const dH = Math.floor(snappedMins / 60) % 12 || 12; const dM = String(snappedMins % 60).padStart(2, '0');
-  ClockDrag.tooltipG.querySelector('text').textContent = `${dH}:${dM} ${snappedMins < 720 ? 'AM' : 'PM'}`;
-  ClockDrag.tooltipG.querySelector('rect').setAttribute("stroke", isInvalid ? "var(--red)" : "var(--orange)");
-}
-
-function onDragEnd(e) {
-  if (!ClockDrag.active) return; ClockDrag.active = false;
-  ClockDrag.visualPath.removeEventListener('pointermove', onDragMove); ClockDrag.visualPath.removeEventListener('pointerup', onDragEnd); ClockDrag.visualPath.removeEventListener('pointercancel', onDragEnd);
-  if (ClockDrag.visualPath.releasePointerCapture) ClockDrag.visualPath.releasePointerCapture(ClockDrag.pointerId);
-  if (ClockDrag.ghostPath) ClockDrag.ghostPath.remove(); if (ClockDrag.tooltipG) ClockDrag.tooltipG.remove(); if (ClockDrag.visualPath) ClockDrag.visualPath.classList.remove('arc-dragging');
-
-  const targetSession = State.activeSchedule[ClockDrag.arcData.index]; const originalSession = State.schedule[ClockDrag.arcData.index];
-  if (targetSession && originalSession && ClockDrag.currentMins !== ClockDrag.arcData.startMinutes) {
-    targetSession.startMinutesOverride = ClockDrag.currentMins; originalSession.startMinutesOverride = ClockDrag.currentMins;
-    State.isCustom = true; saveSchedule(State.schedule); showToast("↕ Schedule shifted"); if (getVibrationEnabled()) vibrate([20, 10, 20]);
-  }
-  renderClock();
-}
-
-function renderClock(mode = State.clock.mode, dayOffset = State.clock.dayOffset) {
-  if (!State.schedule || State.schedule.length === 0) return;
-  State.clock.mode = mode; State.clock.dayOffset = dayOffset;
-  const layer = document.getElementById('clock-arcs-layer'); if (!layer) return; layer.innerHTML = '';
-  const baseArray = State.activeSchedule.length > 0 ? State.activeSchedule : State.schedule;
-  const rawArcs = buildClockArcs(baseArray, dayOffset);
-  const visibleArcs = filterArcsForMode(rawArcs, mode);
-
-  visibleArcs.forEach(arc => {
-    const pathStr = describeArc(200, 200, 110, 175, arc.startAngle, arc.endAngle);
-    const hitPathStr = describeArc(200, 200, 90, 195, arc.startAngle, arc.endAngle);
-    
-    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    path.setAttribute("d", pathStr); path.dataset.index = arc.index; path.style.transition = "transform 0.15s ease"; path.style.transformOrigin = "200px 200px";
-    if (arc.status === 'done') { path.setAttribute("fill", "#2a2a2a"); path.setAttribute("fill-opacity", "0.55"); } 
-    else { path.setAttribute("fill", arc.color); path.setAttribute("fill-opacity", "0.9"); if (arc.status === 'active') { path.setAttribute("stroke", arc.color); path.setAttribute("stroke-width", "3"); path.setAttribute("filter", `drop-shadow(0 0 6px ${arc.color})`); } }
-    layer.appendChild(path);
-
-    const hitPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    hitPath.setAttribute("d", hitPathStr); hitPath.setAttribute("fill", "transparent"); hitPath.style.cursor = "pointer"; hitPath.style.webkitTapHighlightColor = "transparent"; hitPath.style.touchAction = "none";
-    hitPath.addEventListener("contextmenu", (e) => e.preventDefault());
-
-    hitPath.addEventListener("pointerdown", (e) => {
-      if (arc.status === 'done') { showToast("✓ Session completed"); return; }
-      ClockDrag.startX = e.clientX; ClockDrag.startY = e.clientY; ClockDrag.arcData = arc; ClockDrag.visualPath = path; ClockDrag.pointerId = e.pointerId;
-      ClockDrag.grabOffsetMins = getMinsFromPointer(e) - arc.startMinutes;
-      path.style.transform = "scale(1.02)"; if (getVibrationEnabled()) vibrate(10);
-      ClockDrag.timer = setTimeout(() => { ClockDrag.timer = null; path.style.transform = "scale(1.05)"; initDrag(); }, 500);
-    });
-
-    hitPath.addEventListener("pointermove", (e) => { if (!ClockDrag.active && ClockDrag.timer) { if (Math.abs(e.clientX - ClockDrag.startX) > 10 || Math.abs(e.clientY - ClockDrag.startY) > 10) { clearTimeout(ClockDrag.timer); ClockDrag.timer = null; path.style.transform = "scale(1)"; } } });
-    hitPath.addEventListener("pointerup", (e) => { if (ClockDrag.timer) { clearTimeout(ClockDrag.timer); ClockDrag.timer = null; path.style.transform = "scale(1)"; if (!ClockDrag.active) openQuickModal(arc.index); } });
-    hitPath.addEventListener("pointercancel", () => { if (ClockDrag.timer) { clearTimeout(ClockDrag.timer); ClockDrag.timer = null; path.style.transform = "scale(1)"; } });
-    layer.appendChild(hitPath);
-
-    const spanDeg = arc.endAngle - arc.startAngle;
-    if (spanDeg > 20) {
-      const midAngle = arc.startAngle + (spanDeg / 2); const midPoint = polarToCartesian(200, 200, 142.5, midAngle);
-      let textRot = midAngle; if (midAngle > 90 && midAngle < 270) textRot += 180;
-      const gText = document.createElementNS("http://www.w3.org/2000/svg", "g"); gText.setAttribute("transform", `translate(${midPoint.x}, ${midPoint.y}) rotate(${textRot})`); gText.style.pointerEvents = "none"; 
-      const emoji = document.createElementNS("http://www.w3.org/2000/svg", "text"); emoji.textContent = arc.emoji; emoji.setAttribute("text-anchor", "middle"); emoji.setAttribute("dominant-baseline", "central"); emoji.setAttribute("font-size", "14px"); if (arc.status === 'done') emoji.setAttribute("opacity", "0.4"); gText.appendChild(emoji);
-      if (spanDeg > 35) { emoji.setAttribute("y", "-6"); const name = document.createElementNS("http://www.w3.org/2000/svg", "text"); name.textContent = arc.name.substring(0, 8) + (arc.name.length > 8 ? '..' : ''); name.setAttribute("y", "8"); name.setAttribute("text-anchor", "middle"); name.setAttribute("dominant-baseline", "central"); name.setAttribute("font-size", "8px"); name.setAttribute("font-weight", "800"); name.setAttribute("fill", arc.status === 'done' ? "rgba(255,255,255,0.6)" : "var(--surface)"); gText.appendChild(name); }
-      layer.appendChild(gText);
-    }
-  });
-
-  drawCenterTimeAndHand(mode, dayOffset, layer);
-  const wrap = document.getElementById('clock-legend-wrap'); if (!wrap) return; wrap.innerHTML = '';
-  rawArcs.forEach(arc => { const startH = Math.floor(arc.startMinutes / 60); const startM = String(arc.startMinutes % 60).padStart(2,'0'); const endH = Math.floor(arc.endMinutes / 60); const endM = String(arc.endMinutes % 60).padStart(2,'0');
-    wrap.innerHTML += `<div class="clock-legend-pill" style="${arc.status === 'active' ? `border-color:${arc.color}` : ''}"><div class="legend-color-dot" style="background: ${arc.status === 'done' ? 'var(--text-muted)' : arc.color}"></div><div class="legend-text" style="${arc.status === 'done' ? 'text-decoration:line-through; color:var(--text-muted)' : ''}">${arc.emoji} ${arc.name}</div><div class="legend-time">${startH % 12 || 12}:${startM}–${endH % 12 || 12}:${endM}</div></div>`;
-  });
-}
-
-function drawCenterTimeAndHand(mode, dayOffset, layer) {
-  const now = new Date(); const h = now.getHours(); const m = now.getMinutes(); const currentMins = h * 60 + m;
-  const centerG = document.createElementNS("http://www.w3.org/2000/svg", "g"); const timeText = document.createElementNS("http://www.w3.org/2000/svg", "text");
-  if (dayOffset === 1) { timeText.textContent = "Tomorrow"; timeText.setAttribute("x", "200"); timeText.setAttribute("y", "200"); timeText.setAttribute("text-anchor", "middle"); timeText.setAttribute("dominant-baseline", "central"); timeText.setAttribute("font-size", "16px"); timeText.setAttribute("font-weight", "800"); timeText.setAttribute("fill", "var(--text-muted)"); } 
-  else { const isAm = h < 12; timeText.textContent = `${h % 12 === 0 ? 12 : h % 12}:${m.toString().padStart(2, '0')}`; timeText.setAttribute("x", "200"); timeText.setAttribute("y", "195"); timeText.setAttribute("text-anchor", "middle"); timeText.setAttribute("dominant-baseline", "central"); timeText.setAttribute("font-size", "34px"); timeText.setAttribute("font-weight", "900"); timeText.setAttribute("fill", "var(--text)"); const ampmText = document.createElementNS("http://www.w3.org/2000/svg", "text"); ampmText.textContent = isAm ? "AM" : "PM"; ampmText.setAttribute("x", "200"); ampmText.setAttribute("y", "218"); ampmText.setAttribute("text-anchor", "middle"); ampmText.setAttribute("font-size", "12px"); ampmText.setAttribute("font-weight", "800"); ampmText.setAttribute("fill", "var(--text-muted)"); centerG.appendChild(ampmText); }
-  centerG.appendChild(timeText); layer.appendChild(centerG);
-  if (dayOffset === 0 && (currentMins < 720 ? 'am' : 'pm') === mode) {
-    const endPt = polarToCartesian(200, 200, 175, minutesToAngle(currentMins));
-    const hand = document.createElementNS("http://www.w3.org/2000/svg", "line"); hand.setAttribute("x1", "200"); hand.setAttribute("y1", "200"); hand.setAttribute("x2", endPt.x); hand.setAttribute("y2", endPt.y); hand.setAttribute("stroke", "var(--orange)"); hand.setAttribute("stroke-width", "2"); hand.setAttribute("stroke-linecap", "round"); layer.appendChild(hand);
-    const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle"); dot.setAttribute("cx", endPt.x); dot.setAttribute("cy", endPt.y); dot.setAttribute("r", "4"); dot.setAttribute("fill", "var(--orange)"); layer.appendChild(dot);
-  }
-}
-
-// ════════════════════════════════════════════════════════════
 //  SECTION H — SCHEDULE EDITOR
 // ════════════════════════════════════════════════════════════
 function openEditor() { State.editorSchedule = deepClone(State.schedule); State.expandedEditorId = null; renderEditorList(); updateEditorSubtitle(); showScreen('screen-editor'); }
@@ -1388,6 +1190,212 @@ function saveRotation() {
   showToast('✓ Rotation Saved'); renderHome(); showScreen('screen-home');
 }
 
+// ════════════════════════════════════════════════════════════
+//  SECTION L — CLOCK VIEW ENGINE (Data Math & Render)
+// ════════════════════════════════════════════════════════════
+function minutesToAngle(minutes) { return ((minutes % 720) / 720) * 360; }
+function buildClockArcs(scheduleArray, dayOffsetDays = 0) {
+  const arcs = []; let currentMins = 300;
+  scheduleArray.forEach((session, index) => {
+    if (session.durationMins <= 0) return;
+    if (session.startMinutesOverride !== undefined) currentMins = session.startMinutesOverride;
+    const startMinutes = currentMins; const endMinutes = Math.min(1440, startMinutes + session.durationMins);
+    let halfMode = 'am'; if (startMinutes >= 720) halfMode = 'pm'; else if (startMinutes < 720 && endMinutes > 720) halfMode = 'both';
+    let status = 'upcoming';
+    if (dayOffsetDays === 0) { if (index < State.timer.currentIndex) status = 'done'; else if (index === State.timer.currentIndex) status = 'active'; }
+    arcs.push({ index, name: session.name, emoji: session.icon, color: session.color || '#e85d04', type: session.type, durationMins: session.durationMins, startMinutes, endMinutes, startAngle: minutesToAngle(startMinutes), endAngle: minutesToAngle(endMinutes), halfMode, status });
+    currentMins = endMinutes;
+  }); return arcs;
+}
+
+function filterArcsForMode(arcs, mode) {
+  const filtered = [];
+  arcs.forEach(arc => {
+    if (arc.halfMode === mode) filtered.push({ ...arc });
+    else if (arc.halfMode === 'both') {
+      if (mode === 'am') filtered.push({ ...arc, endMinutes: 720, endAngle: 360, isSplit: true });
+      else if (mode === 'pm') filtered.push({ ...arc, startMinutes: 720, startAngle: 0, isSplit: true });
+    }
+  }); return filtered;
+}
+
+function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+  const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+  return { x: centerX + (radius * Math.cos(angleInRadians)), y: centerY + (radius * Math.sin(angleInRadians)) };
+}
+
+function describeArc(x, y, radiusIn, radiusOut, startAngle, endAngle) {
+  const gap = 0.5; let sA = startAngle + gap; let eA = endAngle - gap; if (eA <= sA) { eA = startAngle; sA = startAngle; }
+  const startIn = polarToCartesian(x, y, radiusIn, eA); const endIn = polarToCartesian(x, y, radiusIn, sA); const startOut = polarToCartesian(x, y, radiusOut, eA); const endOut = polarToCartesian(x, y, radiusOut, sA);
+  const largeArcFlag = eA - sA <= 180 ? "0" : "1";
+  return ["M", startOut.x, startOut.y, "A", radiusOut, radiusOut, 0, largeArcFlag, 0, endOut.x, endOut.y, "L", endIn.x, endIn.y, "A", radiusIn, radiusIn, 0, largeArcFlag, 1, startIn.x, startIn.y, "Z"].join(" ");
+}
+
+const ClockDrag = { active: false, timer: null, arcData: null, visualPath: null, ghostPath: null, tooltipG: null, minMins: 300, maxMins: 1440, startX: 0, startY: 0, currentMins: 0, grabOffsetMins: 0, pointerId: null };
+
+function getMinsFromPointer(e) {
+  const svg = document.getElementById('clock-svg'); const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+  const loc = pt.matrixTransform(svg.getScreenCTM().inverse());
+  let angle = Math.atan2(loc.y - 200, loc.x - 200) * 180 / Math.PI; angle += 90; if (angle < 0) angle += 360;
+  let mins = (angle / 360) * 720; if (State.clock.mode === 'pm') mins += 720; return mins;
+}
+
+function initDrag() {
+  ClockDrag.active = true; if (getVibrationEnabled()) vibrate(30);
+  const layer = document.getElementById('clock-arcs-layer');
+  if (ClockDrag.visualPath.setPointerCapture) ClockDrag.visualPath.setPointerCapture(ClockDrag.pointerId);
+  const allArcs = buildClockArcs(State.activeSchedule.length > 0 ? State.activeSchedule : State.schedule, State.clock.dayOffset);
+  const prevArc = allArcs.find(a => a.index === ClockDrag.arcData.index - 1); const nextArc = allArcs.find(a => a.index === ClockDrag.arcData.index + 1);
+  ClockDrag.minMins = prevArc ? prevArc.endMinutes : 300; ClockDrag.maxMins = nextArc ? (nextArc.startMinutes - ClockDrag.arcData.durationMins) : (1440 - ClockDrag.arcData.durationMins);
+  
+  Array.from(layer.children).forEach(child => { if (child !== ClockDrag.visualPath) child.classList.add('arc-dimmed'); });
+  ClockDrag.ghostPath = ClockDrag.visualPath.cloneNode(true); ClockDrag.ghostPath.classList.add('arc-ghost'); layer.insertBefore(ClockDrag.ghostPath, ClockDrag.visualPath);
+  ClockDrag.visualPath.classList.add('arc-dragging'); layer.appendChild(ClockDrag.visualPath);
+
+  ClockDrag.tooltipG = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  const tooltipBg = document.createElementNS("http://www.w3.org/2000/svg", "rect"); tooltipBg.setAttribute("class", "clock-drag-tooltip-bg"); tooltipBg.setAttribute("width", "64"); tooltipBg.setAttribute("height", "24"); tooltipBg.setAttribute("x", "-32"); tooltipBg.setAttribute("y", "-35");
+  const tooltipText = document.createElementNS("http://www.w3.org/2000/svg", "text"); tooltipText.setAttribute("class", "clock-drag-tooltip"); tooltipText.setAttribute("x", "0"); tooltipText.setAttribute("y", "-18"); tooltipText.setAttribute("text-anchor", "middle"); tooltipText.setAttribute("dominant-baseline", "central");
+  ClockDrag.tooltipG.appendChild(tooltipBg); ClockDrag.tooltipG.appendChild(tooltipText); layer.appendChild(ClockDrag.tooltipG);
+  
+  ClockDrag.visualPath.addEventListener('pointermove', onDragMove); ClockDrag.visualPath.addEventListener('pointerup', onDragEnd); ClockDrag.visualPath.addEventListener('pointercancel', onDragEnd);
+  onDragMove({ clientX: ClockDrag.startX, clientY: ClockDrag.startY, preventDefault: ()=>{} });
+}
+
+function onDragMove(e) {
+  if (!ClockDrag.active) return; if (e.preventDefault) e.preventDefault();
+  let targetMins = getMinsFromPointer(e) - ClockDrag.grabOffsetMins;
+  const isInvalid = targetMins < ClockDrag.minMins || targetMins > ClockDrag.maxMins;
+  if (targetMins < ClockDrag.minMins) targetMins = ClockDrag.minMins; if (targetMins > ClockDrag.maxMins) targetMins = ClockDrag.maxMins;
+  let snappedMins = Math.round(targetMins / 5) * 5;
+  if (snappedMins < ClockDrag.minMins) snappedMins = ClockDrag.minMins; if (snappedMins > ClockDrag.maxMins) snappedMins = ClockDrag.maxMins;
+  ClockDrag.currentMins = snappedMins;
+
+  ClockDrag.visualPath.setAttribute("d", describeArc(200, 200, 110, 175, minutesToAngle(snappedMins), minutesToAngle(snappedMins + ClockDrag.arcData.durationMins)));
+  const svg = document.getElementById('clock-svg'); const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+  const loc = pt.matrixTransform(svg.getScreenCTM().inverse()); ClockDrag.tooltipG.setAttribute("transform", `translate(${loc.x}, ${loc.y})`);
+  
+  const dH = Math.floor(snappedMins / 60) % 12 || 12; const dM = String(snappedMins % 60).padStart(2, '0');
+  ClockDrag.tooltipG.querySelector('text').textContent = `${dH}:${dM} ${snappedMins < 720 ? 'AM' : 'PM'}`;
+  ClockDrag.tooltipG.querySelector('rect').setAttribute("stroke", isInvalid ? "var(--red)" : "var(--orange)");
+}
+
+function onDragEnd(e) {
+  if (!ClockDrag.active) return; ClockDrag.active = false;
+  ClockDrag.visualPath.removeEventListener('pointermove', onDragMove); ClockDrag.visualPath.removeEventListener('pointerup', onDragEnd); ClockDrag.visualPath.removeEventListener('pointercancel', onDragEnd);
+  if (ClockDrag.visualPath.releasePointerCapture) ClockDrag.visualPath.releasePointerCapture(ClockDrag.pointerId);
+  if (ClockDrag.ghostPath) ClockDrag.ghostPath.remove(); if (ClockDrag.tooltipG) ClockDrag.tooltipG.remove(); if (ClockDrag.visualPath) ClockDrag.visualPath.classList.remove('arc-dragging');
+
+  const targetSession = State.activeSchedule[ClockDrag.arcData.index]; const originalSession = State.schedule[ClockDrag.arcData.index];
+  if (targetSession && originalSession && ClockDrag.currentMins !== ClockDrag.arcData.startMinutes) {
+    targetSession.startMinutesOverride = ClockDrag.currentMins; originalSession.startMinutesOverride = ClockDrag.currentMins;
+    State.isCustom = true; saveSchedule(State.schedule); showToast("↕ Schedule shifted"); if (getVibrationEnabled()) vibrate([20, 10, 20]);
+  }
+  renderClock();
+}
+
+function renderClock(mode = State.clock.mode, dayOffset = State.clock.dayOffset) {
+  if (!State.schedule || State.schedule.length === 0) return;
+  State.clock.mode = mode; State.clock.dayOffset = dayOffset;
+  const layer = document.getElementById('clock-arcs-layer'); if (!layer) return; layer.innerHTML = '';
+  const baseArray = State.activeSchedule.length > 0 ? State.activeSchedule : State.schedule;
+  const rawArcs = buildClockArcs(baseArray, dayOffset);
+  const visibleArcs = filterArcsForMode(rawArcs, mode);
+
+  visibleArcs.forEach(arc => {
+    const pathStr = describeArc(200, 200, 110, 175, arc.startAngle, arc.endAngle);
+    const hitPathStr = describeArc(200, 200, 90, 195, arc.startAngle, arc.endAngle);
+    
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", pathStr); path.dataset.index = arc.index; path.classList.add('arc-path-anim'); path.style.transformOrigin = "200px 200px";
+    if (arc.status === 'done') { path.setAttribute("fill", "#2a2a2a"); path.setAttribute("fill-opacity", "0.55"); } 
+    else { path.setAttribute("fill", arc.color); path.setAttribute("fill-opacity", "0.9"); if (arc.status === 'active') { path.setAttribute("stroke", arc.color); path.setAttribute("stroke-width", "3"); path.setAttribute("filter", `drop-shadow(0 0 6px ${arc.color})`); } }
+    layer.appendChild(path);
+
+    const hitPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    hitPath.setAttribute("d", hitPathStr); hitPath.setAttribute("fill", "transparent"); hitPath.style.cursor = "pointer"; hitPath.style.webkitTapHighlightColor = "transparent";
+    hitPath.addEventListener("contextmenu", (e) => e.preventDefault());
+
+    let isTap = false;
+
+    hitPath.addEventListener("pointerdown", (e) => {
+      if (arc.status === 'done') { showToast("✓ Session completed"); return; }
+      isTap = true;
+      ClockDrag.startX = e.clientX; ClockDrag.startY = e.clientY; ClockDrag.arcData = arc; ClockDrag.visualPath = path; ClockDrag.pointerId = e.pointerId;
+      ClockDrag.grabOffsetMins = getMinsFromPointer(e) - arc.startMinutes;
+      
+      path.style.transform = "scale(1.02)"; if (getVibrationEnabled()) vibrate(10);
+      
+      ClockDrag.timer = setTimeout(() => { 
+        ClockDrag.timer = null; 
+        isTap = false;
+        path.style.transform = "scale(1.05)"; 
+        initDrag(); 
+      }, 500);
+    });
+
+    hitPath.addEventListener("pointermove", (e) => {
+      if (Math.abs(e.clientX - ClockDrag.startX) > 15 || Math.abs(e.clientY - ClockDrag.startY) > 15) {
+        isTap = false; 
+        if (!ClockDrag.active && ClockDrag.timer) { 
+          clearTimeout(ClockDrag.timer); ClockDrag.timer = null; 
+          path.style.transform = "scale(1)"; 
+        } 
+      } 
+    });
+
+    hitPath.addEventListener("pointerup", (e) => { 
+      if (ClockDrag.timer) { clearTimeout(ClockDrag.timer); ClockDrag.timer = null; }
+      path.style.transform = "scale(1)"; 
+      if (isTap && !ClockDrag.active) openQuickModal(arc.index); 
+    });
+
+    hitPath.addEventListener("pointercancel", () => { 
+      if (ClockDrag.timer) { clearTimeout(ClockDrag.timer); ClockDrag.timer = null; }
+      path.style.transform = "scale(1)"; 
+      isTap = false;
+    });
+    
+    layer.appendChild(hitPath);
+
+    const spanDeg = arc.endAngle - arc.startAngle;
+    if (spanDeg > 20) {
+      const midAngle = arc.startAngle + (spanDeg / 2); const midPoint = polarToCartesian(200, 200, 142.5, midAngle);
+      let textRot = midAngle; if (midAngle > 90 && midAngle < 270) textRot += 180;
+      const gText = document.createElementNS("http://www.w3.org/2000/svg", "g"); gText.setAttribute("transform", `translate(${midPoint.x}, ${midPoint.y}) rotate(${textRot})`); gText.style.pointerEvents = "none"; 
+      const emoji = document.createElementNS("http://www.w3.org/2000/svg", "text"); emoji.textContent = arc.emoji; emoji.setAttribute("text-anchor", "middle"); emoji.setAttribute("dominant-baseline", "central"); emoji.setAttribute("font-size", "14px"); if (arc.status === 'done') emoji.setAttribute("opacity", "0.4"); gText.appendChild(emoji);
+      if (spanDeg > 35) { emoji.setAttribute("y", "-6"); const name = document.createElementNS("http://www.w3.org/2000/svg", "text"); name.textContent = arc.name.substring(0, 8) + (arc.name.length > 8 ? '..' : ''); name.setAttribute("y", "8"); name.setAttribute("text-anchor", "middle"); name.setAttribute("dominant-baseline", "central"); name.setAttribute("font-size", "8px"); name.setAttribute("font-weight", "800"); name.setAttribute("fill", arc.status === 'done' ? "rgba(255,255,255,0.6)" : "var(--surface)"); gText.appendChild(name); }
+      layer.appendChild(gText);
+    }
+  });
+
+  drawCenterTimeAndHand(mode, dayOffset, layer);
+  
+  const wrap = document.getElementById('clock-legend-wrap'); if (!wrap) return; wrap.innerHTML = '';
+  rawArcs.forEach(arc => { 
+    const startH = Math.floor(arc.startMinutes / 60); const startM = String(arc.startMinutes % 60).padStart(2,'0'); const endH = Math.floor(arc.endMinutes / 60); const endM = String(arc.endMinutes % 60).padStart(2,'0');
+    const pill = document.createElement('div'); pill.className = 'clock-legend-pill'; pill.style.cssText = arc.status === 'active' ? `border-color:${arc.color}; cursor:pointer;` : 'cursor:pointer;';
+    pill.innerHTML = `<div class="legend-color-dot" style="background: ${arc.status === 'done' ? 'var(--text-muted)' : arc.color}"></div><div class="legend-text" style="${arc.status === 'done' ? 'text-decoration:line-through; color:var(--text-muted)' : ''}">${arc.emoji} ${arc.name}</div><div class="legend-time">${startH % 12 || 12}:${startM}–${endH % 12 || 12}:${endM}</div>`;
+    pill.addEventListener('click', () => { if (arc.status === 'done') showToast("✓ Session completed"); else openQuickModal(arc.index); });
+    wrap.appendChild(pill);
+  });
+}
+
+function drawCenterTimeAndHand(mode, dayOffset, layer) {
+  const now = new Date(); const h = now.getHours(); const m = now.getMinutes(); const currentMins = h * 60 + m;
+  const centerG = document.createElementNS("http://www.w3.org/2000/svg", "g"); const timeText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  if (dayOffset === 1) { timeText.textContent = "Tomorrow"; timeText.setAttribute("x", "200"); timeText.setAttribute("y", "200"); timeText.setAttribute("text-anchor", "middle"); timeText.setAttribute("dominant-baseline", "central"); timeText.setAttribute("font-size", "16px"); timeText.setAttribute("font-weight", "800"); timeText.setAttribute("fill", "var(--text-muted)"); } 
+  else { const isAm = h < 12; timeText.textContent = `${h % 12 === 0 ? 12 : h % 12}:${m.toString().padStart(2, '0')}`; timeText.setAttribute("x", "200"); timeText.setAttribute("y", "195"); timeText.setAttribute("text-anchor", "middle"); timeText.setAttribute("dominant-baseline", "central"); timeText.setAttribute("font-size", "34px"); timeText.setAttribute("font-weight", "900"); timeText.setAttribute("fill", "var(--text)"); const ampmText = document.createElementNS("http://www.w3.org/2000/svg", "text"); ampmText.textContent = isAm ? "AM" : "PM"; ampmText.setAttribute("x", "200"); ampmText.setAttribute("y", "218"); ampmText.setAttribute("text-anchor", "middle"); ampmText.setAttribute("font-size", "12px"); ampmText.setAttribute("font-weight", "800"); ampmText.setAttribute("fill", "var(--text-muted)"); centerG.appendChild(ampmText); }
+  centerG.appendChild(timeText); layer.appendChild(centerG);
+  if (dayOffset === 0 && (currentMins < 720 ? 'am' : 'pm') === mode) {
+    const endPt = polarToCartesian(200, 200, 175, minutesToAngle(currentMins));
+    const hand = document.createElementNS("http://www.w3.org/2000/svg", "line"); hand.setAttribute("x1", "200"); hand.setAttribute("y1", "200"); hand.setAttribute("x2", endPt.x); hand.setAttribute("y2", endPt.y); hand.setAttribute("stroke", "var(--orange)"); hand.setAttribute("stroke-width", "2"); hand.setAttribute("stroke-linecap", "round"); layer.appendChild(hand);
+    const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle"); dot.setAttribute("cx", endPt.x); dot.setAttribute("cy", endPt.y); dot.setAttribute("r", "4"); dot.setAttribute("fill", "var(--orange)"); layer.appendChild(dot);
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+//  SECTION I & J — PWA & INIT
+// ════════════════════════════════════════════════════════════
 function initPWA() {
   let deferredPrompt; const banner = document.getElementById('install-banner'), installBtn = document.getElementById('btn-install');
   window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; banner.classList.add('visible'); });
@@ -1399,13 +1407,8 @@ function initPWA() {
 function initApp() {
   State.rotation = loadRotation();
   const saved = loadSchedule(); 
-  if (saved) { 
-    State.schedule = saved; 
-    State.isCustom = true; 
-  } else { 
-    State.schedule = deepClone(DEFAULT_SCHEDULE); 
-    State.isCustom = false; 
-  }
+  if (saved) { State.schedule = saved; State.isCustom = true; } 
+  else { State.schedule = deepClone(DEFAULT_SCHEDULE); State.isCustom = false; } 
   
   buildActiveSchedule(); 
 
@@ -1436,9 +1439,7 @@ function initApp() {
     
     setInterval(() => {
       const paneK = document.getElementById('pane-clock');
-      if (paneK && paneK.classList.contains('active')) {
-        renderClock();
-      }
+      if (paneK && paneK.classList.contains('active')) renderClock();
     }, 10000);  
   }
   
@@ -1548,9 +1549,3 @@ document.addEventListener('DOMContentLoaded', initApp);
 </script>
 </body>
 </html>
-
-### Key upgrades made in this revision:
-1. **Dynamic Tab Routing**: Handled elegantly above the active list via a stylized toggle (`#tab-current` & `#tab-schedule`). Seamlessly changes the display view when tapped using native CSS visibility transitions.
-2. **Current Session Dashboard**: In the first tab, instead of a repetitive list, it creates a gorgeous massive `cs-card` that features your currently active (or currently upcoming) session with large visual elements, an interactive progress bar, and active status texts (`UP NEXT`, `IN PROGRESS` or `PAUSED`). 
-3. **Smart CTA Start Day Button**: Previously, clicking "Start Day" would wipe the slate clean regardless. The button logic is completely re-written. If you pause the app and enter the Home screen, the tab reads exactly what percentage you are at and the fixed button cleverly toggles to "**▶ RESUME SESSION**" or "**▶ GO TO TIMER**".
-4. **End of Day Fallback**: When all sessions are finished and you're routed back home, it displays a neat, encouraging "Day Complete" target screen entirely taking up the "Current Session" tab space.
