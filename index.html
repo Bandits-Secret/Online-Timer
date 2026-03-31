@@ -364,11 +364,27 @@ html, body {
 .pill-btn { background: transparent; border: none; color: var(--text-dim); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; padding: 6px 14px; border-radius: 999px; cursor: pointer; transition: all var(--transition); }
 .pill-btn.active { background: var(--surface); color: var(--orange); box-shadow: var(--shadow-sm); }
 .clock-container { display: flex; justify-content: center; align-items: center; margin: 10px 0 30px; position: relative; }
+#pane-clock {
+  touch-action: pan-x; /* Allow horizontal legend scroll, block vertical scroll stealing */
+}
+
 .clock-svg { 
-  user-select: none; -webkit-user-select: none;
+  user-select: none; 
+  -webkit-user-select: none;
+  touch-action: none; /* CRITICAL: No browser gestures inside the SVG */
   width: 85vw; max-width: 360px; height: auto; overflow: visible; 
   filter: drop-shadow(var(--shadow-sm)); 
 }
+@keyframes armPulse {
+  0%   { opacity: 0.8; transform: scale(1.02); }
+  50%  { opacity: 1;   transform: scale(1.06); }
+  100% { opacity: 0.8; transform: scale(1.02); }
+}
+.arc-arming {
+  animation: armPulse 0.45s ease-in-out 1;
+  transform-origin: 200px 200px;
+}
+
 .clock-face-bg { fill: #faf8f4; stroke: var(--border-md); stroke-width: 2; }
 .clock-center-dot { fill: var(--text-dim); }
 .clock-tick-major { stroke: var(--text-muted); stroke-width: 2; stroke-linecap: round; }
@@ -1241,12 +1257,23 @@ function getMinsFromPointer(e) {
 }
 
 function initDrag() {
-  ClockDrag.active = true; if (getVibrationEnabled()) vibrate(30);
+  ClockDrag.active = true; 
+  if (getVibrationEnabled()) vibrate(30);
+
   const layer = document.getElementById('clock-arcs-layer');
-  if (ClockDrag.visualPath.setPointerCapture) ClockDrag.visualPath.setPointerCapture(ClockDrag.pointerId);
+  
+  // CRITICAL: Capture the pointer to the element that received the pointerdown
+  if (ClockDrag.visualPath && ClockDrag.visualPath.setPointerCapture) {
+    ClockDrag.visualPath.setPointerCapture(ClockDrag.pointerId);
+  }
+  
   const allArcs = buildClockArcs(State.activeSchedule.length > 0 ? State.activeSchedule : State.schedule, State.clock.dayOffset);
-  const prevArc = allArcs.find(a => a.index === ClockDrag.arcData.index - 1); const nextArc = allArcs.find(a => a.index === ClockDrag.arcData.index + 1);
-  ClockDrag.minMins = prevArc ? prevArc.endMinutes : 300; ClockDrag.maxMins = nextArc ? (nextArc.startMinutes - ClockDrag.arcData.durationMins) : (1440 - ClockDrag.arcData.durationMins);
+  const prevArc = allArcs.find(a => a.index === ClockDrag.arcData.index - 1); 
+  const nextArc = allArcs.find(a => a.index === ClockDrag.arcData.index + 1);
+  
+  ClockDrag.minMins = prevArc ? prevArc.endMinutes : 300; 
+  // Clamp to the start of the next arc, minus this arc's duration
+  ClockDrag.maxMins = nextArc ? (nextArc.startMinutes - ClockDrag.arcData.durationMins) : (1440 - ClockDrag.arcData.durationMins);
   
   Array.from(layer.children).forEach(child => { if (child !== ClockDrag.visualPath) child.classList.add('arc-dimmed'); });
   ClockDrag.ghostPath = ClockDrag.visualPath.cloneNode(true); ClockDrag.ghostPath.classList.add('arc-ghost'); layer.insertBefore(ClockDrag.ghostPath, ClockDrag.visualPath);
@@ -1257,20 +1284,35 @@ function initDrag() {
   const tooltipText = document.createElementNS("http://www.w3.org/2000/svg", "text"); tooltipText.setAttribute("class", "clock-drag-tooltip"); tooltipText.setAttribute("x", "0"); tooltipText.setAttribute("y", "-18"); tooltipText.setAttribute("text-anchor", "middle"); tooltipText.setAttribute("dominant-baseline", "central");
   ClockDrag.tooltipG.appendChild(tooltipBg); ClockDrag.tooltipG.appendChild(tooltipText); layer.appendChild(ClockDrag.tooltipG);
   
-  ClockDrag.visualPath.addEventListener('pointermove', onDragMove); ClockDrag.visualPath.addEventListener('pointerup', onDragEnd); ClockDrag.visualPath.addEventListener('pointercancel', onDragEnd);
+  // Attach directly to Document for bulletproof capturing
+  document.addEventListener('pointermove', onDragMove, { passive: false }); 
+  document.addEventListener('pointerup', onDragEnd); 
+  document.addEventListener('pointercancel', onDragEnd);
+  
   onDragMove({ clientX: ClockDrag.startX, clientY: ClockDrag.startY, preventDefault: ()=>{} });
 }
 
 function onDragMove(e) {
-  if (!ClockDrag.active) return; if (e.preventDefault) e.preventDefault();
+  if (!ClockDrag.active) return; 
+  if (e.preventDefault) e.preventDefault(); // Block scroll
+  
   let targetMins = getMinsFromPointer(e) - ClockDrag.grabOffsetMins;
+  
+  // Clamp FIRST
   const isInvalid = targetMins < ClockDrag.minMins || targetMins > ClockDrag.maxMins;
-  if (targetMins < ClockDrag.minMins) targetMins = ClockDrag.minMins; if (targetMins > ClockDrag.maxMins) targetMins = ClockDrag.maxMins;
+  if (targetMins < ClockDrag.minMins) targetMins = ClockDrag.minMins; 
+  if (targetMins > ClockDrag.maxMins) targetMins = ClockDrag.maxMins;
+  
+  // THEN Snap to 5 mins
   let snappedMins = Math.round(targetMins / 5) * 5;
-  if (snappedMins < ClockDrag.minMins) snappedMins = ClockDrag.minMins; if (snappedMins > ClockDrag.maxMins) snappedMins = ClockDrag.maxMins;
+  if (snappedMins < ClockDrag.minMins) snappedMins = ClockDrag.minMins; 
+  if (snappedMins > ClockDrag.maxMins) snappedMins = ClockDrag.maxMins;
+  
   ClockDrag.currentMins = snappedMins;
 
-  ClockDrag.visualPath.setAttribute("d", describeArc(200, 200, 110, 175, minutesToAngle(snappedMins), minutesToAngle(snappedMins + ClockDrag.arcData.durationMins)));
+  // Redraw Arc
+  ClockDrag.visualPath.setAttribute("d", describeArc(200, 200, 100, 180, minutesToAngle(snappedMins), minutesToAngle(snappedMins + ClockDrag.arcData.durationMins)));
+  
   const svg = document.getElementById('clock-svg'); const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
   const loc = pt.matrixTransform(svg.getScreenCTM().inverse()); ClockDrag.tooltipG.setAttribute("transform", `translate(${loc.x}, ${loc.y})`);
   
@@ -1280,15 +1322,43 @@ function onDragMove(e) {
 }
 
 function onDragEnd(e) {
-  if (!ClockDrag.active) return; ClockDrag.active = false;
-  ClockDrag.visualPath.removeEventListener('pointermove', onDragMove); ClockDrag.visualPath.removeEventListener('pointerup', onDragEnd); ClockDrag.visualPath.removeEventListener('pointercancel', onDragEnd);
-  if (ClockDrag.visualPath.releasePointerCapture) ClockDrag.visualPath.releasePointerCapture(ClockDrag.pointerId);
-  if (ClockDrag.ghostPath) ClockDrag.ghostPath.remove(); if (ClockDrag.tooltipG) ClockDrag.tooltipG.remove(); if (ClockDrag.visualPath) ClockDrag.visualPath.classList.remove('arc-dragging');
+  if (!ClockDrag.active) return; 
+  ClockDrag.active = false;
 
-  const targetSession = State.activeSchedule[ClockDrag.arcData.index]; const originalSession = State.schedule[ClockDrag.arcData.index];
+  // Remove Document Listeners
+  document.removeEventListener('pointermove', onDragMove); 
+  document.removeEventListener('pointerup', onDragEnd); 
+  document.removeEventListener('pointercancel', onDragEnd);
+  
+  if (ClockDrag.visualPath && ClockDrag.visualPath.releasePointerCapture) {
+    ClockDrag.visualPath.releasePointerCapture(ClockDrag.pointerId);
+  }
+  
+  if (ClockDrag.ghostPath) ClockDrag.ghostPath.remove(); 
+  if (ClockDrag.tooltipG) ClockDrag.tooltipG.remove(); 
+  if (ClockDrag.visualPath) ClockDrag.visualPath.classList.remove('arc-dragging');
+
+  const movedIdx = ClockDrag.arcData.index;
+  const targetSession = State.activeSchedule[movedIdx]; 
+  const originalSession = State.schedule[movedIdx];
+  
   if (targetSession && originalSession && ClockDrag.currentMins !== ClockDrag.arcData.startMinutes) {
-    targetSession.startMinutesOverride = ClockDrag.currentMins; originalSession.startMinutesOverride = ClockDrag.currentMins;
-    State.isCustom = true; saveSchedule(State.schedule); showToast("↕ Schedule shifted"); if (getVibrationEnabled()) vibrate([20, 10, 20]);
+    // 1. Set the dragged session's start
+    targetSession.startMinutesOverride = ClockDrag.currentMins; 
+    originalSession.startMinutesOverride = ClockDrag.currentMins;
+    
+    // 2. CASCADING RESCHEDULE: Clear overrides on all subsequent sessions so they cascade naturally
+    for (let i = movedIdx + 1; i < State.activeSchedule.length; i++) {
+      delete State.activeSchedule[i].startMinutesOverride;
+    }
+    for (let i = movedIdx + 1; i < State.schedule.length; i++) {
+      delete State.schedule[i].startMinutesOverride;
+    }
+
+    State.isCustom = true; 
+    saveSchedule(State.schedule); 
+    showToast("↕ Schedule shifted"); 
+    if (getVibrationEnabled()) vibrate([20, 10, 20]);
   }
   renderClock();
 }
@@ -1301,69 +1371,115 @@ function renderClock(mode = State.clock.mode, dayOffset = State.clock.dayOffset)
   const rawArcs = buildClockArcs(baseArray, dayOffset);
   const visibleArcs = filterArcsForMode(rawArcs, mode);
 
-  visibleArcs.forEach(arc => {
-    const pathStr = describeArc(200, 200, 110, 175, arc.startAngle, arc.endAngle);
-    const hitPathStr = describeArc(200, 200, 90, 195, arc.startAngle, arc.endAngle);
+visibleArcs.forEach(arc => {
+    // 1. Unified Path: Slightly wider (100 to 180) to act as both visual AND hit target
+    const pathStr = describeArc(200, 200, 100, 180, arc.startAngle, arc.endAngle);
     
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    path.setAttribute("d", pathStr); path.dataset.index = arc.index; path.classList.add('arc-path-anim'); path.style.transformOrigin = "200px 200px";
-    if (arc.status === 'done') { path.setAttribute("fill", "#2a2a2a"); path.setAttribute("fill-opacity", "0.55"); } 
-    else { path.setAttribute("fill", arc.color); path.setAttribute("fill-opacity", "0.9"); if (arc.status === 'active') { path.setAttribute("stroke", arc.color); path.setAttribute("stroke-width", "3"); path.setAttribute("filter", `drop-shadow(0 0 6px ${arc.color})`); } }
-    layer.appendChild(path);
+    path.setAttribute("d", pathStr); 
+    path.dataset.index = arc.index; 
+    path.classList.add('arc-path-anim'); 
+    path.style.transformOrigin = "200px 200px";
+    path.style.cursor = "pointer";
+    path.style.webkitTapHighlightColor = "transparent";
 
-    const hitPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    hitPath.setAttribute("d", hitPathStr); hitPath.setAttribute("fill", "transparent"); hitPath.style.cursor = "pointer"; hitPath.style.webkitTapHighlightColor = "transparent";
-    hitPath.addEventListener("contextmenu", (e) => e.preventDefault());
+    if (arc.status === 'done') { 
+      path.setAttribute("fill", "#2a2a2a"); 
+      path.setAttribute("fill-opacity", "0.55"); 
+    } else { 
+      path.setAttribute("fill", arc.color); 
+      path.setAttribute("fill-opacity", "0.9"); 
+      if (arc.status === 'active') { 
+        path.setAttribute("stroke", arc.color); 
+        path.setAttribute("stroke-width", "3"); 
+        path.setAttribute("filter", `drop-shadow(0 0 6px ${arc.color})`); 
+      } 
+    }
+    
+    path.addEventListener("contextmenu", (e) => e.preventDefault());
 
     let isTap = false;
 
-    hitPath.addEventListener("pointerdown", (e) => {
-      if (arc.status === 'done') { showToast("✓ Session completed"); return; }
-      isTap = true;
-      ClockDrag.startX = e.clientX; ClockDrag.startY = e.clientY; ClockDrag.arcData = arc; ClockDrag.visualPath = path; ClockDrag.pointerId = e.pointerId;
-      ClockDrag.grabOffsetMins = getMinsFromPointer(e) - arc.startMinutes;
+    // CRITICAL: Non-passive pointerdown to claim the gesture
+    path.addEventListener("pointerdown", (e) => {
+      e.preventDefault(); // Blocks scroll evaluation
+      e.stopPropagation();
       
-      path.style.transform = "scale(1.02)"; if (getVibrationEnabled()) vibrate(10);
+      if (arc.status === 'done') { showToast("✓ Session completed"); return; }
+      
+      isTap = true;
+      ClockDrag.startX = e.clientX; 
+      ClockDrag.startY = e.clientY; 
+      ClockDrag.arcData = arc; 
+      ClockDrag.visualPath = path; 
+      ClockDrag.pointerId = e.pointerId;
+      ClockDrag.grabOffsetMins = getMinsFromPointer(e) - arc.startMinutes;
+      ClockDrag.currentMins = arc.startMinutes;
+      
+      path.classList.add('arc-arming');
+      if (getVibrationEnabled()) vibrate(10);
       
       ClockDrag.timer = setTimeout(() => { 
         ClockDrag.timer = null; 
         isTap = false;
-        path.style.transform = "scale(1.05)"; 
+        path.classList.remove('arc-arming');
         initDrag(); 
-      }, 500);
-    });
+      }, 450);
+    }, { passive: false });
 
-    hitPath.addEventListener("pointermove", (e) => {
-      if (Math.abs(e.clientX - ClockDrag.startX) > 15 || Math.abs(e.clientY - ClockDrag.startY) > 15) {
+    path.addEventListener("pointermove", (e) => {
+      if (ClockDrag.active) return; // Drag engine handles this now
+      if (Math.abs(e.clientX - ClockDrag.startX) > 12 || Math.abs(e.clientY - ClockDrag.startY) > 12) {
         isTap = false; 
-        if (!ClockDrag.active && ClockDrag.timer) { 
-          clearTimeout(ClockDrag.timer); ClockDrag.timer = null; 
-          path.style.transform = "scale(1)"; 
+        if (ClockDrag.timer) { 
+          clearTimeout(ClockDrag.timer); 
+          ClockDrag.timer = null; 
+          path.classList.remove('arc-arming');
         } 
       } 
     });
 
-    hitPath.addEventListener("pointerup", (e) => { 
+    path.addEventListener("pointerup", (e) => { 
+      if (ClockDrag.active) return; // Drag engine handles this
       if (ClockDrag.timer) { clearTimeout(ClockDrag.timer); ClockDrag.timer = null; }
-      path.style.transform = "scale(1)"; 
-      if (isTap && !ClockDrag.active) openQuickModal(arc.index); 
+      path.classList.remove('arc-arming');
+      if (isTap) openQuickModal(arc.index); 
+      isTap = false;
     });
 
-    hitPath.addEventListener("pointercancel", () => { 
+    path.addEventListener("pointercancel", () => { 
       if (ClockDrag.timer) { clearTimeout(ClockDrag.timer); ClockDrag.timer = null; }
-      path.style.transform = "scale(1)"; 
+      path.classList.remove('arc-arming');
       isTap = false;
     });
     
-    layer.appendChild(hitPath);
+    layer.appendChild(path);
 
+    // 2. Draw Labels (No changes to the math here, just appending)
     const spanDeg = arc.endAngle - arc.startAngle;
     if (spanDeg > 20) {
       const midAngle = arc.startAngle + (spanDeg / 2); const midPoint = polarToCartesian(200, 200, 142.5, midAngle);
       let textRot = midAngle; if (midAngle > 90 && midAngle < 270) textRot += 180;
-      const gText = document.createElementNS("http://www.w3.org/2000/svg", "g"); gText.setAttribute("transform", `translate(${midPoint.x}, ${midPoint.y}) rotate(${textRot})`); gText.style.pointerEvents = "none"; 
-      const emoji = document.createElementNS("http://www.w3.org/2000/svg", "text"); emoji.textContent = arc.emoji; emoji.setAttribute("text-anchor", "middle"); emoji.setAttribute("dominant-baseline", "central"); emoji.setAttribute("font-size", "14px"); if (arc.status === 'done') emoji.setAttribute("opacity", "0.4"); gText.appendChild(emoji);
-      if (spanDeg > 35) { emoji.setAttribute("y", "-6"); const name = document.createElementNS("http://www.w3.org/2000/svg", "text"); name.textContent = arc.name.substring(0, 8) + (arc.name.length > 8 ? '..' : ''); name.setAttribute("y", "8"); name.setAttribute("text-anchor", "middle"); name.setAttribute("dominant-baseline", "central"); name.setAttribute("font-size", "8px"); name.setAttribute("font-weight", "800"); name.setAttribute("fill", arc.status === 'done' ? "rgba(255,255,255,0.6)" : "var(--surface)"); gText.appendChild(name); }
+      const gText = document.createElementNS("http://www.w3.org/2000/svg", "g"); 
+      gText.setAttribute("transform", `translate(${midPoint.x}, ${midPoint.y}) rotate(${textRot})`); 
+      gText.style.pointerEvents = "none"; 
+      
+      const emoji = document.createElementNS("http://www.w3.org/2000/svg", "text"); 
+      emoji.textContent = arc.emoji; emoji.setAttribute("text-anchor", "middle"); 
+      emoji.setAttribute("dominant-baseline", "central"); emoji.setAttribute("font-size", "14px"); 
+      if (arc.status === 'done') emoji.setAttribute("opacity", "0.4"); 
+      gText.appendChild(emoji);
+      
+      if (spanDeg > 35) { 
+        emoji.setAttribute("y", "-6"); 
+        const name = document.createElementNS("http://www.w3.org/2000/svg", "text"); 
+        name.textContent = arc.name.substring(0, 8) + (arc.name.length > 8 ? '..' : ''); 
+        name.setAttribute("y", "8"); name.setAttribute("text-anchor", "middle"); 
+        name.setAttribute("dominant-baseline", "central"); name.setAttribute("font-size", "8px"); 
+        name.setAttribute("font-weight", "800"); 
+        name.setAttribute("fill", arc.status === 'done' ? "rgba(255,255,255,0.6)" : "var(--surface)"); 
+        gText.appendChild(name); 
+      }
       layer.appendChild(gText);
     }
   });
