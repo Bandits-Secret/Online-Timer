@@ -747,6 +747,68 @@ html, body {
   </div>
 </div>
 
+<!-- ========================================== -->
+<!-- PASTE THE NEW START-NOW-SHEET HERE         -->
+<!-- ========================================== -->
+<div class="modal-overlay" id="start-now-sheet">
+  <div class="modal-sheet" id="start-now-sheet-inner">
+    <div class="modal-handle"></div>
+    
+    <!-- Normal state: session info + actions -->
+    <div id="sns-main">
+      <div class="modal-title" id="sns-session-name">Session Name</div>
+      <div class="modal-subtitle" id="sns-session-sub">Subtitle</div>
+      
+      <!-- Duration stepper (same as quick-modal) -->
+      <div class="editor-field" id="sns-dur-field">
+        <div class="editor-field-label">Duration</div>
+        <div class="dur-spinner">
+          <button class="dur-btn" id="sns-dur-minus">−</button>
+          <div class="dur-val" id="sns-dur-val">60 min</div>
+          <button class="dur-btn" id="sns-dur-plus">+</button>
+        </div>
+      </div>
+      
+      <!-- Action buttons -->
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button class="btn-secondary" style="flex:1" id="sns-cancel">Cancel</button>
+        <button class="btn-secondary" style="flex:1" id="sns-save-dur">📝 Edit</button>
+        <button class="btn-primary" style="flex:2" id="sns-start-now">▶ Start Now</button>
+      </div>
+    </div>
+    
+    <!-- Conflict state: shown when a session is actively running -->
+    <div id="sns-conflict" style="display:none">
+      <div style="font-size:22px;text-align:center;margin-bottom:12px">⚠️</div>
+      <div class="modal-title" style="text-align:center" id="sns-conflict-title">Session Running</div>
+      <div class="modal-subtitle" style="text-align:center" id="sns-conflict-sub">Details here</div>
+      <div style="display:flex;gap:10px;margin-top:20px">
+        <button class="btn-secondary" style="flex:1" id="sns-conflict-cancel">Keep Current</button>
+        <button class="btn-primary" style="flex:2;background:var(--green)" id="sns-conflict-confirm">Start Task X</button>
+      </div>
+    </div>
+    
+    <!-- Done state: read-only info for completed sessions -->
+    <div id="sns-done" style="display:none">
+      <div class="modal-title" id="sns-done-name">Session Name</div>
+      <div style="display:inline-flex;align-items:center;gap:6px;background:var(--green-light);color:var(--green);padding:6px 12px;border-radius:999px;font-size:12px;font-weight:800;margin:8px 0 16px">✓ Completed</div>
+      <div class="modal-subtitle" id="sns-done-sub">Details</div>
+      <button class="btn-secondary" style="width:100%;margin-top:16px" id="sns-done-close">Close</button>
+    </div>
+    
+    <!-- Active state: shown when THIS session is the currently running one -->
+    <div id="sns-active" style="display:none">
+      <div class="modal-title" id="sns-active-name">Session Name</div>
+      <div style="display:inline-flex;align-items:center;gap:6px;background:var(--orange-light);color:var(--orange);padding:6px 12px;border-radius:999px;font-size:12px;font-weight:800;margin:8px 0 16px">▶ Currently Running</div>
+      <div class="modal-subtitle" id="sns-active-sub">Details</div>
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button class="btn-secondary" style="flex:1" id="sns-active-close">Close</button>
+        <button class="btn-primary" style="flex:1" id="sns-active-goto">Go to Timer →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 // ════════════════════════════════════════════════════════════
 //  SECTION A & B — DATA & STATE
@@ -779,6 +841,7 @@ const DEFAULT_ROTATION = { enabled: false, mapping: { 1: ['FR', 'AFM'], 2: ['Aud
 const State = {
   schedule: [], activeSchedule:[], rotation: deepClone(DEFAULT_ROTATION), 
   isCustom: false, editorSchedule:[], expandedEditorId: null, modalSessionIndex: -1, modalTempDur: 0, dailyLog:[], dayComplete: false,
+  snsSessionIndex: -1, snsTempDur: 0, // NEW FIELDS
   timer: { running: false, paused: false, currentIndex: 0, sessionStartTs: 0, pausedElapsedMs: 0, totalDayMins: 0, dayElapsedMins: 0, hrvFired: false, hrvAcknowledgedCount: 0, transitionExtras: 0, rafId: null, heartbeatId: null },
   clock: { mode: 'pm', dayOffset: 0 }
 };
@@ -902,6 +965,113 @@ function openQuickModal(index) {
   document.getElementById('quick-modal').classList.add('open');
 }
 function closeQuickModal() { document.getElementById('quick-modal').classList.remove('open'); State.modalSessionIndex = -1; }
+function openStartNowSheet(index) {
+  const session = State.activeSchedule[index];
+  if (!session) return;
+  
+  let status = 'upcoming';
+  if (index < State.timer.currentIndex) status = 'done';
+  else if (index === State.timer.currentIndex && State.timer.running) status = 'active';
+  
+  document.getElementById('sns-main').style.display = 'none';
+  document.getElementById('sns-conflict').style.display = 'none';
+  document.getElementById('sns-done').style.display = 'none';
+  document.getElementById('sns-active').style.display = 'none';
+  
+  if (status === 'done') {
+    document.getElementById('sns-done').style.display = 'block';
+    document.getElementById('sns-done-name').textContent = session.icon + ' ' + session.name;
+    document.getElementById('sns-done-sub').textContent = session.subtitle;
+  } else if (status === 'active') {
+    document.getElementById('sns-active').style.display = 'block';
+    document.getElementById('sns-active-name').textContent = session.icon + ' ' + session.name;
+    document.getElementById('sns-active-sub').textContent = session.subtitle;
+  } else {
+    State.snsSessionIndex = index;
+    State.snsTempDur = session.durationMins;
+    document.getElementById('sns-dur-val').textContent = session.durationMins + ' min';
+    
+    const wasRunning = State.timer.running && State.timer.sessionStartTs > 0;
+    if (wasRunning) {
+      document.getElementById('sns-conflict').style.display = 'block';
+      const interruptedSession = State.activeSchedule[State.timer.currentIndex];
+      const elapsedMins = Math.floor((State.timer.paused ? State.timer.pausedElapsedMs : (Date.now() - State.timer.sessionStartTs)) / 60000);
+      const remainingMins = interruptedSession.durationMins - elapsedMins;
+      document.getElementById('sns-conflict-title').textContent = `"${interruptedSession.name}" is running`;
+      document.getElementById('sns-conflict-sub').textContent = `${elapsedMins}m done · ${remainingMins}m remaining. It will pause and move to right after "${session.name}".`;
+      document.getElementById('sns-conflict-confirm').textContent = `▶ Start "${session.name}"`;
+    } else {
+      document.getElementById('sns-main').style.display = 'block';
+      document.getElementById('sns-session-name').textContent = session.icon + ' ' + session.name;
+      document.getElementById('sns-session-sub').textContent = session.subtitle;
+    }
+  }
+  
+  document.getElementById('start-now-sheet').classList.add('open');
+}
+
+function closeStartNowSheet() {
+  document.getElementById('start-now-sheet').classList.remove('open');
+  State.snsSessionIndex = -1;
+}
+
+async function jumpToSession(targetIndex) {
+  const targetSession = State.activeSchedule[targetIndex];
+  if (!targetSession) return;
+
+  targetSession.durationMins = State.snsTempDur;
+  if (State.schedule[targetIndex]) State.schedule[targetIndex].durationMins = State.snsTempDur;
+
+  const wasRunning = State.timer.running && State.timer.sessionStartTs > 0;
+  const currentIdx = State.timer.currentIndex;
+
+  if (wasRunning) pauseTimer();
+
+  const removedSession = State.activeSchedule.splice(targetIndex, 1)[0];
+  const removedTemplate = State.schedule.splice(targetIndex, 1)[0] || deepClone(removedSession);
+
+  const insertAt = wasRunning ? currentIdx : 0;
+
+  State.activeSchedule.splice(insertAt, 0, removedSession);
+  State.schedule.splice(insertAt, 0, removedTemplate);
+
+  if (wasRunning) {
+    for (let i = insertAt + 1; i < State.activeSchedule.length; i++) {
+      delete State.activeSchedule[i].startMinutesOverride;
+      if (State.schedule[i]) delete State.schedule[i].startMinutesOverride;
+    }
+  }
+
+  State.timer.currentIndex = insertAt;
+  State.timer.totalDayMins = State.activeSchedule.reduce((a,b) => a + b.durationMins, 0);
+
+  State.isCustom = true;
+  saveSchedule(State.schedule);
+
+  closeStartNowSheet();
+
+  if (!State.timer.running && State.timer.sessionStartTs === 0 && !State.dayComplete) {
+    State.dailyLog = [];
+    State.dayComplete = false;
+    State.timer = { 
+      ...State.timer, 
+      running: true, 
+      paused: false, 
+      dayElapsedMins: 0,
+      totalDayMins: State.activeSchedule.reduce((a,b) => a + b.durationMins, 0),
+      hrvFired: false, 
+      hrvAcknowledgedCount: 0, 
+      transitionExtras: 0 
+    };
+    await requestWakeLock();
+  }
+
+  renderHome();
+  beginSession(insertAt);
+
+  showToast(`▶ Starting "${removedSession.name}"`);
+  if (getVibrationEnabled()) vibrate([60, 30, 60]);
+}
 
 // ════════════════════════════════════════════════════════════
 //  SECTION H — SCHEDULE EDITOR
@@ -1404,21 +1574,19 @@ visibleArcs.forEach(arc => {
       tapStartTime = Date.now();
     }, { passive: true });
 
-    path.addEventListener("touchend", (e) => {
+path.addEventListener("touchend", (e) => {
       const changedTouch = e.changedTouches[0];
       const dist = Math.hypot(changedTouch.clientX - tapStartX, changedTouch.clientY - tapStartY);
       if (dist < 20 && (Date.now() - tapStartTime < 500) && !ClockDrag.active) {
         e.preventDefault();
-        if (arc.status === 'done') showToast("✓ Session completed");
-        else openQuickModal(arc.index);
+        openStartNowSheet(arc.index);
       }
     });
 
-    // Fallback for desktop/mouse clicks
+// Fallback for desktop/mouse clicks
     path.addEventListener("click", (e) => {
       if (!ClockDrag.active) {
-        if (arc.status === 'done') showToast("✓ Session completed");
-        else openQuickModal(arc.index);
+        openStartNowSheet(arc.index);
       }
     });
 
@@ -1512,7 +1680,9 @@ visibleArcs.forEach(arc => {
     const startH = Math.floor(arc.startMinutes / 60); const startM = String(arc.startMinutes % 60).padStart(2,'0'); const endH = Math.floor(arc.endMinutes / 60); const endM = String(arc.endMinutes % 60).padStart(2,'0');
     const pill = document.createElement('div'); pill.className = 'clock-legend-pill'; pill.style.cssText = arc.status === 'active' ? `border-color:${arc.color}; cursor:pointer;` : 'cursor:pointer;';
     pill.innerHTML = `<div class="legend-color-dot" style="background: ${arc.status === 'done' ? 'var(--text-muted)' : arc.color}"></div><div class="legend-text" style="${arc.status === 'done' ? 'text-decoration:line-through; color:var(--text-muted)' : ''}">${arc.emoji} ${arc.name}</div><div class="legend-time">${startH % 12 || 12}:${startM}–${endH % 12 || 12}:${endM}</div>`;
-    pill.addEventListener('click', () => { if (arc.status === 'done') showToast("✓ Session completed"); else openQuickModal(arc.index); });
+    pill.addEventListener('click', () => {
+      openStartNowSheet(arc.index);
+    });
     wrap.appendChild(pill);
   });
 }
@@ -1676,6 +1846,66 @@ function initApp() {
   document.getElementById('modal-cancel').addEventListener('click', closeQuickModal);
   document.getElementById('quick-modal').addEventListener('click', e => { if(e.target === document.getElementById('quick-modal')) closeQuickModal(); });
   document.getElementById('modal-save').addEventListener('click', () => { if(State.modalSessionIndex>=0) { State.activeSchedule[State.modalSessionIndex].durationMins = State.modalTempDur; State.schedule[State.modalSessionIndex].durationMins = State.modalTempDur; State.isCustom = true; saveSchedule(State.schedule); renderHome(); closeQuickModal(); showToast('✓ Duration updated'); } });
+// ══ Start Now Sheet Listeners ══
+  document.getElementById('sns-cancel').addEventListener('click', closeStartNowSheet);
+  document.getElementById('sns-done-close').addEventListener('click', closeStartNowSheet);
+  document.getElementById('sns-active-close').addEventListener('click', closeStartNowSheet);
+  
+  document.getElementById('sns-active-goto').addEventListener('click', () => {
+    closeStartNowSheet();
+    if (State.timer.paused) resumeTimer();
+    updateTimerUI(State.timer.currentIndex);
+    showScreen('screen-timer');
+  });
+  
+  document.getElementById('sns-save-dur').addEventListener('click', () => {
+    if (State.snsSessionIndex >= 0) {
+      State.activeSchedule[State.snsSessionIndex].durationMins = State.snsTempDur;
+      State.schedule[State.snsSessionIndex].durationMins = State.snsTempDur;
+      State.isCustom = true;
+      saveSchedule(State.schedule);
+      renderHome();
+      closeStartNowSheet();
+      showToast('✓ Duration updated');
+    }
+  });
+  
+  document.getElementById('sns-start-now').addEventListener('click', () => {
+    jumpToSession(State.snsSessionIndex);
+  });
+  
+  document.getElementById('sns-conflict-cancel').addEventListener('click', closeStartNowSheet);
+  
+  document.getElementById('sns-conflict-confirm').addEventListener('click', () => {
+    jumpToSession(State.snsSessionIndex);
+  });
+  
+  let snsTimer;
+  document.getElementById('sns-dur-minus').addEventListener('click', () => {
+    if (State.snsTempDur > 5) {
+      State.snsTempDur -= 5;
+      document.getElementById('sns-dur-val').textContent = `${State.snsTempDur} min`;
+    }
+  });
+  document.getElementById('sns-dur-plus').addEventListener('click', () => {
+    State.snsTempDur += 5;
+    document.getElementById('sns-dur-val').textContent = `${State.snsTempDur} min`;
+  });
+  ['sns-dur-minus', 'sns-dur-plus'].forEach(id => {
+    document.getElementById(id).addEventListener('touchstart', () => {
+      const dir = id.includes('minus') ? -1 : 1;
+      snsTimer = setTimeout(() => {
+        State.snsTempDur = Math.max(5, State.snsTempDur + dir * 15);
+        document.getElementById('sns-dur-val').textContent = `${State.snsTempDur} min`;
+        showToast(`${dir > 0 ? '+' : ''}${dir * 15} min`);
+      }, 600);
+    });
+    document.getElementById(id).addEventListener('touchend', () => clearTimeout(snsTimer));
+  });
+  
+  document.getElementById('start-now-sheet').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('start-now-sheet')) closeStartNowSheet();
+  });
 
   document.getElementById('btn-eod-home').addEventListener('click', () => { showScreen('screen-home'); renderHome(); });
   document.getElementById('btn-eod-save-template').addEventListener('click', () => { State.isCustom = true; saveSchedule(State.schedule); showToast('✓ Saved today\'s schedule as template'); });
