@@ -1,5 +1,5 @@
-const CACHE_NAME = 'mastery-cache-v5';
-const ASSETS =[
+const CACHE_NAME = 'mastery-cache-v6';
+const ASSETS = [
   './',
   './index.html',
   './manifest.json'
