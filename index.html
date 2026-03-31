@@ -365,7 +365,7 @@ html, body {
 .pill-btn.active { background: var(--surface); color: var(--orange); box-shadow: var(--shadow-sm); }
 .clock-container { display: flex; justify-content: center; align-items: center; margin: 10px 0 30px; position: relative; }
 #pane-clock {
-  touch-action: pan-x; /* Allow horizontal legend scroll, block vertical scroll stealing */
+  touch-action: pan-y; /* lets user scroll the tab vertically, but stops horizontal interference */
 }
 
 .clock-svg { 
@@ -1260,15 +1260,11 @@ function initDrag() {
   ClockDrag.active = true; 
   if (getVibrationEnabled()) vibrate(30);
 
-  const layer = document.getElementById('clock-arcs-layer');
+const layer = document.getElementById('clock-arcs-layer');
   
-  // CRITICAL: Capture the pointer to the element that received the pointerdown
-  if (ClockDrag.visualPath && ClockDrag.visualPath.setPointerCapture) {
-    ClockDrag.visualPath.setPointerCapture(ClockDrag.pointerId);
-  }
+  // (setPointerCapture removed here since it was already called synchronously at pointerdown)
   
-  const allArcs = buildClockArcs(State.activeSchedule.length > 0 ? State.activeSchedule : State.schedule, State.clock.dayOffset);
-  const prevArc = allArcs.find(a => a.index === ClockDrag.arcData.index - 1); 
+  const allArcs = buildClockArcs(State.activeSchedule.length > 0 ? State.activeSchedule : State.schedule, State.clock.dayOffset);  const prevArc = allArcs.find(a => a.index === ClockDrag.arcData.index - 1); 
   const nextArc = allArcs.find(a => a.index === ClockDrag.arcData.index + 1);
   
   ClockDrag.minMins = prevArc ? prevArc.endMinutes : 300; 
@@ -1284,10 +1280,10 @@ function initDrag() {
   const tooltipText = document.createElementNS("http://www.w3.org/2000/svg", "text"); tooltipText.setAttribute("class", "clock-drag-tooltip"); tooltipText.setAttribute("x", "0"); tooltipText.setAttribute("y", "-18"); tooltipText.setAttribute("text-anchor", "middle"); tooltipText.setAttribute("dominant-baseline", "central");
   ClockDrag.tooltipG.appendChild(tooltipBg); ClockDrag.tooltipG.appendChild(tooltipText); layer.appendChild(ClockDrag.tooltipG);
   
-  // Attach directly to Document for bulletproof capturing
-  document.addEventListener('pointermove', onDragMove, { passive: false }); 
-  document.addEventListener('pointerup', onDragEnd); 
-  document.addEventListener('pointercancel', onDragEnd);
+  // Attach directly to the visualPath since it holds the pointer capture
+  ClockDrag.visualPath.addEventListener('pointermove', onDragMove, { passive: false }); 
+  ClockDrag.visualPath.addEventListener('pointerup', onDragEnd); 
+  ClockDrag.visualPath.addEventListener('pointercancel', onDragEnd);
   
   onDragMove({ clientX: ClockDrag.startX, clientY: ClockDrag.startY, preventDefault: ()=>{} });
 }
@@ -1325,13 +1321,14 @@ function onDragEnd(e) {
   if (!ClockDrag.active) return; 
   ClockDrag.active = false;
 
-  // Remove Document Listeners
-  document.removeEventListener('pointermove', onDragMove); 
-  document.removeEventListener('pointerup', onDragEnd); 
-  document.removeEventListener('pointercancel', onDragEnd);
-  
-  if (ClockDrag.visualPath && ClockDrag.visualPath.releasePointerCapture) {
-    ClockDrag.visualPath.releasePointerCapture(ClockDrag.pointerId);
+  if (ClockDrag.visualPath) {
+    ClockDrag.visualPath.removeEventListener('pointermove', onDragMove); 
+    ClockDrag.visualPath.removeEventListener('pointerup', onDragEnd); 
+    ClockDrag.visualPath.removeEventListener('pointercancel', onDragEnd);
+    
+    if (ClockDrag.visualPath.releasePointerCapture) {
+      ClockDrag.visualPath.releasePointerCapture(ClockDrag.pointerId);
+    }
   }
   
   if (ClockDrag.ghostPath) ClockDrag.ghostPath.remove(); 
@@ -1398,21 +1395,48 @@ visibleArcs.forEach(arc => {
     
     path.addEventListener("contextmenu", (e) => e.preventDefault());
 
-    let isTap = false;
+    let tapStartX = 0, tapStartY = 0, tapStartTime = 0;
+    
+    // Touch listeners exclusively for tap detection
+    path.addEventListener("touchstart", (e) => {
+      tapStartX = e.touches[0].clientX;
+      tapStartY = e.touches[0].clientY;
+      tapStartTime = Date.now();
+    }, { passive: true });
 
-    // CRITICAL: Non-passive pointerdown to claim the gesture
+    path.addEventListener("touchend", (e) => {
+      const changedTouch = e.changedTouches[0];
+      const dist = Math.hypot(changedTouch.clientX - tapStartX, changedTouch.clientY - tapStartY);
+      if (dist < 20 && (Date.now() - tapStartTime < 500) && !ClockDrag.active) {
+        e.preventDefault();
+        if (arc.status === 'done') showToast("✓ Session completed");
+        else openQuickModal(arc.index);
+      }
+    });
+
+    // Fallback for desktop/mouse clicks
+    path.addEventListener("click", (e) => {
+      if (!ClockDrag.active) {
+        if (arc.status === 'done') showToast("✓ Session completed");
+        else openQuickModal(arc.index);
+      }
+    });
+
+    // Pointer listeners exclusively for drag/long-press detection
     path.addEventListener("pointerdown", (e) => {
-      e.preventDefault(); // Blocks scroll evaluation
+      e.preventDefault(); 
       e.stopPropagation();
       
-      if (arc.status === 'done') { showToast("✓ Session completed"); return; }
+      if (arc.status === 'done') return;
       
-      isTap = true;
+      const capturedPointerId = e.pointerId;
+      ClockDrag.pointerId = capturedPointerId;
+      path.setPointerCapture(capturedPointerId); // CAPTURE IMMEDIATELY
+      
       ClockDrag.startX = e.clientX; 
       ClockDrag.startY = e.clientY; 
       ClockDrag.arcData = arc; 
       ClockDrag.visualPath = path; 
-      ClockDrag.pointerId = e.pointerId;
       ClockDrag.grabOffsetMins = getMinsFromPointer(e) - arc.startMinutes;
       ClockDrag.currentMins = arc.startMinutes;
       
@@ -1420,37 +1444,34 @@ visibleArcs.forEach(arc => {
       if (getVibrationEnabled()) vibrate(10);
       
       ClockDrag.timer = setTimeout(() => { 
+        if (ClockDrag.pointerId !== capturedPointerId) return; // Guard against multi-touch conflicts
         ClockDrag.timer = null; 
-        isTap = false;
         path.classList.remove('arc-arming');
         initDrag(); 
       }, 450);
     }, { passive: false });
 
     path.addEventListener("pointermove", (e) => {
-      if (ClockDrag.active) return; // Drag engine handles this now
-      if (Math.abs(e.clientX - ClockDrag.startX) > 12 || Math.abs(e.clientY - ClockDrag.startY) > 12) {
-        isTap = false; 
+      if (ClockDrag.active) return;
+      e.preventDefault(); // Block scroll evaluation while arming
+      if (Math.abs(e.clientX - ClockDrag.startX) > 20 || Math.abs(e.clientY - ClockDrag.startY) > 20) {
         if (ClockDrag.timer) { 
           clearTimeout(ClockDrag.timer); 
           ClockDrag.timer = null; 
           path.classList.remove('arc-arming');
         } 
       } 
-    });
+    }, { passive: false });
 
     path.addEventListener("pointerup", (e) => { 
-      if (ClockDrag.active) return; // Drag engine handles this
+      if (ClockDrag.active) return;
       if (ClockDrag.timer) { clearTimeout(ClockDrag.timer); ClockDrag.timer = null; }
       path.classList.remove('arc-arming');
-      if (isTap) openQuickModal(arc.index); 
-      isTap = false;
     });
 
     path.addEventListener("pointercancel", () => { 
       if (ClockDrag.timer) { clearTimeout(ClockDrag.timer); ClockDrag.timer = null; }
       path.classList.remove('arc-arming');
-      isTap = false;
     });
     
     layer.appendChild(path);
